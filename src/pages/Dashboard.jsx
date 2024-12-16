@@ -2,6 +2,7 @@ import React from "react";
 import { motion } from "framer-motion";
 import { Col, Divider, Row, Tag } from "antd";
 import PageLayout from "../layout/PageLayout";
+import OrderCrud from "../modules/OrderCrudModule";
 
 const Dashboard = () => {
   const config = {
@@ -93,6 +94,19 @@ const Dashboard = () => {
           />
         </Row>
         <div className="space30"></div>
+
+        <Row gutter={[24, 24]}>
+          <Col className="gutter-row" span={24}>
+            <div className="whiteBox shadow">
+              <div className="pad20">
+                <h3 style={{ color: "#22075e", marginBottom: 5 }}>
+                  Recent Products
+                </h3>
+              </div>
+              <OrderCrud />
+            </div>
+          </Col>
+        </Row>
       </PageLayout>
     </motion.div>
   );
