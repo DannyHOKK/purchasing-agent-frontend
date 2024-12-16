@@ -35,10 +35,10 @@ function Navigation() {
         <Menu theme="dark" defaultSelectedKeys={["1"]} mode="inline">
           <Menu.Item key="1" icon={<DashboardOutlined />}>
             <Link to="/" />
-            Home Page
+            主頁
           </Menu.Item>
           <Menu.Item key="2" icon={<CustomerServiceOutlined />}>
-            <Link to="/customer">Customer</Link>
+            <Link to="/customer">客人</Link>
           </Menu.Item>
           <Menu.Item key="24" icon={<UserOutlined />}>
             <Link to="/selectcustomer">Custom Select Customer</Link>
@@ -49,7 +49,7 @@ function Navigation() {
           </Menu.Item>
           <Menu.Item key="3" icon={<FileSyncOutlined />}>
             <Link to="/product" />
-            Product
+            產品
           </Menu.Item>
           <Menu.Item key="31" icon={<TeamOutlined />}>
             <Link to="/admin" />
