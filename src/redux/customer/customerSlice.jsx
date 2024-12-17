@@ -1,11 +1,14 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { getAllCustomer } from "./customerAction";
+import { createCustomer, getAllCustomer } from "./customerAction";
 
 const initialState = {
   allCusomterLoading: false,
   allCustomerError: null,
   allCustomerSuccess: false,
   allCustomer: [],
+  createCustomerLoading: false,
+  createCustomerError: null,
+  createCustomerSuccess: false,
 };
 
 const customerSlice = createSlice({
@@ -27,6 +30,18 @@ const customerSlice = createSlice({
         state.allCusomterLoading = false;
         state.allCustomerError = payload;
       });
+    // .addCase(createCustomer.pending, (state) => {
+    //   state.createCustomerLoading = true;
+    //   state.createCustomerError = null;
+    // })
+    // .addCase(createCustomer.fulfilled, (state, { payload }) => {
+    //   state.createCustomerLoading = false;
+    //   state.createCustomerSuccess = true;
+    // })
+    // .addCase(createCustomer.rejected, (state, { payload }) => {
+    //   state.createCustomerLoading = false;
+    //   state.createCustomerError = payload;
+    // });
   },
 });
 

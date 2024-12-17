@@ -145,6 +145,10 @@ const OrderDataTable = ({ orderLoading, orderData }) => {
       dataIndex: "createDate",
       key: "createDate",
       width: "180px",
+      sorter: (a, b) => new Date(a.createDate) - new Date(b.createDate),
+      sortOrder:
+        sortedInfo.columnKey === "createDate" ? sortedInfo.order : null,
+      ellipsis: true,
     },
     {
       title: "行動",

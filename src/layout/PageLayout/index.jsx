@@ -8,7 +8,7 @@ const PageLayout = ({ children }) => {
     <Layout className="page-layout">
       <Content
         style={{
-          padding: "30px 40px",
+          padding: "30px 10px",
           margin: "20px auto",
           width: "100%",
           maxWidth: "1500px",
