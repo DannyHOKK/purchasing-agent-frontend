@@ -66,3 +66,8 @@
   width: 100%;
   display: block;
 }
+
+.order-table-container {
+  padding: 0 30px;
+  overflow: auto;
+}

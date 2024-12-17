@@ -3,12 +3,12 @@ import { createAsyncThunk } from "@reduxjs/toolkit";
 
 const backendURL = import.meta.env.VITE_APP_API_URL;
 
-export const getAllOrders = createAsyncThunk(
-  "api/order",
+export const getAllCustomer = createAsyncThunk(
+  "api/customer",
   async (empty, { rejectWithValue }) => {
     try {
       const response = await axios.get(
-        `${backendURL}/api/order/getAllOrders`,
+        `${backendURL}/api/customer/getAllCustomer`,
         ""
       );
 

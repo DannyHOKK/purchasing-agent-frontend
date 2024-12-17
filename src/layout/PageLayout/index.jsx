@@ -11,7 +11,7 @@ const PageLayout = ({ children }) => {
           padding: "30px 40px",
           margin: "20px auto",
           width: "100%",
-          maxWidth: "1100px",
+          maxWidth: "1500px",
         }}
       >
         {children}
