@@ -33,7 +33,7 @@ const OrderAddModal = ({ open, setOpen }) => {
   const dispatch = useDispatch();
   const [productTypeOptions, setProductTypeOptions] = useState();
   const [productNameOptions, setProductNameOptions] = useState();
-  const [ordersDTO, setOrdersDTO] = useState({
+  const ordersDTO = useRef({
     phone: "",
     productName: "",
     paid: false,
@@ -59,9 +59,8 @@ const OrderAddModal = ({ open, setOpen }) => {
 
   const onFinish = async () => {
     await form.validateFields();
-    console.log(form.getFieldsValue());
 
-    setOrdersDTO(() => ({
+    ordersDTO.current = {
       phone: form.getFieldValue("phone"),
       productName: form.getFieldValue("productName"),
       paid: form.getFieldValue("paid"),
@@ -69,19 +68,18 @@ const OrderAddModal = ({ open, setOpen }) => {
       takeMethod: form.getFieldValue("takeMethod"),
       paymentMethod: form.getFieldValue("paymentMethod"),
       remark: form.getFieldValue("remark") ? form.getFieldValue("remark") : " ",
-    }));
+    };
+    console.log(ordersDTO.current);
     createOrderHandler();
   };
 
   const createOrderHandler = async () => {
-    const result = await dispatch(createOrder(ordersDTO));
+    const result = await dispatch(createOrder(ordersDTO.current));
 
     if (result.meta.requestStatus === "fulfilled") {
       setOpen(false);
       dispatch(getAllOrders());
     }
-
-    console.log(ordersDTO);
   };
 
   const phoneOptions = allCustomer

@@ -18,7 +18,7 @@ const OrderDataTable = ({ orderLoading, orderData, productData }) => {
   };
 
   const customerPhone = orderData
-    .map((order) => order.customer.phone)
+    .map((order) => order.customer?.phone)
     .filter((phone, index, self) => self.indexOf(phone) === index);
 
   const productBrand = orderData
@@ -42,7 +42,7 @@ const OrderDataTable = ({ orderLoading, orderData, productData }) => {
       title: "電話",
       dataIndex: "phone",
       key: "phone",
-      filters: customerPhone.map((phone, index) => ({
+      filters: customerPhone?.map((phone, index) => ({
         text: phone,
         value: phone,
       })),
@@ -193,15 +193,15 @@ const OrderDataTable = ({ orderLoading, orderData, productData }) => {
 
   const data = orderData.map((order, index) => ({
     id: order.orderId,
-    phone: order.customer.phone,
-    productBrand: order.product.productBrand,
-    productType: order.product.productType,
-    productName: order.product.productName,
-    quantity: order.quantity,
-    paid: order.paid ? <>已付款</> : <>未付款</>,
-    takeMethod: order.takeMethod,
-    paymentMethod: order.paymentMethod,
-    remark: order.remark,
+    phone: order?.customer?.phone,
+    productBrand: order?.product?.productBrand,
+    productType: order?.product?.productType,
+    productName: order?.product?.productName,
+    quantity: order?.quantity,
+    paid: order?.paid ? <>已付款</> : <>未付款</>,
+    takeMethod: order?.takeMethod,
+    paymentMethod: order?.paymentMethod,
+    remark: order?.remark,
     createDate: order?.createDate.split(".")[0].replaceAll("T", " "),
     status: (
       <>
