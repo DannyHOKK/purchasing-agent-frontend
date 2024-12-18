@@ -3,7 +3,7 @@ import { Spin } from "antd";
 
 const PageLoader = () => {
   return (
-    <div className="center">
+    <div className=" w-100 h-100 d-flex justify-content-center align-items-center">
       <Spin size="large" />
     </div>
   );
