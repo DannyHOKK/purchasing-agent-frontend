@@ -3,12 +3,7 @@ import React, { useEffect, useState } from "react";
 import OrderAddModal from "./OrderAddModal";
 import { PlusOutlined } from "@ant-design/icons";
 
-const OrderDataTable = ({
-  orderLoading,
-  orderData,
-  allCustomer,
-  productData,
-}) => {
+const OrderDataTable = ({ orderLoading, orderData, productData }) => {
   const [filteredInfo, setFilteredInfo] = useState({});
   const [sortedInfo, setSortedInfo] = useState({});
   const [open, setOpen] = useState(false);
@@ -242,12 +237,7 @@ const OrderDataTable = ({
         onChange={handleChange}
         style={{ minWidth: "1000px" }}
       />
-      <OrderAddModal
-        open={open}
-        setOpen={setOpen}
-        customerPhone={customerPhone}
-        productData={productData}
-      />
+      <OrderAddModal open={open} setOpen={setOpen} productData={productData} />
     </div>
   );
 };

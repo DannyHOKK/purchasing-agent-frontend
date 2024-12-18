@@ -26,8 +26,9 @@ const formItemLayout = {
   },
 };
 
-const OrderAddModal = ({ open, setOpen, customerPhone }) => {
+const OrderAddModal = ({ open, setOpen }) => {
   const { productData } = useSelector((state) => state.product);
+  const { allCustomer } = useSelector((state) => state.customer);
   const [form] = Form.useForm();
   const dispatch = useDispatch();
   const [productTypeOptions, setProductTypeOptions] = useState();
@@ -83,9 +84,12 @@ const OrderAddModal = ({ open, setOpen, customerPhone }) => {
     console.log(ordersDTO);
   };
 
-  const phoneOptions = customerPhone.map((phone) => ({
-    value: phone,
-  }));
+  const phoneOptions = allCustomer
+    .map((customer) => customer.phone)
+    ?.filter((customer, index, self) => self.indexOf(customer) === index)
+    .map((phone) => ({
+      value: phone,
+    }));
 
   const productBrandOptions = productData
     ?.map((product) => product.productBrand)
