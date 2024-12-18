@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 
 import { Link } from "react-router-dom";
-import { Layout, Menu } from "antd";
+import { ConfigProvider, Layout, Menu } from "antd";
 import {
   SettingOutlined,
   UserOutlined,
@@ -23,45 +23,51 @@ function Navigation() {
   };
   return (
     <>
-      <Sider
-        collapsible
-        collapsed={collapsed}
-        onCollapse={onCollapse}
-        style={{
-          zIndex: 1000,
-        }}
+      <ConfigProvider
+        theme={{ token: { colorPrimary: "#1DA57A", borderRadius: " 3px" } }}
       >
-        <div className="logo" />
-        <Menu theme="dark" defaultSelectedKeys={["1"]} mode="inline">
-          <Menu.Item key="1" icon={<DashboardOutlined />}>
-            <Link to="/" />
-            主頁
-          </Menu.Item>
-          <Menu.Item key="2" icon={<CustomerServiceOutlined />}>
-            <Link to="/customer">客人</Link>
-          </Menu.Item>
-          <Menu.Item key="24" icon={<UserOutlined />}>
-            <Link to="/selectcustomer">Custom Select Customer</Link>
-          </Menu.Item>
-          <Menu.Item key="21" icon={<FileTextOutlined />}>
-            <Link to="/lead" />
-            Lead
-          </Menu.Item>
-          <Menu.Item key="3" icon={<FileSyncOutlined />}>
-            <Link to="/product" />
-            產品
-          </Menu.Item>
-          <Menu.Item key="31" icon={<TeamOutlined />}>
-            <Link to="/admin" />
-            Admins Management
-          </Menu.Item>
+        <Sider
+          collapsible
+          collapsed={collapsed}
+          onCollapse={onCollapse}
+          style={{
+            zIndex: 1000,
+          }}
+        >
+          <div className=" icon-container">
+            <img src="icon.png" className="icon" />
+          </div>
+          <Menu theme="dark" defaultSelectedKeys={["1"]} mode="inline">
+            <Menu.Item key="1" icon={<DashboardOutlined />}>
+              <Link to="/" />
+              主頁
+            </Menu.Item>
+            <Menu.Item key="2" icon={<CustomerServiceOutlined />}>
+              <Link to="/customer">客人</Link>
+            </Menu.Item>
+            {/* <Menu.Item key="24" icon={<UserOutlined />}>
+              <Link to="/selectcustomer">Custom Select Customer</Link>
+            </Menu.Item>
+            <Menu.Item key="21" icon={<FileTextOutlined />}>
+              <Link to="/lead" />
+              Lead
+            </Menu.Item> */}
+            <Menu.Item key="3" icon={<FileSyncOutlined />}>
+              <Link to="/product" />
+              產品
+            </Menu.Item>
+            {/* <Menu.Item key="31" icon={<TeamOutlined />}>
+              <Link to="/admin" />
+              Admins Management
+            </Menu.Item>
 
-          <Menu.Item key="32" icon={<SettingOutlined />}>
-            <Link to="/settings" />
-            Settings
-          </Menu.Item>
-        </Menu>
-      </Sider>
+            <Menu.Item key="32" icon={<SettingOutlined />}>
+              <Link to="/settings" />
+              Settings
+            </Menu.Item> */}
+          </Menu>
+        </Sider>
+      </ConfigProvider>
     </>
   );
 }

@@ -1,17 +1,11 @@
-import { Table } from "antd";
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getAllCustomer } from "../../redux/customer/customerAction";
 import CustomerDataTable from "./CustomerDataTable";
 
 const CustomerCrud = () => {
-  const {
-    allCustomerLoading,
-    allCustomer,
-    allCustomerSuccess,
-    allCustomerError,
-    createCustomerLoading,
-  } = useSelector((state) => state.customer);
+  const { customerLoading, allCustomer, customerSuccess, customerError } =
+    useSelector((state) => state.customer);
 
   const dispatch = useDispatch();
 
@@ -22,7 +16,7 @@ const CustomerCrud = () => {
   return (
     <div>
       <CustomerDataTable
-        customerLoading={allCustomerLoading}
+        customerLoading={customerLoading}
         customerData={allCustomer}
       />
     </div>

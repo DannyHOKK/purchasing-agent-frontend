@@ -2,7 +2,10 @@ import { Button, Cascader, Divider, Form, Input, Modal, Select } from "antd";
 import React, { useState } from "react";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { createCustomer } from "../../redux/customer/customerAction";
+import {
+  createCustomer,
+  getAllCustomer,
+} from "../../redux/customer/customerAction";
 
 const formItemLayout = {
   labelCol: {
@@ -35,6 +38,7 @@ const CustomerAddModal = ({ open, setOpen }) => {
 
     if (result.meta.requestStatus === "fulfilled") {
       setOpen(false);
+      dispatch(getAllCustomer());
     }
   };
 
@@ -48,7 +52,6 @@ const CustomerAddModal = ({ open, setOpen }) => {
         <>
           <Button onClick={() => setOpen(false)}>取消</Button>
           <Button
-            // onClick={() => applyConfirmHandler(tutor.id)}
             onClick={onFinish}
             style={{ backgroundColor: "#1DA57A", color: "white" }}
           >

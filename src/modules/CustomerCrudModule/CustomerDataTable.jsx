@@ -1,15 +1,23 @@
 import { Badge, Table, Button } from "antd";
 import React, { useState } from "react";
 import CustomerAddModal from "./CustomerAddModal";
+import { useDispatch } from "react-redux";
+import { getAllCustomer } from "../../redux/customer/customerAction";
+import { PlusOutlined } from "@ant-design/icons";
 
 const CustomerDataTable = ({ customerLoading, customerData }) => {
   const [filteredInfo, setFilteredInfo] = useState({});
   const [sortedInfo, setSortedInfo] = useState({});
   const [open, setOpen] = useState(false);
+  const dispatch = useDispatch();
 
   const handleChange = (pagination, filters, sorter) => {
     setFilteredInfo(filters);
     setSortedInfo(sorter);
+  };
+
+  const refreshHandler = () => {
+    dispatch(getAllCustomer());
   };
 
   const customerPhone = customerData
@@ -76,10 +84,14 @@ const CustomerDataTable = ({ customerLoading, customerData }) => {
 
   const data = customerData?.map((customer, index) => ({
     id: customer.customerId,
-    phone: customer.phone,
-    instagram: customer.instagram,
-    shippingAddress: customer.shippingAddress,
-    remark: customer.remark,
+    phone: customer.phone ? customer.phone : <>-</>,
+    instagram: customer.instagram ? customer.instagram : <>-</>,
+    shippingAddress: customer.shippingAddress ? (
+      customer.shippingAddress
+    ) : (
+      <>-</>
+    ),
+    remark: customer.remark ? customer.remark : <>-</>,
     createDate: customer?.createDate.split(".")[0].replaceAll("T", " "),
     modifyDate: customer?.modifyDate.split(".")[0].replaceAll("T", " "),
   }));
@@ -90,8 +102,14 @@ const CustomerDataTable = ({ customerLoading, customerData }) => {
         <div className=" d-flex justify-content-between m-4">
           <div>--</div>
           <div>
-            <Button className=" me-3">更新表格</Button>
-            <Button type="primary" onClick={() => setOpen(true)}>
+            <Button className=" me-3" onClick={refreshHandler}>
+              更新表格
+            </Button>
+            <Button
+              style={{ backgroundColor: "#1da57a", color: "white" }}
+              onClick={() => setOpen(true)}
+            >
+              <PlusOutlined />
               加客人資料
             </Button>
           </div>

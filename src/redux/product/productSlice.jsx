@@ -1,11 +1,11 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { getAllProduct } from "./productAction";
+import { createProduct, getAllProduct } from "./productAction";
 
 const initialState = {
-  allProductLoading: false,
-  allProductError: null,
-  allProductSuccess: false,
-  allProduct: [],
+  productLoading: false,
+  productError: null,
+  productSuccess: false,
+  productData: [],
 };
 
 const productSlice = createSlice({
@@ -15,17 +15,29 @@ const productSlice = createSlice({
   extraReducers: (builder) => {
     builder
       .addCase(getAllProduct.pending, (state) => {
-        state.allProductLoading = true;
-        state.allProductError = null;
+        state.productLoading = true;
+        state.productError = null;
       })
       .addCase(getAllProduct.fulfilled, (state, { payload }) => {
-        state.allProductLoading = false;
-        state.allProductSuccess = true;
-        state.allProduct = payload.data;
+        state.productLoading = false;
+        state.productSuccess = true;
+        state.productData = payload.data;
       })
       .addCase(getAllProduct.rejected, (state, { payload }) => {
-        state.allProductLoading = false;
-        state.allProductError = payload;
+        state.productLoading = false;
+        state.productError = payload;
+      })
+      .addCase(createProduct.pending, (state) => {
+        state.productLoading = true;
+        state.productError = null;
+      })
+      .addCase(createProduct.fulfilled, (state, { payload }) => {
+        state.productLoading = false;
+        state.productSuccess = true;
+      })
+      .addCase(createProduct.rejected, (state, { payload }) => {
+        state.productLoading = false;
+        state.productError = payload;
       });
   },
 });

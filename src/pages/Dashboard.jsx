@@ -1,8 +1,11 @@
 import React from "react";
 import { motion } from "framer-motion";
-import { Col, Divider, Row, Tag } from "antd";
+import { Button, Col, Divider, Row, Tag } from "antd";
 import PageLayout from "../layout/PageLayout";
 import OrderCrud from "../modules/OrderCrudModule";
+import { useDispatch } from "react-redux";
+import { getAllOrders } from "../redux/order/orderAction";
+import { PlusOutlined } from "@ant-design/icons";
 
 const Dashboard = () => {
   const config = {
@@ -10,6 +13,7 @@ const Dashboard = () => {
     damping: 20,
     stiffness: 100,
   };
+  const dispatch = useDispatch();
 
   const TopCard = ({ title, tagContent, tagColor, prefix }) => {
     return (
@@ -98,11 +102,6 @@ const Dashboard = () => {
         <Row gutter={[24, 24]}>
           <Col className="gutter-row" span={24}>
             <div className="whiteBox shadow">
-              <div className="pad20">
-                <h3 style={{ color: "#22075e", marginBottom: 5 }}>
-                  Recent Products
-                </h3>
-              </div>
               <OrderCrud />
             </div>
           </Col>

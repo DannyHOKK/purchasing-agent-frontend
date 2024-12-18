@@ -1,13 +1,25 @@
-import { Badge, Table } from "antd";
-import React, { useState } from "react";
+import { Badge, Button, Table } from "antd";
+import React, { useEffect, useState } from "react";
+import OrderAddModal from "./OrderAddModal";
+import { PlusOutlined } from "@ant-design/icons";
 
-const OrderDataTable = ({ orderLoading, orderData }) => {
+const OrderDataTable = ({
+  orderLoading,
+  orderData,
+  allCustomer,
+  productData,
+}) => {
   const [filteredInfo, setFilteredInfo] = useState({});
   const [sortedInfo, setSortedInfo] = useState({});
+  const [open, setOpen] = useState(false);
 
   const handleChange = (pagination, filters, sorter) => {
     setFilteredInfo(filters);
     setSortedInfo(sorter);
+  };
+
+  const refreshHandler = () => {
+    dispatch(getAllOrders());
   };
 
   const customerPhone = orderData
@@ -208,12 +220,33 @@ const OrderDataTable = ({ orderLoading, orderData }) => {
 
   return (
     <div className="order-table-container">
+      <div className=" d-flex justify-content-between p-4">
+        <div>--</div>
+        <div>
+          <Button className=" me-3" onClick={refreshHandler}>
+            更新表格
+          </Button>
+          <Button
+            style={{ backgroundColor: "#1da57a", color: "white" }}
+            onClick={() => setOpen(true)}
+          >
+            <PlusOutlined />
+            加訂單
+          </Button>
+        </div>
+      </div>
       <Table
         loading={orderLoading}
         columns={columns}
         dataSource={data}
         onChange={handleChange}
         style={{ minWidth: "1000px" }}
+      />
+      <OrderAddModal
+        open={open}
+        setOpen={setOpen}
+        customerPhone={customerPhone}
+        productData={productData}
       />
     </div>
   );

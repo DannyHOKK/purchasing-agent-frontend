@@ -1,6 +1,7 @@
 import React from "react";
 import { motion } from "framer-motion";
 import PageLayout from "../layout/PageLayout";
+import ProductCrud from "../modules/ProductCrudModule";
 
 const Product = () => {
   const config = {
@@ -19,9 +20,9 @@ const Product = () => {
       <PageLayout>
         <div
           className="whiteBox shadow"
-          style={{ color: "#595959", fontSize: 13, height: "106px" }}
+          style={{ color: "#595959", fontSize: 13 }}
         >
-          hi
+          <ProductCrud />
         </div>
       </PageLayout>
     </motion.div>

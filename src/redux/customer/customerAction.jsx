@@ -4,7 +4,7 @@ import { createAsyncThunk } from "@reduxjs/toolkit";
 const backendURL = import.meta.env.VITE_APP_API_URL;
 
 export const getAllCustomer = createAsyncThunk(
-  "api/customer",
+  "api/customer/getAllCustomer",
   async (empty, { rejectWithValue }) => {
     try {
       const response = await axios.get(
@@ -28,7 +28,7 @@ export const getAllCustomer = createAsyncThunk(
 );
 
 export const createCustomer = createAsyncThunk(
-  "api/customer",
+  "api/customer/createCustomer",
   async (customerDTO, { rejectWithValue }) => {
     try {
       const response = await axios.post(

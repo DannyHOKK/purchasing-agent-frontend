@@ -8,10 +8,6 @@ import { ConfigProvider } from "antd";
 
 createRoot(document.getElementById("root")).render(
   // <StrictMode>
-  <ConfigProvider
-    theme={{ token: { colorPrimary: "#1DA57A", borderRadius: " 3px" } }}
-  >
-    <App />
-  </ConfigProvider>
+  <App />
   // </StrictMode>,
 );

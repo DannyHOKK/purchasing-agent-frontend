@@ -10,17 +10,8 @@ const OrderCrud = () => {
   const { orderLoading, orderSuccess, orderData, orderError } = useSelector(
     (state) => state.order
   );
-
-  const {
-    allCustomerLoading,
-    allCustomer,
-    allCustomerSuccess,
-    allCustomerError,
-  } = useSelector((state) => state.customer);
-
-  const { allProductLoading, allProductSuccess, allProduct, allProductError } =
-    useSelector((state) => state.product);
-
+  const { allCustomer } = useSelector((state) => state.customer);
+  const { productData } = useSelector((state) => state.product);
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -35,7 +26,7 @@ const OrderCrud = () => {
         orderLoading={orderLoading}
         orderData={orderData}
         allCustomer={allCustomer}
-        allProduct={allProduct}
+        productData={productData}
       />
     </div>
   );
