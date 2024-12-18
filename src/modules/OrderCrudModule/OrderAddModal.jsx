@@ -86,7 +86,8 @@ const OrderAddModal = ({ open, setOpen }) => {
 
   const phoneOptions = allCustomer
     .map((customer) => customer.phone)
-    ?.filter((customer, index, self) => self.indexOf(customer) === index)
+    .filter((phone) => phone)
+    .filter((customer, index, self) => self.indexOf(customer) === index)
     .map((phone) => ({
       value: phone,
     }));
