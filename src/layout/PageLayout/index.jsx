@@ -5,10 +5,10 @@ const { Content } = Layout;
 
 const PageLayout = ({ children }) => {
   return (
-    <Layout className="page-layout">
+    <Layout>
       <Content
         style={{
-          padding: "30px 10px",
+          padding: "30px 20px",
           margin: "20px auto",
           width: "100%",
           maxWidth: "1500px",

@@ -1,10 +1,9 @@
 import { Button, Cascader, Divider, Form, Input, Modal, Select } from "antd";
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
-import { useNavigate } from "react-router-dom";
 import {
-  createCustomer,
   getAllCustomer,
+  modifyCustomer,
 } from "../../redux/customer/customerAction";
 
 const formItemLayout = {
@@ -26,42 +25,57 @@ const formItemLayout = {
   },
 };
 
-const CustomerAddModal = ({ open, setOpen }) => {
+const CustomerModifyModal = ({
+  openModify,
+  setOpenModify,
+  customerModifyData,
+}) => {
   const [form] = Form.useForm();
   const dispatch = useDispatch();
-  const customer = useRef({
+  const modifyCustomerData = useRef({
+    customerId: "",
     phone: "",
     instagram: "",
-    shippingAddress: "",
     remark: "",
+    shippingAddress: "",
   });
+
+  useEffect(() => {
+    form.setFieldValue("instagram", customerModifyData?.instagram);
+    form.setFieldValue("phone", customerModifyData?.phone);
+    form.setFieldValue("remark", customerModifyData?.remark);
+    form.setFieldValue("shippingAddress", customerModifyData?.shippingAddress);
+    console.log(customerModifyData.remark !== undefined);
+  }, [customerModifyData]);
 
   const onFinish = async () => {
     await form.validateFields();
-    customer.current = {
+    modifyCustomerData.current = {
+      customerId: customerModifyData.id,
       phone: form.getFieldValue("phone"),
       instagram: form.getFieldValue("instagram"),
-      shippingAddress: form.getFieldValue("shippingAddress"),
       remark: form.getFieldValue("remark"),
+      shippingAddress: form.getFieldValue("shippingAddress"),
     };
+    console.log(modifyCustomerData.current);
 
-    const result = await dispatch(createCustomer(customer.current));
+    const result = await dispatch(modifyCustomer(modifyCustomerData.current));
 
     if (result.meta.requestStatus === "fulfilled") {
-      setOpen(false);
+      setOpenModify(false);
       dispatch(getAllCustomer());
     }
   };
 
   return (
     <Modal
-      title={<h3> 加客人資料 </h3>}
+      title={<h3> 編輯客人資料 </h3>}
       centered
-      open={open}
-      onCancel={() => setOpen(false)}
+      open={openModify}
+      onCancel={() => setOpenModify(false)}
       footer={
         <>
-          <Button onClick={() => setOpen(false)}>取消</Button>
+          <Button onClick={() => setOpenModify(false)}>取消</Button>
           <Button
             onClick={onFinish}
             style={{ backgroundColor: "#1DA57A", color: "white" }}
@@ -72,7 +86,7 @@ const CustomerAddModal = ({ open, setOpen }) => {
       }
       width={750}
     >
-      <div>請填寫下列表格，添加客人資料</div>
+      <div>請填寫下列表格，編輯客人資料</div>
       <br />
       <Form {...formItemLayout} autoComplete="off" form={form}>
         <Form.Item name="instagram" label="Instagram">
@@ -95,4 +109,4 @@ const CustomerAddModal = ({ open, setOpen }) => {
   );
 };
 
-export default CustomerAddModal;
+export default CustomerModifyModal;

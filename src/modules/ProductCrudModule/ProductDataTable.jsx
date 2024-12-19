@@ -1,14 +1,21 @@
 import React, { useState } from "react";
-import { useDispatch } from "react-redux";
-import { getAllProduct } from "../../redux/product/productAction";
-import { Button, Table } from "antd";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  deleteProductById,
+  getAllProduct,
+} from "../../redux/product/productAction";
+import { Button, Popconfirm, Table, message } from "antd";
 import ProductAddModal from "./ProductAddModal";
-import { PlusOutlined } from "@ant-design/icons";
+import { ArrowLeftOutlined, PlusOutlined } from "@ant-design/icons";
+import ProductModifyModal from "./ProductModifyModal";
 
 const ProductDataTable = ({ productLoading, productData }) => {
   const [filteredInfo, setFilteredInfo] = useState({});
   const [sortedInfo, setSortedInfo] = useState({});
+  const [messageApi, contextHolder] = message.useMessage();
   const [open, setOpen] = useState(false);
+  const [openModify, setOpenModify] = useState(false);
+  const [productModifyData, setProductModifyData] = useState({});
   const dispatch = useDispatch();
 
   const handleChange = (pagination, filters, sorter) => {
@@ -20,12 +27,32 @@ const ProductDataTable = ({ productLoading, productData }) => {
     dispatch(getAllProduct());
   };
 
+  const deleteProductHandler = async (productId) => {
+    const result = await dispatch(deleteProductById(productId));
+    if (result.meta.requestStatus === "fulfilled") {
+      refreshHandler();
+      messageApi.open({
+        type: "success",
+        content: result.payload.msg,
+      });
+    } else {
+      messageApi.open({
+        type: "error",
+        content: result.payload,
+      });
+    }
+  };
+
+  const modifyProductHandle = async (product) => {
+    setProductModifyData(product);
+    setOpenModify(true);
+  };
+
   const columns = [
     {
       title: "#",
       dataIndex: "id",
       key: "id",
-      width: "60px",
     },
     {
       title: "牌子",
@@ -91,17 +118,55 @@ const ProductDataTable = ({ productLoading, productData }) => {
       //   sortedInfo.columnKey === "createDate" ? sortedInfo.order : null,
       // ellipsis: true,
     },
+    {
+      title: "行動",
+      key: "operation",
+      minWidth: "180px",
+      render: (text, record) => {
+        return (
+          <>
+            <Button
+              color="primary"
+              variant="outlined"
+              style={{
+                marginRight: "10px",
+              }}
+              onClick={() => {
+                modifyProductHandle(record);
+              }}
+            >
+              更改
+            </Button>
+            <Popconfirm
+              placement="topLeft"
+              title="刪除訂單"
+              description="是否確認刪除訂單?"
+              onConfirm={() => {
+                deleteProductHandler(record.id);
+              }}
+              okText="刪除"
+              cancelText="取消"
+            >
+              <Button color="danger" variant="filled">
+                刪除
+              </Button>
+            </Popconfirm>
+          </>
+        );
+      },
+    },
   ];
 
   const data = productData?.map((product, index) => ({
     id: product.productId,
     productBrand: product.productBrand,
-    productCost: product.productCost,
+    productCost: product.productCost * product.discount,
     productPrice: product.productPrice,
     productName: product.productName,
     productType: product.productType,
     quantity: product.quantity,
     stock: product.stock,
+    discount: product.discount * 100,
     createDate: product.createDate.split(".")[0].replaceAll("T", " "),
     modifyDate: product.modifyDate.split(".")[0].replaceAll("T", " "),
   }));
@@ -115,9 +180,12 @@ const ProductDataTable = ({ productLoading, productData }) => {
 
   return (
     <div className="order-table-container">
+      {contextHolder}
       <div>
         <div className=" d-flex justify-content-between m-4">
-          <div>--</div>
+          <a onClick={() => window.history.back()} className="my-auto">
+            <ArrowLeftOutlined />
+          </a>
           <div>
             <Button className=" me-3" onClick={refreshHandler}>
               更新表格
@@ -136,6 +204,9 @@ const ProductDataTable = ({ productLoading, productData }) => {
         loading={productLoading}
         columns={columns}
         dataSource={data}
+        pagination={{
+          position: ["bottomCenter"],
+        }}
         onChange={handleChange}
         style={{ minWidth: "850px" }}
       />
@@ -143,6 +214,12 @@ const ProductDataTable = ({ productLoading, productData }) => {
         open={open}
         setOpen={setOpen}
         productBrandOptions={productBrandOptions}
+      />
+      <ProductModifyModal
+        open={openModify}
+        setOpen={setOpenModify}
+        productBrandOptions={productBrandOptions}
+        productModifyData={productModifyData}
       />
     </div>
   );

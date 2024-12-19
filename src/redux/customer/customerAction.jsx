@@ -50,3 +50,50 @@ export const createCustomer = createAsyncThunk(
     }
   }
 );
+
+export const deleteCustomer = createAsyncThunk(
+  "api/customer/deleteCustomer",
+  async (customerId, { rejectWithValue }) => {
+    try {
+      const response = await axios.delete(
+        `${backendURL}/api/customer/deleteCustomer/${customerId}`
+      );
+
+      if (response.data.code === -1) {
+        return rejectWithValue(response.data.msg);
+      }
+      return response.data;
+    } catch (error) {
+      // return custom error message from backend if present
+      if (error.response && error.response.data.message) {
+        return rejectWithValue(error.response.data.message);
+      } else {
+        return rejectWithValue(error.message);
+      }
+    }
+  }
+);
+
+export const modifyCustomer = createAsyncThunk(
+  "api/customer/modifyCustomer",
+  async (customerDTO, { rejectWithValue }) => {
+    try {
+      const response = await axios.post(
+        `${backendURL}/api/customer/modifyCustomer`,
+        customerDTO
+      );
+
+      if (response.data.code === -1) {
+        return rejectWithValue(response.data.msg);
+      }
+      return response.data;
+    } catch (error) {
+      // return custom error message from backend if present
+      if (error.response && error.response.data.message) {
+        return rejectWithValue(error.response.data.message);
+      } else {
+        return rejectWithValue(error.message);
+      }
+    }
+  }
+);

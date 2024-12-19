@@ -1,12 +1,16 @@
-import { Badge, Button, Table } from "antd";
+import { Badge, Button, Popconfirm, Table, Tag, message } from "antd";
 import React, { useEffect, useState } from "react";
 import OrderAddModal from "./OrderAddModal";
-import { PlusOutlined } from "@ant-design/icons";
+import { PlusOutlined, QuestionCircleOutlined } from "@ant-design/icons";
+import { useDispatch } from "react-redux";
+import { deleteOrderById, getAllOrders } from "../../redux/order/orderAction";
 
 const OrderDataTable = ({ orderLoading, orderData, productData }) => {
   const [filteredInfo, setFilteredInfo] = useState({});
   const [sortedInfo, setSortedInfo] = useState({});
+  const [messageApi, contextHolder] = message.useMessage();
   const [open, setOpen] = useState(false);
+  const dispatch = useDispatch();
 
   const handleChange = (pagination, filters, sorter) => {
     setFilteredInfo(filters);
@@ -17,8 +21,26 @@ const OrderDataTable = ({ orderLoading, orderData, productData }) => {
     dispatch(getAllOrders());
   };
 
+  const deleteOrderHandler = async (orderId) => {
+    const result = await dispatch(deleteOrderById(orderId));
+    if (result.meta.requestStatus === "fulfilled") {
+      refreshHandler();
+      messageApi.open({
+        type: "success",
+        content: result.payload.msg,
+      });
+    } else {
+      messageApi.open({
+        type: "error",
+        content: result.payload,
+      });
+    }
+  };
+
   const customerPhone = orderData
-    .map((order) => order.customer?.phone)
+    .map((order) =>
+      order.customer?.phone ? order.customer?.phone : order?.customer?.instagram
+    )
     .filter((phone, index, self) => self.indexOf(phone) === index);
 
   const productBrand = orderData
@@ -36,10 +58,10 @@ const OrderDataTable = ({ orderLoading, orderData, productData }) => {
       title: "#",
       dataIndex: "id",
       key: "id",
-      width: "60px",
+      width: "50px",
     },
     {
-      title: "電話",
+      title: "電話/IG",
       dataIndex: "phone",
       key: "phone",
       filters: customerPhone?.map((phone, index) => ({
@@ -51,6 +73,10 @@ const OrderDataTable = ({ orderLoading, orderData, productData }) => {
       sorter: (a, b) => a.phone.length - b.phone.length,
       sortOrder: sortedInfo.columnKey === "phone" ? sortedInfo.order : null,
       ellipsis: true,
+      render: (text, record) => {
+        console.log(record);
+        return record.phone !== null ? record.phone : record.instagram;
+      },
     },
     {
       title: "牌子",
@@ -68,11 +94,6 @@ const OrderDataTable = ({ orderLoading, orderData, productData }) => {
       ellipsis: true,
     },
     {
-      title: "種類",
-      dataIndex: "productType",
-      key: "productType",
-    },
-    {
       title: "產品",
       dataIndex: "productName",
       key: "productName",
@@ -88,9 +109,15 @@ const OrderDataTable = ({ orderLoading, orderData, productData }) => {
       ellipsis: true,
     },
     {
+      title: "售價",
+      dataIndex: "productPrice",
+      key: "productPrice",
+    },
+    {
       title: "數量",
       dataIndex: "quantity",
       key: "quantity",
+      width: "60px",
     },
     {
       title: "付款",
@@ -114,6 +141,50 @@ const OrderDataTable = ({ orderLoading, orderData, productData }) => {
       title: "運輸",
       dataIndex: "takeMethod",
       key: "takeMethod",
+      width: "80px",
+      filters: [
+        {
+          text: "自取",
+          value: "自取",
+        },
+        {
+          text: "郵寄",
+          value: "郵寄",
+        },
+      ],
+      filteredValue: filteredInfo.takeMethod || null,
+      onFilter: (value, record) => {
+        console.log(record);
+        return record.takeMethod === value;
+      },
+      ellipsis: true,
+      render: (text, record) => {
+        if (record.takeMethod === "自取") {
+          return (
+            <>
+              <Tag
+                color="pink"
+                style={{ margin: "0 auto", justifyContent: "center" }}
+              >
+                自取
+              </Tag>
+            </>
+          );
+        } else if (record.takeMethod === "郵寄") {
+          return (
+            <Tag
+              color="yellow"
+              style={{
+                margin: "0 auto",
+                justifyContent: "center",
+                border: "1px solid #E1E100",
+              }}
+            >
+              郵寄
+            </Tag>
+          );
+        }
+      },
     },
     {
       title: "付款方法",
@@ -132,6 +203,14 @@ const OrderDataTable = ({ orderLoading, orderData, productData }) => {
           text: "ALIPAY",
           value: "ALIPAY",
         },
+        {
+          text: "BANK",
+          value: "BANK",
+        },
+        {
+          text: "PAYCARMEN",
+          value: "PAYCARMEN",
+        },
       ],
       filteredValue: filteredInfo.paymentMethod || null,
       onFilter: (value, record) => record.paymentMethod === value,
@@ -146,6 +225,22 @@ const OrderDataTable = ({ orderLoading, orderData, productData }) => {
       title: "狀態",
       dataIndex: "status",
       key: "status",
+      render: (text, record) => {
+        return (
+          <>
+            {record.status === "已付款" && (
+              <Badge status="processing" text="已付款" />
+            )}
+            {record.status === "未付款" && (
+              <Badge status="error" text="未付款" />
+            )}
+            {record.status === "已寄" && <Badge status="success" text="已寄" />}
+            {record.status === "已自取" && (
+              <Badge status="success" text="已自取" />
+            )}
+          </>
+        );
+      },
     },
     {
       title: "落單時間",
@@ -160,61 +255,66 @@ const OrderDataTable = ({ orderLoading, orderData, productData }) => {
     {
       title: "行動",
       key: "operation",
-      //   render: (text, record) => {
-      //     if (record.certificationProof === true) {
-      //       return (
-      //         <>
-      //           <Button
-      //             style={{
-      //               backgroundColor: "red",
-      //               color: "white",
-      //             }}
-      //             onClick={() => disqualifyCertHandler(record.id)}
-      //           >
-      //             取消認證
-      //           </Button>
-      //         </>
-      //       );
-      //     } else {
-      //       return (
-      //         <>
-      //           <Button
-      //             style={{ backgroundColor: "green", color: "white" }}
-      //             onClick={() => verifyCertHandler(record.id)}
-      //           >
-      //             認證學歷
-      //           </Button>
-      //         </>
-      //       );
-      //     }
-      //   },
+      width: "180px",
+      render: (text, record) => {
+        return (
+          <>
+            <Button
+              color="primary"
+              variant="outlined"
+              style={{
+                marginRight: "10px",
+              }}
+            >
+              更改
+            </Button>
+            <Popconfirm
+              placement="topLeft"
+              title="刪除訂單"
+              description="是否確認刪除訂單?"
+              onConfirm={() => {
+                deleteOrderHandler(record.id);
+              }}
+              okText="刪除"
+              cancelText="取消"
+            >
+              <Button color="danger" variant="filled">
+                刪除
+              </Button>
+            </Popconfirm>
+          </>
+        );
+      },
     },
   ];
 
-  const data = orderData.map((order, index) => ({
+  const data = orderData?.map((order, index) => ({
     id: order.orderId,
     phone: order?.customer?.phone,
+    instagram: order?.customer?.instagram,
     productBrand: order?.product?.productBrand,
-    productType: order?.product?.productType,
     productName: order?.product?.productName,
+    productPrice: <>${order?.product?.productPrice}</>,
     quantity: order?.quantity,
-    paid: order?.paid ? <>已付款</> : <>未付款</>,
+    paid: order?.paid ? (
+      <Tag color="green" style={{ margin: "0 auto", justifyContent: "center" }}>
+        已付款
+      </Tag>
+    ) : (
+      <Tag color="red" style={{ margin: "0 auto", justifyContent: "center" }}>
+        未付款
+      </Tag>
+    ),
     takeMethod: order?.takeMethod,
     paymentMethod: order?.paymentMethod,
     remark: order?.remark,
     createDate: order?.createDate.split(".")[0].replaceAll("T", " "),
-    status: (
-      <>
-        {order.status === "已付款" && (
-          <Badge status="processing" text="已付款" />
-        )}
-        {order.status === "未付款" && <Badge status="error" text="未付款" />}
-      </>
-    ),
+    status: order?.status,
   }));
 
   return (
     <div className="order-table-container">
+      {contextHolder}
       <div className=" d-flex justify-content-between p-4">
         <div>--</div>
         <div>
@@ -234,8 +334,11 @@ const OrderDataTable = ({ orderLoading, orderData, productData }) => {
         loading={orderLoading}
         columns={columns}
         dataSource={data}
+        pagination={{
+          position: ["bottomCenter"],
+        }}
         onChange={handleChange}
-        style={{ minWidth: "1000px" }}
+        style={{ minWidth: "850px" }}
       />
       <OrderAddModal open={open} setOpen={setOpen} productData={productData} />
     </div>

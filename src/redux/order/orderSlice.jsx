@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { createOrder, getAllOrders } from "./orderAction";
+import { createOrder, deleteOrderById, getAllOrders } from "./orderAction";
 
 const initialState = {
   orderLoading: false,
@@ -36,6 +36,18 @@ const orderSlice = createSlice({
         state.orderSuccess = true;
       })
       .addCase(createOrder.rejected, (state, { payload }) => {
+        state.orderLoading = false;
+        state.orderError = payload;
+      })
+      .addCase(deleteOrderById.pending, (state) => {
+        state.orderLoading = true;
+        state.orderError = null;
+      })
+      .addCase(deleteOrderById.fulfilled, (state, { payload }) => {
+        state.orderLoading = false;
+        state.orderSuccess = true;
+      })
+      .addCase(deleteOrderById.rejected, (state, { payload }) => {
         state.orderLoading = false;
         state.orderError = payload;
       });

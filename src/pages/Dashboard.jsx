@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { Button, Col, Divider, Row, Tag } from "antd";
 import PageLayout from "../layout/PageLayout";
 import OrderCrud from "../modules/OrderCrudModule";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { getAllOrders } from "../redux/order/orderAction";
 import { PlusOutlined } from "@ant-design/icons";
 
@@ -34,9 +34,9 @@ const Dashboard = () => {
               <Col
                 className="gutter-row"
                 span={11}
-                style={{ textAlign: "left" }}
+                style={{ textAlign: "left", justifyContent: "center" }}
               >
-                <div className="left">{prefix}</div>
+                <div style={{ textAlign: "center" }}>{prefix}</div>
               </Col>
               <Col className="gutter-row" span={2}>
                 <Divider
@@ -63,6 +63,22 @@ const Dashboard = () => {
     );
   };
 
+  const { orderData } = useSelector((state) => state.order);
+
+  const totalPrice = orderData
+    .map((order) => order?.product?.productPrice * order?.quantity)
+    .reduce((accumulator, currentValue) => accumulator + currentValue, 0);
+
+  const totalPaidPrice = orderData
+    .filter((order) => order?.paid === true)
+    .map((order) => order?.product?.productPrice * order?.quantity)
+    .reduce((accumulator, currentValue) => accumulator + currentValue, 0);
+
+  const totalNotPaidPrice = orderData
+    .filter((order) => order?.paid === false)
+    .map((order) => order?.product?.productPrice * order?.quantity)
+    .reduce((accumulator, currentValue) => accumulator + currentValue, 0);
+
   return (
     <motion.div
       transition={config}
@@ -71,35 +87,35 @@ const Dashboard = () => {
       exit={{ y: -20, opacity: 0 }}
     >
       <PageLayout>
-        <Row gutter={[24, 24]}>
+        <Row gutter={[20, 20]}>
           <TopCard
-            title={"Leads"}
+            title={"訂單總數"}
             tagColor={"cyan"}
-            prefix={"This month"}
-            tagContent={"34 000 $"}
+            prefix={"總共"}
+            tagContent={Object.entries(orderData).length}
           />
           <TopCard
-            title={"Order"}
-            tagColor={"purple"}
-            prefix={"This month"}
-            tagContent={"34 000 $"}
-          />
-          <TopCard
-            title={"Payment"}
+            title={"訂單金額"}
             tagColor={"green"}
-            prefix={"This month"}
-            tagContent={"34 000 $"}
+            prefix={"總共"}
+            tagContent={totalPrice}
           />
           <TopCard
-            title={"Due Balance"}
-            tagColor={"red"}
-            prefix={"Not Paid"}
-            tagContent={"34 000 $"}
+            title={"已付款總數"}
+            tagColor={"purple"}
+            prefix={"總共"}
+            tagContent={totalPaidPrice}
+          />
+          <TopCard
+            title={"未付款總數"}
+            tagColor={"purple"}
+            prefix={"總共"}
+            tagContent={totalNotPaidPrice}
           />
         </Row>
         <div className="space30"></div>
 
-        <Row gutter={[24, 24]}>
+        <Row gutter={[20, 20]}>
           <Col className="gutter-row" span={24}>
             <div className="whiteBox shadow">
               <OrderCrud />

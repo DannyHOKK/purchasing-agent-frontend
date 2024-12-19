@@ -1,4 +1,14 @@
-import { AutoComplete, Button, Form, Input, Modal, Radio, Select } from "antd";
+import {
+  AutoComplete,
+  Button,
+  Form,
+  Input,
+  Modal,
+  Radio,
+  Select,
+  Switch,
+  message,
+} from "antd";
 import React, { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -31,10 +41,13 @@ const OrderAddModal = ({ open, setOpen }) => {
   const { allCustomer } = useSelector((state) => state.customer);
   const [form] = Form.useForm();
   const dispatch = useDispatch();
+  const [contact, setContact] = useState(false);
   const [productTypeOptions, setProductTypeOptions] = useState();
   const [productNameOptions, setProductNameOptions] = useState();
+  // const [messageApi, contextHolder] = message.useMessage();
   const ordersDTO = useRef({
     phone: "",
+    instagram: "",
     productName: "",
     paid: false,
     quantity: 0,
@@ -62,6 +75,7 @@ const OrderAddModal = ({ open, setOpen }) => {
 
     ordersDTO.current = {
       phone: form.getFieldValue("phone"),
+      instagram: form.getFieldValue("instagram"),
       productName: form.getFieldValue("productName"),
       paid: form.getFieldValue("paid"),
       quantity: form.getFieldValue("quantity"),
@@ -69,7 +83,7 @@ const OrderAddModal = ({ open, setOpen }) => {
       paymentMethod: form.getFieldValue("paymentMethod"),
       remark: form.getFieldValue("remark") ? form.getFieldValue("remark") : " ",
     };
-    console.log(ordersDTO.current);
+
     createOrderHandler();
   };
 
@@ -78,6 +92,8 @@ const OrderAddModal = ({ open, setOpen }) => {
 
     if (result.meta.requestStatus === "fulfilled") {
       setOpen(false);
+      form.resetFields();
+      form.setFieldValue("contact", contact);
       dispatch(getAllOrders());
     }
   };
@@ -88,6 +104,14 @@ const OrderAddModal = ({ open, setOpen }) => {
     .filter((customer, index, self) => self.indexOf(customer) === index)
     .map((phone) => ({
       value: phone,
+    }));
+
+  const instagramOptions = allCustomer
+    .filter((customer) => customer.instagram)
+    .map((customer) => customer.instagram)
+    .filter((customer, index, self) => self.indexOf(customer) === index)
+    .map((instagram) => ({
+      value: instagram,
     }));
 
   const productBrandOptions = productData
@@ -164,20 +188,83 @@ const OrderAddModal = ({ open, setOpen }) => {
     autoFillBrand();
   };
 
+  const addOrderHandler = async () => {
+    await form.validateFields();
+
+    ordersDTO.current = {
+      phone: form.getFieldValue("phone"),
+      instagram: form.getFieldValue("instagram"),
+      productName: form.getFieldValue("productName"),
+      paid: form.getFieldValue("paid"),
+      quantity: form.getFieldValue("quantity"),
+      takeMethod: form.getFieldValue("takeMethod"),
+      paymentMethod: form.getFieldValue("paymentMethod"),
+      remark: form.getFieldValue("remark") ? form.getFieldValue("remark") : " ",
+    };
+    createAddOrderHandler();
+  };
+
+  const createAddOrderHandler = async () => {
+    const result = await dispatch(createOrder(ordersDTO.current));
+
+    if (result.meta.requestStatus === "fulfilled") {
+      dispatch(getAllOrders());
+
+      setProductNameOptions(
+        productData?.map((product) => ({
+          value: product.productName,
+        }))
+      );
+
+      setProductTypeOptions(
+        productData?.map((product) => ({
+          value: product.productType,
+        }))
+      );
+
+      form.setFieldValue("productBrand", "");
+      form.setFieldValue("productType", "");
+      form.setFieldValue("productName", "");
+
+      // messageApi.open({
+      //   type: "success",
+      //   content: "成功創立訂單",
+      // });
+    }
+  };
+
   return (
     <Modal
       title={<h3> 計單資料 </h3>}
       centered
       open={open}
-      onCancel={() => setOpen(false)}
+      onCancel={() => {
+        setOpen(false);
+        form.resetFields();
+        form.setFieldValue("contact", contact);
+      }}
       footer={
         <>
-          <Button onClick={() => setOpen(false)}>取消</Button>
+          <Button
+            onClick={() => {
+              setOpen(false);
+              form.resetFields();
+              form.setFieldValue("contact", contact);
+            }}
+          >
+            取消
+          </Button>
           <Button
             onClick={onFinish}
             style={{ backgroundColor: "#1DA57A", color: "white" }}
           >
             確認
+          </Button>
+          <Button
+            onClick={addOrderHandler}
+            style={{ backgroundColor: "blue", color: "white" }}
+          >
+            加訂單
           </Button>
         </>
       }
@@ -186,19 +273,49 @@ const OrderAddModal = ({ open, setOpen }) => {
       <div>請填寫下列訂單表格</div>
       <br />
       <Form {...formItemLayout} autoComplete="off" form={form}>
-        <Form.Item
-          name="phone"
-          label="客人電話"
-          rules={[{ required: true, message: "客人電話" }]}
-        >
-          <AutoComplete
-            options={phoneOptions}
-            filterOption={(inputValue, option) =>
-              option.value.toUpperCase().indexOf(inputValue.toUpperCase()) !==
-              -1
-            }
+        <Form.Item name="contact" label="電話 / IG">
+          {/* {contextHolder} */}
+          <Switch
+            onChange={(value) => {
+              setContact(value);
+              form.setFieldValue("phone", "");
+              form.setFieldValue("instagram", "");
+            }}
+            checkedChildren="電話"
+            unCheckedChildren="IG"
           />
         </Form.Item>
+        {contact && (
+          <Form.Item
+            name="phone"
+            label="客人電話"
+            rules={[{ required: true, message: "客人電話" }]}
+          >
+            <AutoComplete
+              options={phoneOptions}
+              filterOption={(inputValue, option) =>
+                option.value.toUpperCase().indexOf(inputValue.toUpperCase()) !==
+                -1
+              }
+            />
+          </Form.Item>
+        )}
+
+        {contact === false && (
+          <Form.Item
+            name="instagram"
+            label="Instagram"
+            rules={[{ required: true, message: "Instagram" }]}
+          >
+            <AutoComplete
+              options={instagramOptions}
+              filterOption={(inputValue, option) =>
+                option.value.toUpperCase().indexOf(inputValue.toUpperCase()) !==
+                -1
+              }
+            />
+          </Form.Item>
+        )}
 
         <Form.Item
           name="productBrand"
@@ -271,7 +388,7 @@ const OrderAddModal = ({ open, setOpen }) => {
         >
           <Radio.Group>
             <Radio value={"自取"}>自取</Radio>
-            <Radio value={"順豐"}>順豐</Radio>
+            <Radio value={"郵寄"}>郵寄</Radio>
           </Radio.Group>
         </Form.Item>
 

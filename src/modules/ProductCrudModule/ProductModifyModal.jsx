@@ -9,11 +9,12 @@ import {
   Row,
   Space,
 } from "antd";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
 import {
   createProduct,
   getAllProduct,
+  modifyProduct,
 } from "../../redux/product/productAction";
 
 const formItemLayout = {
@@ -35,18 +36,51 @@ const formItemLayout = {
   },
 };
 
-const ProductAddModal = ({ open, setOpen, productBrandOptions }) => {
+const ProductModifyModal = ({
+  open,
+  setOpen,
+  productBrandOptions,
+  productModifyData,
+}) => {
   const [form] = Form.useForm();
   const dispatch = useDispatch();
+  const modifyProductData = useRef({
+    productId: "",
+    productBrand: "",
+    productType: "",
+    productName: "",
+    productCost: "",
+    discount: "",
+    productPrice: "",
+    stock: "",
+  });
 
   useEffect(() => {
-    form.setFieldValue("discount", 100);
-    form.setFieldValue("stock", 0);
-  }, [open]);
+    console.log(productModifyData);
+    form.setFieldValue("productBrand", productModifyData?.productBrand);
+    form.setFieldValue("productType", productModifyData?.productType);
+    form.setFieldValue("productName", productModifyData?.productName);
+    form.setFieldValue("productCost", productModifyData?.productCost);
+    form.setFieldValue("discount", productModifyData?.discount);
+    form.setFieldValue("productPrice", productModifyData?.productPrice);
+    form.setFieldValue("stock", productModifyData?.stock);
+  }, [productModifyData]);
 
   const onFinish = async () => {
     await form.validateFields();
-    const result = await dispatch(createProduct(form.getFieldsValue()));
+
+    modifyProductData.current = {
+      productId: productModifyData?.id,
+      productBrand: form.getFieldValue("productBrand"),
+      productType: form.getFieldValue("productType"),
+      productName: form.getFieldValue("productName"),
+      productCost: form.getFieldValue("productCost"),
+      discount: form.getFieldValue("discount"),
+      productPrice: form.getFieldValue("productPrice"),
+      stock: form.getFieldValue("stock"),
+    };
+
+    const result = await dispatch(modifyProduct(modifyProductData.current));
 
     if (result.meta.requestStatus === "fulfilled") {
       setOpen(false);
@@ -58,7 +92,7 @@ const ProductAddModal = ({ open, setOpen, productBrandOptions }) => {
 
   return (
     <Modal
-      title={<h3> 加產品資料 </h3>}
+      title={<h3> 編輯產品資料 </h3>}
       centered
       open={open}
       onCancel={() => {
@@ -85,7 +119,7 @@ const ProductAddModal = ({ open, setOpen, productBrandOptions }) => {
       }
       width={750}
     >
-      <div>請填寫下列表格，添加客人資料</div>
+      <div>請填寫下列表格，編輯產品資料</div>
       <br />
       <Form {...formItemLayout} autoComplete="off" form={form}>
         <Form.Item
@@ -162,4 +196,4 @@ const ProductAddModal = ({ open, setOpen, productBrandOptions }) => {
   );
 };
 
-export default ProductAddModal;
+export default ProductModifyModal;
