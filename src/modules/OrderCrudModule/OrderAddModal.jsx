@@ -237,31 +237,40 @@ const OrderAddModal = ({ open, setOpen, messageApi }) => {
   };
 
   const createAddOrderHandler = async () => {
-    const result = await dispatch(createOrder(ordersDTO.current));
+    const checkExistResult = await dispatch(
+      checkCustomerExist(ordersDTO.current)
+    );
 
-    if (result.meta.requestStatus === "fulfilled") {
-      dispatch(getAllOrders());
+    if (checkExistResult.meta.requestStatus === "fulfilled") {
+      const result = await dispatch(createOrder(ordersDTO.current));
 
-      setProductNameOptions(
-        productData?.map((product) => ({
-          value: product.productName,
-        }))
-      );
+      if (result.meta.requestStatus === "fulfilled") {
+        dispatch(getAllOrders());
 
-      setProductTypeOptions(
-        productData?.map((product) => ({
-          value: product.productType,
-        }))
-      );
+        setProductNameOptions(
+          productData?.map((product) => ({
+            value: product.productName,
+          }))
+        );
 
-      form.setFieldValue("productBrand", "");
-      form.setFieldValue("productType", "");
-      form.setFieldValue("productName", "");
+        setProductTypeOptions(
+          productData?.map((product) => ({
+            value: product.productType,
+          }))
+        );
 
-      messageApi.open({
-        type: "success",
-        content: "成功創立訂單",
-      });
+        form.setFieldValue("productBrand", "");
+        form.setFieldValue("productType", "");
+        form.setFieldValue("productName", "");
+
+        messageApi.open({
+          type: "success",
+          content: "成功創立訂單",
+        });
+      }
+    } else {
+      console.log("冇客人資料");
+      setOpenCustomerAdd(true);
     }
   };
 
