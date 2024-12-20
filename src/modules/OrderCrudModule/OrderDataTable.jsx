@@ -4,6 +4,7 @@ import OrderAddModal from "./OrderAddModal";
 import { PlusOutlined, QuestionCircleOutlined } from "@ant-design/icons";
 import { useDispatch } from "react-redux";
 import {
+  changePaidOrder,
   changeStatusOrder,
   deleteOrderById,
   getAllOrders,
@@ -46,6 +47,7 @@ const OrderDataTable = ({ orderLoading, orderData, productData }) => {
       title: "電話/IG",
       dataIndex: "phone",
       key: "phone",
+      width: "130px",
       filters: customerPhone?.map((phone, index) => ({
         text: phone,
         value: phone,
@@ -65,6 +67,7 @@ const OrderDataTable = ({ orderLoading, orderData, productData }) => {
       title: "牌子",
       dataIndex: "productBrand",
       key: "productBrand",
+      width: "100px",
       filters: productBrand.map((brand, index) => ({
         text: brand,
         value: brand,
@@ -80,6 +83,7 @@ const OrderDataTable = ({ orderLoading, orderData, productData }) => {
       title: "產品",
       dataIndex: "productName",
       key: "productName",
+      width: "240px",
       filters: productName.map((brand, index) => ({
         text: brand,
         value: brand,
@@ -98,6 +102,7 @@ const OrderDataTable = ({ orderLoading, orderData, productData }) => {
       title: "售價",
       dataIndex: "productPrice",
       key: "productPrice",
+      width: "80px",
     },
     {
       title: "數量",
@@ -109,6 +114,7 @@ const OrderDataTable = ({ orderLoading, orderData, productData }) => {
       title: "付款",
       dataIndex: "paid",
       key: "paid",
+      width: "90px",
       filters: [
         {
           text: "已付款",
@@ -128,7 +134,7 @@ const OrderDataTable = ({ orderLoading, orderData, productData }) => {
             placement="top"
             title="更改為未付款"
             onConfirm={() => {
-              changeStatusOrderHandler(record?.orderId, false);
+              changepaidOrderHandler(record?.orderId, false);
             }}
             okText="更改"
             cancelText="取消"
@@ -145,7 +151,7 @@ const OrderDataTable = ({ orderLoading, orderData, productData }) => {
             placement="top"
             title="更改為已付款"
             onConfirm={() => {
-              changeStatusOrderHandler(record?.orderId, true);
+              changepaidOrderHandler(record?.orderId, true);
             }}
             okText="更改"
             cancelText="取消"
@@ -243,23 +249,82 @@ const OrderDataTable = ({ orderLoading, orderData, productData }) => {
       title: "Remark",
       dataIndex: "remark",
       key: "remark",
+      width: "90px",
     },
     {
       title: "狀態",
       dataIndex: "status",
       key: "status",
+      filters: [
+        {
+          text: "備貨中",
+          value: "備貨中",
+        },
+        {
+          text: "已取",
+          value: "已取",
+        },
+        {
+          text: "已寄出",
+          value: "已寄出",
+        },
+      ],
+      filteredValue: filteredInfo.status || null,
+      onFilter: (value, record) => record.status === value,
+      ellipsis: true,
       render: (text, record) => {
         return (
           <>
-            {record.status === "已付款" && (
-              <Badge status="processing" text="已付款" />
+            {record.status === "備貨中" && (
+              <Popconfirm
+                placement="topLeft"
+                title="更改狀態"
+                description=""
+                onConfirm={() => {
+                  changeStatusOrderHandler(record.orderId, "已寄出");
+                }}
+                onCancel={() => {
+                  changeStatusOrderHandler(record.orderId, "已取");
+                }}
+                okText="已寄出"
+                cancelText="已取"
+              >
+                <Badge status="processing" text="備貨中" />
+              </Popconfirm>
             )}
-            {record.status === "未付款" && (
-              <Badge status="error" text="未付款" />
+            {record.status === "已寄出" && (
+              <Popconfirm
+                placement="topLeft"
+                title="更改狀態"
+                description=""
+                onConfirm={() => {
+                  changeStatusOrderHandler(record.orderId, "備貨中");
+                }}
+                onCancel={() => {
+                  changeStatusOrderHandler(record.orderId, "已取");
+                }}
+                okText="備貨中"
+                cancelText="已取"
+              >
+                <Badge status="success" text="已寄出" />
+              </Popconfirm>
             )}
-            {record.status === "已寄" && <Badge status="success" text="已寄" />}
-            {record.status === "已自取" && (
-              <Badge status="success" text="已自取" />
+            {record.status === "已取" && (
+              <Popconfirm
+                placement="topLeft"
+                title="更改狀態"
+                description=""
+                onConfirm={() => {
+                  changeStatusOrderHandler(record.orderId, "備貨中");
+                }}
+                onCancel={() => {
+                  changeStatusOrderHandler(record.orderId, "已寄出");
+                }}
+                okText="備貨中"
+                cancelText="已寄出"
+              >
+                <Badge status="success" text="已取" />
+              </Popconfirm>
             )}
           </>
         );
@@ -354,10 +419,10 @@ const OrderDataTable = ({ orderLoading, orderData, productData }) => {
     }
   };
 
-  const changeStatusOrderHandler = async (orderId, paid) => {
+  const changeStatusOrderHandler = async (orderId, status) => {
     const orderStatusDTO = {
       orderId: orderId,
-      paid: paid,
+      status: status,
     };
     const result = await dispatch(changeStatusOrder(orderStatusDTO));
 
@@ -373,6 +438,22 @@ const OrderDataTable = ({ orderLoading, orderData, productData }) => {
   const modifyOrderHandler = async (orderData) => {
     setOrderModifyData(orderData);
     setOpenModify(true);
+  };
+
+  const changepaidOrderHandler = async (orderId, paid) => {
+    const orderStatusDTO = {
+      orderId: orderId,
+      paid: paid,
+    };
+    const result = await dispatch(changePaidOrder(orderStatusDTO));
+
+    if (result.meta.requestStatus === "fulfilled") {
+      refreshHandler();
+      // messageApi.open({
+      //   type: "success",
+      //   content: result.payload.msg,
+      // });
+    }
   };
 
   return (
@@ -397,11 +478,12 @@ const OrderDataTable = ({ orderLoading, orderData, productData }) => {
         loading={orderLoading}
         columns={columns}
         dataSource={data}
+        pageSize={20}
         pagination={{
           position: ["bottomCenter"],
         }}
         onChange={handleChange}
-        style={{ minWidth: "850px" }}
+        style={{ minWidth: "1100px" }}
       />
       <OrderAddModal open={open} setOpen={setOpen} messageApi={messageApi} />
       <OrderModifyModal

@@ -196,6 +196,7 @@ const CustomerDataTable = ({ customerLoading, customerData }) => {
         loading={customerLoading}
         columns={columns}
         dataSource={data}
+        pageSize={20}
         pagination={{
           position: ["bottomCenter"],
         }}

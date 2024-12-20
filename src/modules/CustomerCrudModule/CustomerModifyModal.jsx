@@ -52,7 +52,7 @@ const CustomerModifyModal = ({
   const onFinish = async () => {
     await form.validateFields();
     modifyCustomerData.current = {
-      customerId: customerModifyData.id,
+      customerId: customerModifyData.customerId,
       phone: form.getFieldValue("phone"),
       instagram: form.getFieldValue("instagram"),
       remark: form.getFieldValue("remark"),

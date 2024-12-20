@@ -374,11 +374,14 @@ const OrderModifyModal = ({ openModify, setOpenModify, orderModifyData }) => {
           name="paymentMethod"
           label="付款方法"
           rules={[{ required: true, message: "請選擇運輸" }]}
+          wrapperCol={{ span: 16 }}
         >
           <Radio.Group>
             <Radio value={"PAYME"}>PAYME</Radio>
             <Radio value={"FPS"}>FPS</Radio>
             <Radio value={"ALIPAY"}>ALIPAY</Radio>
+            <Radio value={"BANK"}>BANK</Radio>
+            <Radio value={"CARMEN"}>CARMEN</Radio>
           </Radio.Group>
         </Form.Item>
 

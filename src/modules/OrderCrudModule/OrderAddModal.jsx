@@ -70,11 +70,14 @@ const OrderAddModal = ({ open, setOpen, messageApi }) => {
     );
 
     setProductTypeOptions(
-      productData?.map((product) => ({
-        value: product.productType,
-      }))
+      productData
+        .map((product) => product.productType)
+        .filter((product, index, self) => self.indexOf(product) === index)
+        .map((productType) => ({
+          value: productType,
+        }))
     );
-  }, [productData]);
+  }, [productData, open]);
 
   // useEffect(() => {
 
@@ -178,15 +181,21 @@ const OrderAddModal = ({ open, setOpen, messageApi }) => {
   const filterTypeHandler = () => {
     setProductNameOptions(
       productData
-        .filter((product) =>
-          product.productType?.includes(form.getFieldValue("productType"))
+        .filter(
+          (product) =>
+            product.productType?.includes(form.getFieldValue("productType")) &&
+            product.productBrand?.includes(
+              form.getFieldValue("productBrand")
+                ? form.getFieldValue("productBrand")
+                : ""
+            )
         )
         .map((product) => ({
           value: product.productName,
         }))
     );
 
-    autoFillBrand();
+    // autoFillBrand();
     form.setFieldValue("productName", "");
   };
 
@@ -195,7 +204,7 @@ const OrderAddModal = ({ open, setOpen, messageApi }) => {
       "productBrand",
       productData
         .filter(
-          (product) => product.productType == form.getFieldValue("productType")
+          (product) => product.productName == form.getFieldValue("productName")
         )
         .map((product) => product.productBrand)
     );
@@ -293,23 +302,25 @@ const OrderAddModal = ({ open, setOpen, messageApi }) => {
     }
   };
 
+  const onClose = () => {
+    setOpen(false);
+    form.resetFields();
+    form.setFieldValue("contact", contact);
+  };
+
   return (
     <Modal
       title={<h3> 計單資料 </h3>}
       centered
       open={open}
       onCancel={() => {
-        setOpen(false);
-        form.resetFields();
-        form.setFieldValue("contact", contact);
+        onClose();
       }}
       footer={
         <>
           <Button
             onClick={() => {
-              setOpen(false);
-              form.resetFields();
-              form.setFieldValue("contact", contact);
+              onClose();
             }}
           >
             取消
@@ -386,7 +397,8 @@ const OrderAddModal = ({ open, setOpen, messageApi }) => {
           label="牌子"
           rules={[{ required: true, message: "請輸入產品牌子" }]}
         >
-          <AutoComplete
+          <Select
+            showSearch
             options={productBrandOptions}
             filterOption={(inputValue, option) =>
               option.value.toUpperCase().indexOf(inputValue.toUpperCase()) !==
@@ -403,7 +415,8 @@ const OrderAddModal = ({ open, setOpen, messageApi }) => {
           label="種類"
           rules={[{ required: true, message: "請輸入產品種類" }]}
         >
-          <AutoComplete
+          <Select
+            showSearch
             options={productTypeOptions}
             filterOption={(inputValue, option) =>
               option.value.toUpperCase().indexOf(inputValue.toUpperCase()) !==
@@ -460,11 +473,14 @@ const OrderAddModal = ({ open, setOpen, messageApi }) => {
           name="paymentMethod"
           label="付款方法"
           rules={[{ required: true, message: "請選擇運輸" }]}
+          wrapperCol={{ span: 16 }}
         >
           <Radio.Group>
             <Radio value={"PAYME"}>PAYME</Radio>
             <Radio value={"FPS"}>FPS</Radio>
             <Radio value={"ALIPAY"}>ALIPAY</Radio>
+            <Radio value={"BANK"}>BANK</Radio>
+            <Radio value={"CARMEN"}>CARMEN</Radio>
           </Radio.Group>
         </Form.Item>
 

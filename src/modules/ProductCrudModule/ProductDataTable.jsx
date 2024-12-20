@@ -20,6 +20,19 @@ const ProductDataTable = ({ productLoading, productData }) => {
 
   const { orderData } = useSelector((state) => state.order);
 
+  const orderQuantity = productData.map((product) => {
+    return orderData
+      .filter(
+        (order) =>
+          order?.product?.productName === product?.productName &&
+          order?.paid === true
+      )
+      .map((order) => order?.quantity)
+      .reduce((accumulator, currentValue) => accumulator + currentValue, 0);
+  });
+
+  console.log(orderQuantity);
+
   const handleChange = (pagination, filters, sorter) => {
     setFilteredInfo(filters);
     setSortedInfo(sorter);
@@ -99,11 +112,19 @@ const ProductDataTable = ({ productLoading, productData }) => {
       ellipsis: true,
     },
     {
-      title: "成本",
+      title: "原價",
       dataIndex: "productCost",
       key: "productCost",
       render: (text, record) => {
         return <>₩ {record.productCost}</>;
+      },
+    },
+    {
+      title: "成本",
+      dataIndex: "cost",
+      key: "cost",
+      render: (text, record) => {
+        return <>₩ {record.cost}</>;
       },
     },
     {
@@ -120,9 +141,9 @@ const ProductDataTable = ({ productLoading, productData }) => {
       key: "quantity",
     },
     {
-      title: "存貨",
-      dataIndex: "stock",
-      key: "stock",
+      title: "尚欠",
+      dataIndex: "needBuy",
+      key: "needBuy",
     },
     {
       title: "建立日期",
@@ -147,7 +168,7 @@ const ProductDataTable = ({ productLoading, productData }) => {
     {
       title: "行動",
       key: "operation",
-      minWidth: "180px",
+      width: "200px",
       render: (text, record) => {
         return (
           <>
@@ -188,13 +209,16 @@ const ProductDataTable = ({ productLoading, productData }) => {
     productId: product.productId,
     productBrand: product.productBrand,
     productCost: product.productCost,
+    cost: product.productCost * product.discount * 0.01,
     productPrice: product.productPrice,
     productName: product.productName,
     productType: product.productType,
-    quantity: orderData
-      .filter((order) => order?.product?.productName === product?.productName)
-      .map((order) => order?.quantity)
-      .reduce((accumulator, currentValue) => accumulator + currentValue, 0),
+    quantity: (
+      <>
+        {orderQuantity[index]} ({product.stock})
+      </>
+    ),
+    needBuy: orderQuantity[index] - product.stock,
     stock: product.stock,
     discount: product.discount,
     createDate: product.createDate.split(".")[0].replaceAll("T", " "),
@@ -234,6 +258,7 @@ const ProductDataTable = ({ productLoading, productData }) => {
         loading={productLoading}
         columns={columns}
         dataSource={data}
+        pageSize={20}
         pagination={{
           position: ["bottomCenter"],
         }}

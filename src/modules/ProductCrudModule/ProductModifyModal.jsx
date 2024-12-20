@@ -63,7 +63,7 @@ const ProductModifyModal = ({
     form.setFieldValue("productCost", productModifyData?.productCost);
     productModifyData?.discount
       ? form.setFieldValue("discount", productModifyData?.discount)
-      : form.setFieldValue("discount", 1);
+      : form.setFieldValue("discount", 100);
     form.setFieldValue("productPrice", productModifyData?.productPrice);
     form.setFieldValue("stock", productModifyData?.stock);
   }, [productModifyData]);
@@ -174,7 +174,12 @@ const ProductModifyModal = ({
               rules={[{ required: true, message: "請輸入優惠" }]}
               style={{ width: "37%" }}
             >
-              <Input prefix="x" defaultValue={1} style={{ width: "100%" }} />
+              <Input
+                prefix="x"
+                defaultValue={100}
+                suffix="%"
+                style={{ width: "100%" }}
+              />
             </Form.Item>
           </Space.Compact>
         </Form.Item>
