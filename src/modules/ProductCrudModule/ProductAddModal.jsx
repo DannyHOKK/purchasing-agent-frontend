@@ -10,7 +10,7 @@ import {
   Space,
 } from "antd";
 import React, { useEffect, useState } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import {
   createProduct,
   getAllProduct,
@@ -38,6 +38,19 @@ const formItemLayout = {
 const ProductAddModal = ({ open, setOpen, productBrandOptions }) => {
   const [form] = Form.useForm();
   const dispatch = useDispatch();
+  const { productData } = useSelector((state) => state.product);
+  const [productTypeOptions, setProductTypeOptions] = useState();
+
+  useEffect(() => {
+    setProductTypeOptions(
+      productData
+        .map((product) => product.productType)
+        .filter((product, index, self) => self.indexOf(product) === index)
+        .map((productType) => ({
+          value: productType,
+        }))
+    );
+  }, [productData]);
 
   useEffect(() => {
     form.setFieldValue("discount", 100);
@@ -46,7 +59,18 @@ const ProductAddModal = ({ open, setOpen, productBrandOptions }) => {
 
   const onFinish = async () => {
     await form.validateFields();
-    const result = await dispatch(createProduct(form.getFieldsValue()));
+
+    const createProductData = {
+      productBrand: form.getFieldValue("productBrand"),
+      productType: form.getFieldValue("productType"),
+      productName: form.getFieldValue("productName"),
+      productCost: form.getFieldValue("productCost"),
+      discount: form.getFieldValue("discount"),
+      productPrice: form.getFieldValue("productPrice"),
+      stock: form.getFieldValue("stock"),
+    };
+
+    const result = await dispatch(createProduct(createProductData));
 
     if (result.meta.requestStatus === "fulfilled") {
       setOpen(false);
@@ -99,6 +123,9 @@ const ProductAddModal = ({ open, setOpen, productBrandOptions }) => {
               option.value.toUpperCase().indexOf(inputValue.toUpperCase()) !==
               -1
             }
+            onChange={() => {
+              productTypeHandler();
+            }}
           />
         </Form.Item>
 
@@ -107,7 +134,13 @@ const ProductAddModal = ({ open, setOpen, productBrandOptions }) => {
           label="種類"
           rules={[{ required: true, message: "請輸入產品種類" }]}
         >
-          <Input />
+          <AutoComplete
+            options={productTypeOptions}
+            filterOption={(inputValue, option) =>
+              option.value.toUpperCase().indexOf(inputValue.toUpperCase()) !==
+              -1
+            }
+          />
         </Form.Item>
 
         <Form.Item
