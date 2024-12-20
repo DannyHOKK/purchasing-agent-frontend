@@ -1,5 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 import {
+  checkCustomerExist,
   createCustomer,
   deleteCustomer,
   getAllCustomer,
@@ -65,6 +66,18 @@ const customerSlice = createSlice({
         state.customerSuccess = true;
       })
       .addCase(modifyCustomer.rejected, (state, { payload }) => {
+        state.customerLoading = false;
+        state.customerError = payload;
+      })
+      .addCase(checkCustomerExist.pending, (state) => {
+        state.customerLoading = true;
+        state.customerError = null;
+      })
+      .addCase(checkCustomerExist.fulfilled, (state, { payload }) => {
+        state.customerLoading = false;
+        state.customerSuccess = true;
+      })
+      .addCase(checkCustomerExist.rejected, (state, { payload }) => {
         state.customerLoading = false;
         state.customerError = payload;
       });
