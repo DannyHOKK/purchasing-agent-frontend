@@ -3,39 +3,21 @@ import React, { useEffect, useState } from "react";
 import OrderAddModal from "./OrderAddModal";
 import { PlusOutlined, QuestionCircleOutlined } from "@ant-design/icons";
 import { useDispatch } from "react-redux";
-import { deleteOrderById, getAllOrders } from "../../redux/order/orderAction";
+import {
+  changeStatusOrder,
+  deleteOrderById,
+  getAllOrders,
+} from "../../redux/order/orderAction";
+import OrderModifyModal from "./OrderModifyModal";
 
 const OrderDataTable = ({ orderLoading, orderData, productData }) => {
   const [filteredInfo, setFilteredInfo] = useState({});
   const [sortedInfo, setSortedInfo] = useState({});
+  const [orderModifyData, setOrderModifyData] = useState({});
   const [messageApi, contextHolder] = message.useMessage();
   const [open, setOpen] = useState(false);
+  const [openModify, setOpenModify] = useState(false);
   const dispatch = useDispatch();
-
-  const handleChange = (pagination, filters, sorter) => {
-    setFilteredInfo(filters);
-    setSortedInfo(sorter);
-  };
-
-  const refreshHandler = () => {
-    dispatch(getAllOrders());
-  };
-
-  const deleteOrderHandler = async (orderId) => {
-    const result = await dispatch(deleteOrderById(orderId));
-    if (result.meta.requestStatus === "fulfilled") {
-      refreshHandler();
-      messageApi.open({
-        type: "success",
-        content: result.payload.msg,
-      });
-    } else {
-      messageApi.open({
-        type: "error",
-        content: result.payload,
-      });
-    }
-  };
 
   const customerPhone = orderData
     .map((order) =>
@@ -70,11 +52,12 @@ const OrderDataTable = ({ orderLoading, orderData, productData }) => {
       })),
       filteredValue: filteredInfo.phone || null,
       onFilter: (value, record) => record.phone === value,
-      sorter: (a, b) => a.phone.length - b.phone.length,
+      sorter: (a, b) =>
+        (parseInt(b.phone, 10) || 0) - (parseInt(a.phone, 10) || 0), // Sort by phone value
+
       sortOrder: sortedInfo.columnKey === "phone" ? sortedInfo.order : null,
       ellipsis: true,
       render: (text, record) => {
-        console.log(record);
         return record.phone !== null ? record.phone : record.instagram;
       },
     },
@@ -103,7 +86,10 @@ const OrderDataTable = ({ orderLoading, orderData, productData }) => {
       })),
       filteredValue: filteredInfo.productName || null,
       onFilter: (value, record) => record.productName === value,
-      sorter: (a, b) => a.productName.length - b.productName.length,
+      sorter: (a, b) =>
+        (a.productName || "").localeCompare(b.productName || "", "zh-HK", {
+          sensitivity: "base",
+        }),
       sortOrder:
         sortedInfo.columnKey === "productName" ? sortedInfo.order : null,
       ellipsis: true,
@@ -126,16 +112,53 @@ const OrderDataTable = ({ orderLoading, orderData, productData }) => {
       filters: [
         {
           text: "已付款",
-          value: "已付款",
+          value: true,
         },
         {
           text: "未付款",
-          value: "未付款",
+          value: false,
         },
       ],
       filteredValue: filteredInfo.paid || null,
-      onFilter: (value, record) => record.paid.props.children === value,
+      onFilter: (value, record) => record.paid === value,
       ellipsis: true,
+      render: (text, record) => {
+        return record?.paid === true ? (
+          <Popconfirm
+            placement="top"
+            title="更改為未付款"
+            onConfirm={() => {
+              changeStatusOrderHandler(record?.orderId, false);
+            }}
+            okText="更改"
+            cancelText="取消"
+          >
+            <Tag
+              color="green"
+              style={{ margin: "0 auto", justifyContent: "center" }}
+            >
+              已付款
+            </Tag>
+          </Popconfirm>
+        ) : (
+          <Popconfirm
+            placement="top"
+            title="更改為已付款"
+            onConfirm={() => {
+              changeStatusOrderHandler(record?.orderId, true);
+            }}
+            okText="更改"
+            cancelText="取消"
+          >
+            <Tag
+              color="red"
+              style={{ margin: "0 auto", justifyContent: "center" }}
+            >
+              未付款
+            </Tag>
+          </Popconfirm>
+        );
+      },
     },
     {
       title: "運輸",
@@ -265,6 +288,7 @@ const OrderDataTable = ({ orderLoading, orderData, productData }) => {
               style={{
                 marginRight: "10px",
               }}
+              onClick={() => modifyOrderHandler(record)}
             >
               更改
             </Button>
@@ -273,7 +297,7 @@ const OrderDataTable = ({ orderLoading, orderData, productData }) => {
               title="刪除訂單"
               description="是否確認刪除訂單?"
               onConfirm={() => {
-                deleteOrderHandler(record.id);
+                deleteOrderHandler(record.orderId);
               }}
               okText="刪除"
               cancelText="取消"
@@ -289,28 +313,67 @@ const OrderDataTable = ({ orderLoading, orderData, productData }) => {
   ];
 
   const data = orderData?.map((order, index) => ({
-    id: order.orderId,
+    id: index + 1,
+    orderId: order.orderId,
     phone: order?.customer?.phone,
     instagram: order?.customer?.instagram,
     productBrand: order?.product?.productBrand,
     productName: order?.product?.productName,
     productPrice: <>${order?.product?.productPrice}</>,
     quantity: order?.quantity,
-    paid: order?.paid ? (
-      <Tag color="green" style={{ margin: "0 auto", justifyContent: "center" }}>
-        已付款
-      </Tag>
-    ) : (
-      <Tag color="red" style={{ margin: "0 auto", justifyContent: "center" }}>
-        未付款
-      </Tag>
-    ),
+    paid: order?.paid,
     takeMethod: order?.takeMethod,
     paymentMethod: order?.paymentMethod,
     remark: order?.remark,
     createDate: order?.createDate.split(".")[0].replaceAll("T", " "),
     status: order?.status,
   }));
+
+  const handleChange = (pagination, filters, sorter) => {
+    setFilteredInfo(filters);
+    setSortedInfo(sorter);
+  };
+
+  const refreshHandler = () => {
+    dispatch(getAllOrders());
+  };
+
+  const deleteOrderHandler = async (orderId) => {
+    const result = await dispatch(deleteOrderById(orderId));
+    if (result.meta.requestStatus === "fulfilled") {
+      refreshHandler();
+      messageApi.open({
+        type: "success",
+        content: result.payload.msg,
+      });
+    } else {
+      messageApi.open({
+        type: "error",
+        content: result.payload,
+      });
+    }
+  };
+
+  const changeStatusOrderHandler = async (orderId, paid) => {
+    const orderStatusDTO = {
+      orderId: orderId,
+      paid: paid,
+    };
+    const result = await dispatch(changeStatusOrder(orderStatusDTO));
+
+    if (result.meta.requestStatus === "fulfilled") {
+      refreshHandler();
+      // messageApi.open({
+      //   type: "success",
+      //   content: result.payload.msg,
+      // });
+    }
+  };
+
+  const modifyOrderHandler = async (orderData) => {
+    setOrderModifyData(orderData);
+    setOpenModify(true);
+  };
 
   return (
     <div className="order-table-container">
@@ -340,7 +403,12 @@ const OrderDataTable = ({ orderLoading, orderData, productData }) => {
         onChange={handleChange}
         style={{ minWidth: "850px" }}
       />
-      <OrderAddModal open={open} setOpen={setOpen} productData={productData} />
+      <OrderAddModal open={open} setOpen={setOpen} messageApi={messageApi} />
+      <OrderModifyModal
+        openModify={openModify}
+        setOpenModify={setOpenModify}
+        orderModifyData={orderModifyData}
+      />
     </div>
   );
 };

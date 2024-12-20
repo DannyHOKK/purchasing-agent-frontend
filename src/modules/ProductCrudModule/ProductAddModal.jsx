@@ -157,6 +157,7 @@ const ProductAddModal = ({ open, setOpen, productBrandOptions }) => {
         >
           <Input type="number" defaultValue={0} />
         </Form.Item>
+        <Button htmlType="submit" style={{ display: "none" }}></Button>
       </Form>
     </Modal>
   );

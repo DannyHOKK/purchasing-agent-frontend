@@ -26,7 +26,7 @@ const formItemLayout = {
   },
 };
 
-const CustomerAddModal = ({ open, setOpen }) => {
+const CustomerAddModal = ({ open, setOpen, messageApi }) => {
   const [form] = Form.useForm();
   const dispatch = useDispatch();
   const customer = useRef({
@@ -50,6 +50,11 @@ const CustomerAddModal = ({ open, setOpen }) => {
     if (result.meta.requestStatus === "fulfilled") {
       setOpen(false);
       dispatch(getAllCustomer());
+    } else {
+      messageApi.open({
+        type: "error",
+        content: result.payload,
+      });
     }
   };
 
@@ -74,7 +79,12 @@ const CustomerAddModal = ({ open, setOpen }) => {
     >
       <div>請填寫下列表格，添加客人資料</div>
       <br />
-      <Form {...formItemLayout} autoComplete="off" form={form}>
+      <Form
+        {...formItemLayout}
+        autoComplete="off"
+        form={form}
+        onFinish={onFinish}
+      >
         <Form.Item name="instagram" label="Instagram">
           <Input />
         </Form.Item>
@@ -90,6 +100,7 @@ const CustomerAddModal = ({ open, setOpen }) => {
         <Form.Item name="remark" label="remark">
           <Input />
         </Form.Item>
+        <Button htmlType="submit" style={{ display: "none" }}></Button>
       </Form>
     </Modal>
   );

@@ -15,12 +15,11 @@ import {
   createProduct,
   getAllProduct,
 } from "../../redux/product/productAction";
-import { createOrder, getAllOrders } from "../../redux/order/orderAction";
 import {
-  checkCustomerExist,
-  createCustomer,
-  getAllCustomer,
-} from "../../redux/customer/customerAction";
+  createOrder,
+  getAllOrders,
+  modifyOrder,
+} from "../../redux/order/orderAction";
 
 const formItemLayout = {
   labelCol: {
@@ -41,7 +40,7 @@ const formItemLayout = {
   },
 };
 
-const OrderAddModal = ({ open, setOpen, messageApi }) => {
+const OrderModifyModal = ({ openModify, setOpenModify, orderModifyData }) => {
   const { productData } = useSelector((state) => state.product);
   const { allCustomer } = useSelector((state) => state.customer);
   const [form] = Form.useForm();
@@ -49,8 +48,7 @@ const OrderAddModal = ({ open, setOpen, messageApi }) => {
   const [contact, setContact] = useState(false);
   const [productTypeOptions, setProductTypeOptions] = useState();
   const [productNameOptions, setProductNameOptions] = useState();
-  const [openCustomerAdd, setOpenCustomerAdd] = useState(false);
-  const [productTotalPrice, setProductTotalPrice] = useState();
+  // const [messageApi, contextHolder] = message.useMessage();
   const ordersDTO = useRef({
     phone: "",
     instagram: "",
@@ -76,14 +74,32 @@ const OrderAddModal = ({ open, setOpen, messageApi }) => {
     );
   }, [productData]);
 
-  // useEffect(() => {
+  useEffect(() => {
+    console.log(orderModifyData);
 
-  // }, [form.getFieldValue("productName")]);
+    orderModifyData?.phone !== null
+      ? (form.setFieldValue("phone", orderModifyData?.photo),
+        form.setFieldValue("contact", true),
+        setContact(true))
+      : (form.setFieldValue("instagram", orderModifyData?.instagram),
+        form.setFieldValue("contact", false),
+        setContact(false));
+    form.setFieldValue("phone", orderModifyData?.phone);
+    form.setFieldValue("instagram", orderModifyData?.instagram);
+    form.setFieldValue("productName", orderModifyData?.productName);
+    autoFillHandler(orderModifyData?.productName);
+    form.setFieldValue("paid", orderModifyData?.paid);
+    form.setFieldValue("quantity", orderModifyData?.quantity);
+    form.setFieldValue("takeMethod", orderModifyData?.takeMethod);
+    form.setFieldValue("paymentMethod", orderModifyData?.paymentMethod);
+    form.setFieldValue("remark", orderModifyData?.remark);
+  }, [orderModifyData]);
 
   const onFinish = async () => {
     await form.validateFields();
 
     ordersDTO.current = {
+      orderId: orderModifyData?.orderId,
       phone: form.getFieldValue("phone"),
       instagram: form.getFieldValue("instagram"),
       productName: form.getFieldValue("productName"),
@@ -94,31 +110,15 @@ const OrderAddModal = ({ open, setOpen, messageApi }) => {
       remark: form.getFieldValue("remark") ? form.getFieldValue("remark") : " ",
     };
 
-    createOrderHandler();
+    modifyOrderHandler();
   };
 
-  const createOrderHandler = async () => {
-    const checkExistResult = await dispatch(
-      checkCustomerExist(ordersDTO.current)
-    );
+  const modifyOrderHandler = async () => {
+    const result = await dispatch(modifyOrder(ordersDTO.current));
 
-    if (checkExistResult.meta.requestStatus === "fulfilled") {
-      const result = await dispatch(createOrder(ordersDTO.current));
-
-      console.log(result);
-      if (result.meta.requestStatus === "fulfilled") {
-        setOpen(false);
-        form.resetFields();
-        dispatch(getAllOrders());
-
-        messageApi.open({
-          type: "success",
-          content: "成功創立訂單",
-        });
-      }
-    } else {
-      console.log("冇客人資料");
-      setOpenCustomerAdd(true);
+    if (result.meta.requestStatus === "fulfilled") {
+      setOpenModify(false);
+      dispatch(getAllOrders());
     }
   };
 
@@ -202,14 +202,6 @@ const OrderAddModal = ({ open, setOpen, messageApi }) => {
   };
 
   const autoFillHandler = (value) => {
-    const price = productData?.find(
-      (product) => product.productName === form.getFieldValue("productName")
-    ).productPrice;
-
-    setProductTotalPrice(price);
-
-    form.setFieldValue("price", price * form.getFieldValue("quantity"));
-
     form.setFieldValue(
       "productType",
       productData
@@ -220,77 +212,13 @@ const OrderAddModal = ({ open, setOpen, messageApi }) => {
     autoFillBrand();
   };
 
-  const addOrderHandler = async () => {
-    await form.validateFields();
-
-    ordersDTO.current = {
-      phone: form.getFieldValue("phone"),
-      instagram: form.getFieldValue("instagram"),
-      productName: form.getFieldValue("productName"),
-      paid: form.getFieldValue("paid"),
-      quantity: form.getFieldValue("quantity"),
-      takeMethod: form.getFieldValue("takeMethod"),
-      paymentMethod: form.getFieldValue("paymentMethod"),
-      remark: form.getFieldValue("remark") ? form.getFieldValue("remark") : " ",
-    };
-    createAddOrderHandler();
-  };
-
-  const createAddOrderHandler = async () => {
-    const result = await dispatch(createOrder(ordersDTO.current));
-
-    if (result.meta.requestStatus === "fulfilled") {
-      dispatch(getAllOrders());
-
-      setProductNameOptions(
-        productData?.map((product) => ({
-          value: product.productName,
-        }))
-      );
-
-      setProductTypeOptions(
-        productData?.map((product) => ({
-          value: product.productType,
-        }))
-      );
-
-      form.setFieldValue("productBrand", "");
-      form.setFieldValue("productType", "");
-      form.setFieldValue("productName", "");
-
-      messageApi.open({
-        type: "success",
-        content: "成功創立訂單",
-      });
-    }
-  };
-
-  const createCustomerHandler = async () => {
-    const customerDTO = {
-      phone: form.getFieldValue("phone"),
-      instagram: form.getFieldValue("instagram"),
-    };
-
-    const result = await dispatch(createCustomer(customerDTO));
-
-    console.log(result);
-    if (result.meta.requestStatus === "fulfilled") {
-      setOpenCustomerAdd(false);
-      messageApi.open({
-        type: "success",
-        content: "成功加入客人",
-      });
-      dispatch(getAllCustomer());
-    }
-  };
-
   return (
     <Modal
       title={<h3> 計單資料 </h3>}
       centered
-      open={open}
+      open={openModify}
       onCancel={() => {
-        setOpen(false);
+        setOpenModify(false);
         form.resetFields();
         form.setFieldValue("contact", contact);
       }}
@@ -298,7 +226,7 @@ const OrderAddModal = ({ open, setOpen, messageApi }) => {
         <>
           <Button
             onClick={() => {
-              setOpen(false);
+              setOpenModify(false);
               form.resetFields();
               form.setFieldValue("contact", contact);
             }}
@@ -310,12 +238,6 @@ const OrderAddModal = ({ open, setOpen, messageApi }) => {
             style={{ backgroundColor: "#1DA57A", color: "white" }}
           >
             確認
-          </Button>
-          <Button
-            onClick={addOrderHandler}
-            style={{ backgroundColor: "blue", color: "white" }}
-          >
-            加訂單
           </Button>
         </>
       }
@@ -330,11 +252,10 @@ const OrderAddModal = ({ open, setOpen, messageApi }) => {
         onFinish={onFinish}
       >
         <Form.Item name="contact" label="電話 / IG">
+          {/* {contextHolder} */}
           <Switch
             onChange={(value) => {
               setContact(value);
-              form.setFieldValue("phone", "");
-              form.setFieldValue("instagram", "");
             }}
             checkedChildren="電話"
             unCheckedChildren="IG"
@@ -352,6 +273,7 @@ const OrderAddModal = ({ open, setOpen, messageApi }) => {
                 option.value.toUpperCase().indexOf(inputValue.toUpperCase()) !==
                 -1
               }
+              disabled
             />
           </Form.Item>
         )}
@@ -368,6 +290,7 @@ const OrderAddModal = ({ open, setOpen, messageApi }) => {
                 option.value.toUpperCase().indexOf(inputValue.toUpperCase()) !==
                 -1
               }
+              disabled
             />
           </Form.Item>
         )}
@@ -464,15 +387,7 @@ const OrderAddModal = ({ open, setOpen, messageApi }) => {
           label="數量"
           rules={[{ required: true, message: "請輸入數量" }]}
         >
-          <Input
-            onChange={(e) => {
-              form.setFieldValue("price", productTotalPrice * e.target.value);
-            }}
-          />
-        </Form.Item>
-
-        <Form.Item name="price" label="總數">
-          <Input defaultValue={0} disabled />
+          <Input />
         </Form.Item>
 
         <Form.Item name="remark" label="Remark">
@@ -480,31 +395,8 @@ const OrderAddModal = ({ open, setOpen, messageApi }) => {
         </Form.Item>
         <Button htmlType="submit" style={{ display: "none" }}></Button>
       </Form>
-      <Modal
-        title={<h3> 加客人資料 </h3>}
-        centered
-        open={openCustomerAdd}
-        onCancel={() => {
-          setOpenCustomerAdd(false);
-        }}
-        footer={
-          <>
-            <Button onClick={() => setOpenCustomerAdd(false)}>取消</Button>
-            <Button
-              style={{ backgroundColor: "#1DA57A", color: "white" }}
-              onClick={() => createCustomerHandler()}
-            >
-              確認
-            </Button>
-          </>
-        }
-        width={400}
-      >
-        {form.getFieldValue("phone") && form.getFieldValue("phone")}
-        {form.getFieldValue("instagram") && form.getFieldValue("instagram")}
-      </Modal>
     </Modal>
   );
 };
 
-export default OrderAddModal;
+export default OrderModifyModal;

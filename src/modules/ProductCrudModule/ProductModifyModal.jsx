@@ -61,7 +61,9 @@ const ProductModifyModal = ({
     form.setFieldValue("productType", productModifyData?.productType);
     form.setFieldValue("productName", productModifyData?.productName);
     form.setFieldValue("productCost", productModifyData?.productCost);
-    form.setFieldValue("discount", productModifyData?.discount);
+    productModifyData?.discount
+      ? form.setFieldValue("discount", productModifyData?.discount)
+      : form.setFieldValue("discount", 1);
     form.setFieldValue("productPrice", productModifyData?.productPrice);
     form.setFieldValue("stock", productModifyData?.stock);
   }, [productModifyData]);
@@ -70,7 +72,7 @@ const ProductModifyModal = ({
     await form.validateFields();
 
     modifyProductData.current = {
-      productId: productModifyData?.id,
+      productId: productModifyData?.productId,
       productBrand: form.getFieldValue("productBrand"),
       productType: form.getFieldValue("productType"),
       productName: form.getFieldValue("productName"),
@@ -112,6 +114,7 @@ const ProductModifyModal = ({
           <Button
             onClick={onFinish}
             style={{ backgroundColor: "#1DA57A", color: "white" }}
+            htmlType="submit"
           >
             確認
           </Button>
@@ -121,7 +124,12 @@ const ProductModifyModal = ({
     >
       <div>請填寫下列表格，編輯產品資料</div>
       <br />
-      <Form {...formItemLayout} autoComplete="off" form={form}>
+      <Form
+        {...formItemLayout}
+        autoComplete="off"
+        form={form}
+        onFinish={onFinish}
+      >
         <Form.Item
           name="productBrand"
           label="牌子"
@@ -166,12 +174,7 @@ const ProductModifyModal = ({
               rules={[{ required: true, message: "請輸入優惠" }]}
               style={{ width: "37%" }}
             >
-              <InputNumber
-                prefix="x"
-                defaultValue={100}
-                suffix="%"
-                style={{ width: "100%" }}
-              />
+              <Input prefix="x" defaultValue={1} style={{ width: "100%" }} />
             </Form.Item>
           </Space.Compact>
         </Form.Item>
@@ -191,6 +194,7 @@ const ProductModifyModal = ({
         >
           <Input type="number" defaultValue={0} />
         </Form.Item>
+        <Button htmlType="submit" style={{ display: "none" }}></Button>
       </Form>
     </Modal>
   );

@@ -49,10 +49,6 @@ const CustomerDataTable = ({ customerLoading, customerData }) => {
     setOpenModify(true);
   };
 
-  const customerPhone = customerData
-    ?.map((customer) => customer.phone)
-    .filter((phone, index, self) => self.indexOf(phone) === index);
-
   const columns = [
     {
       title: "#",
@@ -64,13 +60,10 @@ const CustomerDataTable = ({ customerLoading, customerData }) => {
       title: "電話",
       dataIndex: "phone",
       key: "phone",
-      filters: customerPhone?.map((phone, index) => ({
-        text: phone,
-        value: phone,
-      })),
-      filteredValue: filteredInfo.phone || null,
-      onFilter: (value, record) => record.phone === value,
-      sorter: (a, b) => a.phone.length - b.phone.length,
+      sorter: (a, b) =>
+        (a.phone || "").localeCompare(b.phone || "", "zh-HK", {
+          sensitivity: "base",
+        }),
       sortOrder: sortedInfo.columnKey === "phone" ? sortedInfo.order : null,
       ellipsis: true,
       render: (text, record) => {
@@ -81,6 +74,12 @@ const CustomerDataTable = ({ customerLoading, customerData }) => {
       title: "Instagram",
       dataIndex: "instagram",
       key: "instagram",
+      sorter: (a, b) =>
+        (a.instagram || "").localeCompare(b.instagram || "", "zh-HK", {
+          sensitivity: "base",
+        }),
+      sortOrder: sortedInfo.columnKey === "instagram" ? sortedInfo.order : null,
+      ellipsis: true,
       render: (text, record) => {
         return record.instagram ? record.instagram : <>-</>;
       },
@@ -98,7 +97,7 @@ const CustomerDataTable = ({ customerLoading, customerData }) => {
       dataIndex: "remark",
       key: "remark",
       render: (text, record) => {
-        return record.remark ? record.remake : <>-</>;
+        return record.remark ? record.remark : <>-</>;
       },
     },
     {
@@ -145,7 +144,7 @@ const CustomerDataTable = ({ customerLoading, customerData }) => {
               title="刪除訂單"
               description="是否確認刪除訂單?"
               onConfirm={() => {
-                deleteCustomerHandler(record.id);
+                deleteCustomerHandler(record.customerId);
               }}
               okText="刪除"
               cancelText="取消"
@@ -161,7 +160,8 @@ const CustomerDataTable = ({ customerLoading, customerData }) => {
   ];
 
   const data = customerData?.map((customer, index) => ({
-    id: customer.customerId,
+    id: index + 1,
+    customerId: customer.customerId,
     phone: customer.phone ? customer.phone : null,
     instagram: customer.instagram ? customer.instagram : null,
     shippingAddress: customer.shippingAddress ? customer.shippingAddress : null,
@@ -202,11 +202,12 @@ const CustomerDataTable = ({ customerLoading, customerData }) => {
         onChange={handleChange}
         style={{ minWidth: "850px" }}
       />
-      <CustomerAddModal open={open} setOpen={setOpen} />
+      <CustomerAddModal open={open} setOpen={setOpen} messageApi={messageApi} />
       <CustomerModifyModal
         openModify={openModify}
         setOpenModify={setOpenModify}
         customerModifyData={customerModifyData}
+        messageApi={messageApi}
       />
     </div>
   );

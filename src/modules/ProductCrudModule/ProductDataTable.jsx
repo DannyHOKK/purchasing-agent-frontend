@@ -18,6 +18,8 @@ const ProductDataTable = ({ productLoading, productData }) => {
   const [productModifyData, setProductModifyData] = useState({});
   const dispatch = useDispatch();
 
+  const { orderData } = useSelector((state) => state.order);
+
   const handleChange = (pagination, filters, sorter) => {
     setFilteredInfo(filters);
     setSortedInfo(sorter);
@@ -25,6 +27,7 @@ const ProductDataTable = ({ productLoading, productData }) => {
 
   const refreshHandler = () => {
     dispatch(getAllProduct());
+    console.log(orderData);
   };
 
   const deleteProductHandler = async (productId) => {
@@ -48,6 +51,12 @@ const ProductDataTable = ({ productLoading, productData }) => {
     setOpenModify(true);
   };
 
+  const productBrand = productData
+    .map((product) => product.productBrand)
+    .filter(
+      (productBrand, index, self) => self.indexOf(productBrand) === index
+    );
+
   const columns = [
     {
       title: "#",
@@ -58,15 +67,19 @@ const ProductDataTable = ({ productLoading, productData }) => {
       title: "牌子",
       dataIndex: "productBrand",
       key: "productBrand",
-      // filters: customerPhone?.map((phone, index) => ({
-      //   text: phone,
-      //   value: phone,
-      // })),
-      // filteredValue: filteredInfo.phone || null,
-      // onFilter: (value, record) => record.phone === value,
-      // sorter: (a, b) => a.phone.length - b.phone.length,
-      // sortOrder: sortedInfo.columnKey === "phone" ? sortedInfo.order : null,
-      // ellipsis: true,
+      filters: productBrand?.map((productBrand, index) => ({
+        text: productBrand,
+        value: productBrand,
+      })),
+      filteredValue: filteredInfo.productBrand || null,
+      onFilter: (value, record) => record.productBrand === value,
+      sorter: (a, b) =>
+        (a.productBrand || "").localeCompare(b.productBrand || "", "zh-HK", {
+          sensitivity: "base",
+        }),
+      sortOrder:
+        sortedInfo.columnKey === "productBrand" ? sortedInfo.order : null,
+      ellipsis: true,
     },
     {
       title: "種類",
@@ -77,16 +90,29 @@ const ProductDataTable = ({ productLoading, productData }) => {
       title: "產品",
       dataIndex: "productName",
       key: "productName",
+      sorter: (a, b) =>
+        (a.productName || "").localeCompare(b.productName || "", "zh-HK", {
+          sensitivity: "base",
+        }),
+      sortOrder:
+        sortedInfo.columnKey === "productName" ? sortedInfo.order : null,
+      ellipsis: true,
     },
     {
       title: "成本",
       dataIndex: "productCost",
       key: "productCost",
+      render: (text, record) => {
+        return <>₩ {record.productCost}</>;
+      },
     },
     {
       title: "售價",
       dataIndex: "productPrice",
       key: "productPrice",
+      render: (text, record) => {
+        return <>$ {record.productPrice}</>;
+      },
     },
     {
       title: "訂單數量",
@@ -142,7 +168,7 @@ const ProductDataTable = ({ productLoading, productData }) => {
               title="刪除訂單"
               description="是否確認刪除訂單?"
               onConfirm={() => {
-                deleteProductHandler(record.id);
+                deleteProductHandler(record.productId);
               }}
               okText="刪除"
               cancelText="取消"
@@ -158,15 +184,19 @@ const ProductDataTable = ({ productLoading, productData }) => {
   ];
 
   const data = productData?.map((product, index) => ({
-    id: product.productId,
+    id: index + 1,
+    productId: product.productId,
     productBrand: product.productBrand,
-    productCost: product.productCost * product.discount,
+    productCost: product.productCost,
     productPrice: product.productPrice,
     productName: product.productName,
     productType: product.productType,
-    quantity: product.quantity,
+    quantity: orderData
+      .filter((order) => order?.product?.productName === product?.productName)
+      .map((order) => order?.quantity)
+      .reduce((accumulator, currentValue) => accumulator + currentValue, 0),
     stock: product.stock,
-    discount: product.discount * 100,
+    discount: product.discount,
     createDate: product.createDate.split(".")[0].replaceAll("T", " "),
     modifyDate: product.modifyDate.split(".")[0].replaceAll("T", " "),
   }));

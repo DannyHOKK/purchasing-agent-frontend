@@ -29,6 +29,7 @@ const CustomerModifyModal = ({
   openModify,
   setOpenModify,
   customerModifyData,
+  messageApi,
 }) => {
   const [form] = Form.useForm();
   const dispatch = useDispatch();
@@ -64,6 +65,11 @@ const CustomerModifyModal = ({
     if (result.meta.requestStatus === "fulfilled") {
       setOpenModify(false);
       dispatch(getAllCustomer());
+    } else {
+      messageApi.open({
+        type: "error",
+        content: result.payload,
+      });
     }
   };
 
@@ -88,7 +94,12 @@ const CustomerModifyModal = ({
     >
       <div>請填寫下列表格，編輯客人資料</div>
       <br />
-      <Form {...formItemLayout} autoComplete="off" form={form}>
+      <Form
+        {...formItemLayout}
+        autoComplete="off"
+        form={form}
+        onFinish={onFinish}
+      >
         <Form.Item name="instagram" label="Instagram">
           <Input />
         </Form.Item>
@@ -104,6 +115,7 @@ const CustomerModifyModal = ({
         <Form.Item name="remark" label="remark">
           <Input />
         </Form.Item>
+        <Button htmlType="submit" style={{ display: "none" }}></Button>
       </Form>
     </Modal>
   );

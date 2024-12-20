@@ -97,3 +97,27 @@ export const modifyCustomer = createAsyncThunk(
     }
   }
 );
+
+export const checkCustomerExist = createAsyncThunk(
+  "api/customer/checkCustomerExist",
+  async (customerDTO, { rejectWithValue }) => {
+    try {
+      const response = await axios.post(
+        `${backendURL}/api/customer/checkCustomerExist`,
+        customerDTO
+      );
+
+      if (response.data.code === -1) {
+        return rejectWithValue(response.data.msg);
+      }
+      return response.data;
+    } catch (error) {
+      // return custom error message from backend if present
+      if (error.response && error.response.data.message) {
+        return rejectWithValue(error.response.data.message);
+      } else {
+        return rejectWithValue(error.message);
+      }
+    }
+  }
+);
