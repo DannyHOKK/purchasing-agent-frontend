@@ -226,6 +226,49 @@ const OrderAddModal = ({ open, setOpen, messageApi }) => {
         .map((product) => product.productType)
     );
 
+    setProductTypeOptions(
+      productData
+        .filter(
+          (product) =>
+            product.productBrand ===
+            productData?.find((product) => product.productName === value)
+              .productBrand
+        )
+        .map((product) => product.productType)
+        .filter((product, index, self) => self.indexOf(product) === index)
+        .map((productType) => ({
+          value: productType,
+        }))
+    );
+
+    console.log(
+      productData
+        .filter(
+          (product) =>
+            product.productBrand ===
+            productData?.find((product) => product.productName === value)
+              .productBrand
+        )
+        .map((product) => product.productType)
+        .filter((product, index, self) => self.indexOf(product) === index)
+    );
+
+    // console.log(
+    //   productData
+    //     .filter(
+    //       (product) =>
+    //         product.productBrand ===
+    //         productData?.find((product) => product.productName === value)
+    //           .productBrand
+    //     )
+    //     .map((product) => product.productType)
+    //     .filter((product, index, self) => self.indexOf(product) === index)
+    // );
+
+    // console.log(
+    //   productData?.find((product) => product.productName === value).productBrand
+    // );
+
     autoFillBrand();
   };
 

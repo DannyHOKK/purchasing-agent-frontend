@@ -69,7 +69,7 @@ const ProductAddModal = ({ open, setOpen, productBrandOptions }) => {
       productPrice: form.getFieldValue("productPrice"),
       stock: form.getFieldValue("stock"),
     };
-
+    console.log(createProductData);
     const result = await dispatch(createProduct(createProductData));
 
     if (result.meta.requestStatus === "fulfilled") {
