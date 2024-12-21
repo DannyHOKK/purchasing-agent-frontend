@@ -46,7 +46,7 @@ const OrderAddModal = ({ open, setOpen, messageApi }) => {
   const { allCustomer } = useSelector((state) => state.customer);
   const [form] = Form.useForm();
   const dispatch = useDispatch();
-  const [contact, setContact] = useState(false);
+  const [orderPlatform, setOrderPlatform] = useState("instagram");
   const [productTypeOptions, setProductTypeOptions] = useState();
   const [productNameOptions, setProductNameOptions] = useState();
   const [openCustomerAdd, setOpenCustomerAdd] = useState(false);
@@ -79,10 +79,6 @@ const OrderAddModal = ({ open, setOpen, messageApi }) => {
     );
   }, [productData, open]);
 
-  // useEffect(() => {
-
-  // }, [form.getFieldValue("productName")]);
-
   const onFinish = async () => {
     await form.validateFields();
 
@@ -90,6 +86,7 @@ const OrderAddModal = ({ open, setOpen, messageApi }) => {
       phone: form.getFieldValue("phone"),
       instagram: form.getFieldValue("instagram"),
       productName: form.getFieldValue("productName"),
+      orderPlatform: orderPlatform,
       paid: form.getFieldValue("paid"),
       quantity: form.getFieldValue("quantity"),
       takeMethod: form.getFieldValue("takeMethod"),
@@ -241,34 +238,6 @@ const OrderAddModal = ({ open, setOpen, messageApi }) => {
         }))
     );
 
-    console.log(
-      productData
-        .filter(
-          (product) =>
-            product.productBrand ===
-            productData?.find((product) => product.productName === value)
-              .productBrand
-        )
-        .map((product) => product.productType)
-        .filter((product, index, self) => self.indexOf(product) === index)
-    );
-
-    // console.log(
-    //   productData
-    //     .filter(
-    //       (product) =>
-    //         product.productBrand ===
-    //         productData?.find((product) => product.productName === value)
-    //           .productBrand
-    //     )
-    //     .map((product) => product.productType)
-    //     .filter((product, index, self) => self.indexOf(product) === index)
-    // );
-
-    // console.log(
-    //   productData?.find((product) => product.productName === value).productBrand
-    // );
-
     autoFillBrand();
   };
 
@@ -334,7 +303,6 @@ const OrderAddModal = ({ open, setOpen, messageApi }) => {
 
     const result = await dispatch(createCustomer(customerDTO));
 
-    console.log(result);
     if (result.meta.requestStatus === "fulfilled") {
       setOpenCustomerAdd(false);
       messageApi.open({
@@ -348,7 +316,7 @@ const OrderAddModal = ({ open, setOpen, messageApi }) => {
   const onClose = () => {
     setOpen(false);
     form.resetFields();
-    form.setFieldValue("contact", contact);
+    setOrderPlatform("instagram");
   };
 
   return (
@@ -392,10 +360,10 @@ const OrderAddModal = ({ open, setOpen, messageApi }) => {
         form={form}
         onFinish={onFinish}
       >
-        <Form.Item name="contact" label="電話 / IG">
+        <Form.Item name="orderPlatform" label="電話 / IG">
           <Switch
             onChange={(value) => {
-              setContact(value);
+              setOrderPlatform(value ? "phone" : "instagram");
               form.setFieldValue("phone", "");
               form.setFieldValue("instagram", "");
             }}
@@ -403,7 +371,7 @@ const OrderAddModal = ({ open, setOpen, messageApi }) => {
             unCheckedChildren="IG"
           />
         </Form.Item>
-        {contact && (
+        {orderPlatform === "phone" && (
           <Form.Item
             name="phone"
             label="客人電話"
@@ -419,7 +387,7 @@ const OrderAddModal = ({ open, setOpen, messageApi }) => {
           </Form.Item>
         )}
 
-        {contact === false && (
+        {orderPlatform === "instagram" && (
           <Form.Item
             name="instagram"
             label="Instagram"

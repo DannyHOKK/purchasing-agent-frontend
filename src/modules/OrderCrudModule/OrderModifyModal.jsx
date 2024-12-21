@@ -20,6 +20,7 @@ import {
   getAllOrders,
   modifyOrder,
 } from "../../redux/order/orderAction";
+import { tr } from "framer-motion/client";
 
 const formItemLayout = {
   labelCol: {
@@ -45,7 +46,7 @@ const OrderModifyModal = ({ openModify, setOpenModify, orderModifyData }) => {
   const { allCustomer } = useSelector((state) => state.customer);
   const [form] = Form.useForm();
   const dispatch = useDispatch();
-  const [contact, setContact] = useState(false);
+  const [orderPlatform, setOrderPlatform] = useState();
   const [productTypeOptions, setProductTypeOptions] = useState();
   const [productNameOptions, setProductNameOptions] = useState();
   // const [messageApi, contextHolder] = message.useMessage();
@@ -54,6 +55,7 @@ const OrderModifyModal = ({ openModify, setOpenModify, orderModifyData }) => {
     instagram: "",
     productName: "",
     paid: false,
+    orderPlatform: "",
     quantity: 0,
     takeMethod: "",
     paymentMethod: "",
@@ -75,15 +77,10 @@ const OrderModifyModal = ({ openModify, setOpenModify, orderModifyData }) => {
   }, [productData]);
 
   useEffect(() => {
-    console.log(orderModifyData);
-
     orderModifyData?.phone !== null
-      ? (form.setFieldValue("phone", orderModifyData?.photo),
-        form.setFieldValue("contact", true),
-        setContact(true))
-      : (form.setFieldValue("instagram", orderModifyData?.instagram),
-        form.setFieldValue("contact", false),
-        setContact(false));
+      ? form.setFieldValue("phone", orderModifyData?.photo)
+      : form.setFieldValue("instagram", orderModifyData?.instagram);
+
     form.setFieldValue("phone", orderModifyData?.phone);
     form.setFieldValue("instagram", orderModifyData?.instagram);
     form.setFieldValue("productName", orderModifyData?.productName);
@@ -93,6 +90,13 @@ const OrderModifyModal = ({ openModify, setOpenModify, orderModifyData }) => {
     form.setFieldValue("takeMethod", orderModifyData?.takeMethod);
     form.setFieldValue("paymentMethod", orderModifyData?.paymentMethod);
     form.setFieldValue("remark", orderModifyData?.remark);
+    setOrderPlatform(
+      orderModifyData?.orderPlatform === "phone" ? "phone" : "instagram"
+    );
+    form.setFieldValue(
+      "orderPlatform",
+      orderModifyData?.orderPlatform === "phone" ? true : false
+    );
   }, [orderModifyData]);
 
   const onFinish = async () => {
@@ -104,6 +108,7 @@ const OrderModifyModal = ({ openModify, setOpenModify, orderModifyData }) => {
       instagram: form.getFieldValue("instagram"),
       productName: form.getFieldValue("productName"),
       paid: form.getFieldValue("paid"),
+      orderPlatform: orderPlatform,
       quantity: form.getFieldValue("quantity"),
       takeMethod: form.getFieldValue("takeMethod"),
       paymentMethod: form.getFieldValue("paymentMethod"),
@@ -220,7 +225,7 @@ const OrderModifyModal = ({ openModify, setOpenModify, orderModifyData }) => {
       onCancel={() => {
         setOpenModify(false);
         form.resetFields();
-        form.setFieldValue("contact", contact);
+        form.setFieldValue("orderPlatform", orderPlatform);
       }}
       footer={
         <>
@@ -228,7 +233,7 @@ const OrderModifyModal = ({ openModify, setOpenModify, orderModifyData }) => {
             onClick={() => {
               setOpenModify(false);
               form.resetFields();
-              form.setFieldValue("contact", contact);
+              form.setFieldValue("orderPlatform", orderPlatform);
             }}
           >
             取消
@@ -251,17 +256,16 @@ const OrderModifyModal = ({ openModify, setOpenModify, orderModifyData }) => {
         form={form}
         onFinish={onFinish}
       >
-        <Form.Item name="contact" label="電話 / IG">
-          {/* {contextHolder} */}
+        <Form.Item name="orderPlatform" label="電話 / IG">
           <Switch
             onChange={(value) => {
-              setContact(value);
+              setOrderPlatform(value ? "phone" : "instagram");
             }}
             checkedChildren="電話"
             unCheckedChildren="IG"
           />
         </Form.Item>
-        {contact && (
+        {orderPlatform === "phone" && (
           <Form.Item
             name="phone"
             label="客人電話"
@@ -278,7 +282,7 @@ const OrderModifyModal = ({ openModify, setOpenModify, orderModifyData }) => {
           </Form.Item>
         )}
 
-        {contact === false && (
+        {orderPlatform === "instagram" && (
           <Form.Item
             name="instagram"
             label="Instagram"

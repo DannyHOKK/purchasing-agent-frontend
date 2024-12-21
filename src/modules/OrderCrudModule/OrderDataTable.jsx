@@ -1,4 +1,4 @@
-import { Badge, Button, Popconfirm, Table, Tag, message } from "antd";
+import { Badge, Button, Dropdown, Popconfirm, Table, Tag, message } from "antd";
 import React, { useEffect, useState } from "react";
 import OrderAddModal from "./OrderAddModal";
 import { PlusOutlined, QuestionCircleOutlined } from "@ant-design/icons";
@@ -22,7 +22,9 @@ const OrderDataTable = ({ orderLoading, orderData, productData }) => {
 
   const customerPhone = orderData
     .map((order) =>
-      order.customer?.phone ? order.customer?.phone : order?.customer?.instagram
+      order.orderPlatform === "phone"
+        ? order.customer.phone
+        : order.customer.instagram
     )
     .filter((phone, index, self) => self.indexOf(phone) === index);
 
@@ -45,27 +47,25 @@ const OrderDataTable = ({ orderLoading, orderData, productData }) => {
     },
     {
       title: "電話/IG",
-      dataIndex: "phone",
-      key: "phone",
+      dataIndex: "showOrderName",
+      key: "showOrderName",
       width: "130px",
-      filters: customerPhone?.map((phone, index) => ({
-        text: phone,
-        value: phone,
-      })),
-      filteredValue: filteredInfo.phone || null,
-      onFilter: (value, record) => record.phone === value,
+      filterSearch: true,
+      filters: customerPhone?.map((phone, index) => {
+        return {
+          text: phone,
+          value: phone,
+        };
+      }),
+      filteredValue: filteredInfo.showOrderName || null,
+      onFilter: (value, record) => record.showOrderName === value,
       sorter: (a, b) =>
-        (parseInt(b.phone, 10) || 0) - (parseInt(a.phone, 10) || 0), // Sort by phone value
+        (parseInt(b.showOrderName, 10) || 0) -
+        (parseInt(a.showOrderName, 10) || 0), // Sort by phone value
 
-      sortOrder: sortedInfo.columnKey === "phone" ? sortedInfo.order : null,
+      sortOrder:
+        sortedInfo.columnKey === "showOrderName" ? sortedInfo.order : null,
       ellipsis: true,
-      render: (text, record) => {
-        console.log(record.instagram);
-
-        return record.phone !== null || record.phone === ""
-          ? record.phone
-          : record.instagram;
-      },
     },
     {
       title: "牌子",
@@ -78,7 +78,10 @@ const OrderDataTable = ({ orderLoading, orderData, productData }) => {
       })),
       filteredValue: filteredInfo.productBrand || null,
       onFilter: (value, record) => record.productBrand === value,
-      sorter: (a, b) => a.productBrand.length - b.productBrand.length,
+      sorter: (a, b) =>
+        (a.productBrand || "").localeCompare(b.productBrand || "", "zh-HK", {
+          sensitivity: "base",
+        }),
       sortOrder:
         sortedInfo.columnKey === "productBrand" ? sortedInfo.order : null,
       ellipsis: true,
@@ -133,40 +136,72 @@ const OrderDataTable = ({ orderLoading, orderData, productData }) => {
       onFilter: (value, record) => record.paid === value,
       ellipsis: true,
       render: (text, record) => {
-        return record?.paid === true ? (
-          <Popconfirm
-            placement="top"
-            title="更改為未付款"
-            onConfirm={() => {
-              changepaidOrderHandler(record?.orderId, false);
-            }}
-            okText="更改"
-            cancelText="取消"
-          >
+        const items = [
+          {
+            label: (
+              <a
+                onClick={() => {
+                  changepaidOrderHandler(record.orderId, "已付款");
+                }}
+              >
+                已付款
+              </a>
+            ),
+            key: "0",
+          },
+          {
+            label: (
+              <a
+                onClick={() => {
+                  changepaidOrderHandler(record.orderId, "未付款");
+                }}
+              >
+                未付款
+              </a>
+            ),
+            key: "1",
+          },
+          {
+            label: (
+              <a
+                onClick={() => {
+                  changepaidOrderHandler(record.orderId, "已退款");
+                }}
+              >
+                已退款
+              </a>
+            ),
+            key: "2",
+          },
+        ];
+
+        return record?.paid === "已付款" ? (
+          <Dropdown menu={{ items }} trigger={["click"]}>
             <Tag
               color="green"
               style={{ margin: "0 auto", justifyContent: "center" }}
             >
               已付款
             </Tag>
-          </Popconfirm>
-        ) : (
-          <Popconfirm
-            placement="top"
-            title="更改為已付款"
-            onConfirm={() => {
-              changepaidOrderHandler(record?.orderId, true);
-            }}
-            okText="更改"
-            cancelText="取消"
-          >
+          </Dropdown>
+        ) : record?.paid === "未付款" ? (
+          <Dropdown menu={{ items }} trigger={["click"]}>
             <Tag
               color="red"
               style={{ margin: "0 auto", justifyContent: "center" }}
             >
               未付款
             </Tag>
-          </Popconfirm>
+          </Dropdown>
+        ) : (
+          <Dropdown menu={{ items }} trigger={["click"]}>
+            <Tag
+              color="#AAB7B8"
+              style={{ margin: "0 auto", justifyContent: "center" }}
+            >
+              已退款
+            </Tag>
+          </Dropdown>
         );
       },
     },
@@ -187,7 +222,6 @@ const OrderDataTable = ({ orderLoading, orderData, productData }) => {
       ],
       filteredValue: filteredInfo.takeMethod || null,
       onFilter: (value, record) => {
-        console.log(record);
         return record.takeMethod === value;
       },
       ellipsis: true,
@@ -272,63 +306,86 @@ const OrderDataTable = ({ orderLoading, orderData, productData }) => {
           text: "已寄出",
           value: "已寄出",
         },
+        {
+          text: "斷貨",
+          value: "斷貨",
+        },
       ],
       filteredValue: filteredInfo.status || null,
       onFilter: (value, record) => record.status === value,
       ellipsis: true,
       render: (text, record) => {
+        const items = [
+          {
+            label: (
+              <a
+                onClick={() => {
+                  changeStatusOrderHandler(record.orderId, "備貨中");
+                }}
+              >
+                備貨中
+              </a>
+            ),
+            key: "0",
+          },
+          {
+            label: (
+              <a
+                onClick={() => {
+                  changeStatusOrderHandler(record.orderId, "已寄出");
+                }}
+              >
+                已寄出
+              </a>
+            ),
+            key: "1",
+          },
+          {
+            label: (
+              <a
+                onClick={() => {
+                  changeStatusOrderHandler(record.orderId, "已取");
+                }}
+              >
+                已取
+              </a>
+            ),
+            key: "2",
+          },
+          {
+            label: (
+              <a
+                onClick={() => {
+                  changeStatusOrderHandler(record.orderId, "斷貨");
+                }}
+              >
+                斷貨
+              </a>
+            ),
+            key: "3",
+          },
+        ];
         return (
           <>
             {record.status === "備貨中" && (
-              <Popconfirm
-                placement="topLeft"
-                title="更改狀態"
-                description=""
-                onConfirm={() => {
-                  changeStatusOrderHandler(record.orderId, "已寄出");
-                }}
-                onCancel={() => {
-                  changeStatusOrderHandler(record.orderId, "已取");
-                }}
-                okText="已寄出"
-                cancelText="已取"
-              >
+              <Dropdown menu={{ items }} trigger={["click"]}>
                 <Badge status="processing" text="備貨中" />
-              </Popconfirm>
+              </Dropdown>
             )}
             {record.status === "已寄出" && (
-              <Popconfirm
-                placement="topLeft"
-                title="更改狀態"
-                description=""
-                onConfirm={() => {
-                  changeStatusOrderHandler(record.orderId, "備貨中");
-                }}
-                onCancel={() => {
-                  changeStatusOrderHandler(record.orderId, "已取");
-                }}
-                okText="備貨中"
-                cancelText="已取"
-              >
+              <Dropdown menu={{ items }} trigger={["click"]}>
                 <Badge status="success" text="已寄出" />
-              </Popconfirm>
+              </Dropdown>
             )}
             {record.status === "已取" && (
-              <Popconfirm
-                placement="topLeft"
-                title="更改狀態"
-                description=""
-                onConfirm={() => {
-                  changeStatusOrderHandler(record.orderId, "備貨中");
-                }}
-                onCancel={() => {
-                  changeStatusOrderHandler(record.orderId, "已寄出");
-                }}
-                okText="備貨中"
-                cancelText="已寄出"
-              >
+              <Dropdown menu={{ items }} trigger={["click"]}>
                 <Badge status="success" text="已取" />
-              </Popconfirm>
+              </Dropdown>
+            )}
+            {record.status === "斷貨" && (
+              <Dropdown menu={{ items }} trigger={["click"]}>
+                <Badge status="default" text="斷貨" />
+              </Dropdown>
             )}
           </>
         );
@@ -386,9 +443,14 @@ const OrderDataTable = ({ orderLoading, orderData, productData }) => {
     orderId: order.orderId,
     phone: order?.customer?.phone,
     instagram: order?.customer?.instagram,
+    showOrderName:
+      order.orderPlatform === "phone"
+        ? order?.customer?.phone
+        : order?.customer?.instagram,
     productBrand: order?.product?.productBrand,
     productName: order?.product?.productName,
     productPrice: <>${order?.product?.productPrice}</>,
+    orderPlatform: order?.orderPlatform,
     quantity: order?.quantity,
     paid: order?.paid,
     takeMethod: order?.takeMethod,

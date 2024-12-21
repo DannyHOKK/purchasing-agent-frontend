@@ -33,13 +33,6 @@ const CustomerModifyModal = ({
 }) => {
   const [form] = Form.useForm();
   const dispatch = useDispatch();
-  const modifyCustomerData = useRef({
-    customerId: "",
-    phone: "",
-    instagram: "",
-    remark: "",
-    shippingAddress: "",
-  });
 
   useEffect(() => {
     form.setFieldValue("instagram", customerModifyData?.instagram);
@@ -51,16 +44,22 @@ const CustomerModifyModal = ({
 
   const onFinish = async () => {
     await form.validateFields();
-    modifyCustomerData.current = {
+    const modifyCustomerData = {
       customerId: customerModifyData.customerId,
-      phone: form.getFieldValue("phone"),
-      instagram: form.getFieldValue("instagram"),
-      remark: form.getFieldValue("remark"),
-      shippingAddress: form.getFieldValue("shippingAddress"),
+      phone: form.getFieldValue("phone") ? form.getFieldValue("phone") : null,
+      instagram: form.getFieldValue("instagram")
+        ? form.getFieldValue("instagram")
+        : null,
+      remark: form.getFieldValue("remark")
+        ? form.getFieldValue("remark")
+        : null,
+      shippingAddress: form.getFieldValue("shippingAddress")
+        ? form.getFieldValue("shippingAddress")
+        : null,
     };
-    console.log(modifyCustomerData.current);
+    console.log(modifyCustomerData);
 
-    const result = await dispatch(modifyCustomer(modifyCustomerData.current));
+    const result = await dispatch(modifyCustomer(modifyCustomerData));
 
     if (result.meta.requestStatus === "fulfilled") {
       setOpenModify(false);
