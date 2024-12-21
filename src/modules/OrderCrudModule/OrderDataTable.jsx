@@ -97,6 +97,7 @@ const OrderDataTable = ({ orderLoading, orderData, productData }) => {
       dataIndex: "productName",
       key: "productName",
       width: "240px",
+      filterSearch: true,
       filters: productName.map((brand, index) => ({
         text: brand,
         value: brand,
@@ -429,7 +430,7 @@ const OrderDataTable = ({ orderLoading, orderData, productData }) => {
       },
     },
     {
-      title: "落單時間",
+      title: "付款時間",
       dataIndex: "createDate",
       key: "createDate",
       width: "180px",
@@ -486,7 +487,7 @@ const OrderDataTable = ({ orderLoading, orderData, productData }) => {
         : order?.customer?.instagram,
     productBrand: order?.product?.productBrand,
     productName: order?.product?.productName,
-    productPrice: <>${order?.product?.productPrice}</>,
+    productPrice: <>${order?.product?.productPrice * order?.quantity}</>,
     orderPlatform: order?.orderPlatform,
     quantity: order?.quantity,
     paid: order?.paid,

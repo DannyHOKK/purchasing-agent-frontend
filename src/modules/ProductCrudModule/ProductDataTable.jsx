@@ -33,7 +33,7 @@ const ProductDataTable = ({ productLoading, productData }) => {
       .filter(
         (order) =>
           order?.product?.productName === product?.productName &&
-          order?.paid === true
+          order?.paid === "已付款"
       )
       .map((order) => order?.quantity)
       .reduce((accumulator, currentValue) => accumulator + currentValue, 0);
@@ -85,6 +85,10 @@ const ProductDataTable = ({ productLoading, productData }) => {
     .map((product) => product.productType)
     .filter((productType, index, self) => self.indexOf(productType) === index);
 
+  const productName = productData
+    .map((product) => product.productName)
+    .filter((productName, index, self) => self.indexOf(productName) === index);
+
   const columns = [
     {
       title: "#",
@@ -133,6 +137,13 @@ const ProductDataTable = ({ productLoading, productData }) => {
       title: "產品",
       dataIndex: "productName",
       key: "productName",
+      filterSearch: true,
+      filters: productName?.map((productName, index) => ({
+        text: productName,
+        value: productName,
+      })),
+      filteredValue: filteredInfo.productName || null,
+      onFilter: (value, record) => record.productName === value,
       sorter: (a, b) =>
         (a.productName || "").localeCompare(b.productName || "", "zh-HK", {
           sensitivity: "base",
