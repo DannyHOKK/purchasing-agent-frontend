@@ -1,6 +1,7 @@
 import {
   AutoComplete,
   Button,
+  Checkbox,
   Col,
   Form,
   Input,
@@ -10,7 +11,7 @@ import {
   Space,
 } from "antd";
 import React, { useEffect, useRef, useState } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import {
   createProduct,
   getAllProduct,
@@ -44,6 +45,9 @@ const ProductModifyModal = ({
 }) => {
   const [form] = Form.useForm();
   const dispatch = useDispatch();
+  const [productTypeOptions, setProductTypeOptions] = useState();
+  const [commission, setCommission] = useState(false);
+  const { productData } = useSelector((state) => state.product);
   const modifyProductData = useRef({
     productId: "",
     productBrand: "",
@@ -56,7 +60,15 @@ const ProductModifyModal = ({
   });
 
   useEffect(() => {
-    console.log(productModifyData);
+    setProductTypeOptions(
+      productData
+        ?.map((product) => product.productType)
+        ?.filter((product, index, self) => self.indexOf(product) === index)
+        ?.map((productType) => ({
+          value: productType,
+        }))
+    );
+
     form.setFieldValue("productBrand", productModifyData?.productBrand);
     form.setFieldValue("productType", productModifyData?.productType);
     form.setFieldValue("productName", productModifyData?.productName);
@@ -66,6 +78,8 @@ const ProductModifyModal = ({
       : form.setFieldValue("discount", 100);
     form.setFieldValue("productPrice", productModifyData?.productPrice);
     form.setFieldValue("stock", productModifyData?.stock);
+    form.setFieldValue("commission", productModifyData?.commission);
+    setCommission(productModifyData?.commission);
   }, [productModifyData]);
 
   const onFinish = async () => {
@@ -80,6 +94,7 @@ const ProductModifyModal = ({
       discount: form.getFieldValue("discount"),
       productPrice: form.getFieldValue("productPrice"),
       stock: form.getFieldValue("stock"),
+      commission: commission,
     };
 
     const result = await dispatch(modifyProduct(modifyProductData.current));
@@ -149,7 +164,13 @@ const ProductModifyModal = ({
           label="種類"
           rules={[{ required: true, message: "請輸入產品種類" }]}
         >
-          <Input />
+          <AutoComplete
+            options={productTypeOptions}
+            filterOption={(inputValue, option) =>
+              option.value.toUpperCase().indexOf(inputValue.toUpperCase()) !==
+              -1
+            }
+          />
         </Form.Item>
 
         <Form.Item
@@ -182,6 +203,15 @@ const ProductModifyModal = ({
               />
             </Form.Item>
           </Space.Compact>
+        </Form.Item>
+
+        <Form.Item name="commission" label="返點" valuePropName="checked">
+          <Checkbox
+            style={{ marginLeft: "10px" }}
+            onChange={(e) => {
+              setCommission(e.target.checked);
+            }}
+          />
         </Form.Item>
 
         <Form.Item

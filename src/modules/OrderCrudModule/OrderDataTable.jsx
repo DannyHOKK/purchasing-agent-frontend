@@ -5,6 +5,7 @@ import { PlusOutlined, QuestionCircleOutlined } from "@ant-design/icons";
 import { useDispatch } from "react-redux";
 import {
   changePaidOrder,
+  changeTakeMethodOrder,
   changeStatusOrder,
   deleteOrderById,
   getAllOrders,
@@ -59,9 +60,14 @@ const OrderDataTable = ({ orderLoading, orderData, productData }) => {
       }),
       filteredValue: filteredInfo.showOrderName || null,
       onFilter: (value, record) => record.showOrderName === value,
-      sorter: (a, b) =>
-        (parseInt(b.showOrderName, 10) || 0) -
-        (parseInt(a.showOrderName, 10) || 0), // Sort by phone value
+      sorter: (a, b) => {
+        const valueA = a.showOrderName.toString().toLowerCase();
+        const valueB = b.showOrderName.toString().toLowerCase();
+
+        if (valueA < valueB) return -1;
+        if (valueA > valueB) return 1;
+        return 0;
+      },
 
       sortOrder:
         sortedInfo.columnKey === "showOrderName" ? sortedInfo.order : null,
@@ -226,29 +232,58 @@ const OrderDataTable = ({ orderLoading, orderData, productData }) => {
       },
       ellipsis: true,
       render: (text, record) => {
+        const items = [
+          {
+            label: (
+              <a
+                onClick={() => {
+                  changeTakeMethodOrderHandler(record.orderId, "自取");
+                }}
+              >
+                自取
+              </a>
+            ),
+            key: "0",
+          },
+          {
+            label: (
+              <a
+                onClick={() => {
+                  changeTakeMethodOrderHandler(record.orderId, "郵寄");
+                }}
+              >
+                郵寄
+              </a>
+            ),
+            key: "1",
+          },
+        ];
+
         if (record.takeMethod === "自取") {
           return (
-            <>
+            <Dropdown menu={{ items }} trigger={["click"]}>
               <Tag
                 color="pink"
                 style={{ margin: "0 auto", justifyContent: "center" }}
               >
                 自取
               </Tag>
-            </>
+            </Dropdown>
           );
         } else if (record.takeMethod === "郵寄") {
           return (
-            <Tag
-              color="yellow"
-              style={{
-                margin: "0 auto",
-                justifyContent: "center",
-                border: "1px solid #E1E100",
-              }}
-            >
-              郵寄
-            </Tag>
+            <Dropdown menu={{ items }} trigger={["click"]}>
+              <Tag
+                color="yellow"
+                style={{
+                  margin: "0 auto",
+                  justifyContent: "center",
+                  border: "1px solid #E1E100",
+                }}
+              >
+                郵寄
+              </Tag>
+            </Dropdown>
           );
         }
       },
@@ -257,6 +292,7 @@ const OrderDataTable = ({ orderLoading, orderData, productData }) => {
       title: "付款方法",
       dataIndex: "paymentMethod",
       key: "paymentMethod",
+      width: "80px",
       filters: [
         {
           text: "PAYME",
@@ -293,6 +329,7 @@ const OrderDataTable = ({ orderLoading, orderData, productData }) => {
       title: "狀態",
       dataIndex: "status",
       key: "status",
+      width: "90px",
       filters: [
         {
           text: "備貨中",
@@ -374,12 +411,12 @@ const OrderDataTable = ({ orderLoading, orderData, productData }) => {
             )}
             {record.status === "已寄出" && (
               <Dropdown menu={{ items }} trigger={["click"]}>
-                <Badge status="success" text="已寄出" />
+                <Badge color="yellow" text="已寄出" />
               </Dropdown>
             )}
             {record.status === "已取" && (
               <Dropdown menu={{ items }} trigger={["click"]}>
-                <Badge status="success" text="已取" />
+                <Badge color="pink" text="已取" />
               </Dropdown>
             )}
             {record.status === "斷貨" && (
@@ -519,6 +556,18 @@ const OrderDataTable = ({ orderLoading, orderData, productData }) => {
       //   type: "success",
       //   content: result.payload.msg,
       // });
+    }
+  };
+
+  const changeTakeMethodOrderHandler = async (orderId, takeMethod) => {
+    const orderStatusDTO = {
+      orderId: orderId,
+      takeMethod: takeMethod,
+    };
+    const result = await dispatch(changeTakeMethodOrder(orderStatusDTO));
+
+    if (result.meta.requestStatus === "fulfilled") {
+      refreshHandler();
     }
   };
 

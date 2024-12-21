@@ -49,6 +49,7 @@ const OrderModifyModal = ({ openModify, setOpenModify, orderModifyData }) => {
   const [orderPlatform, setOrderPlatform] = useState();
   const [productTypeOptions, setProductTypeOptions] = useState();
   const [productNameOptions, setProductNameOptions] = useState();
+  const [productTotalPrice, setProductTotalPrice] = useState();
   // const [messageApi, contextHolder] = message.useMessage();
   const ordersDTO = useRef({
     phone: "",
@@ -70,9 +71,12 @@ const OrderModifyModal = ({ openModify, setOpenModify, orderModifyData }) => {
     );
 
     setProductTypeOptions(
-      productData?.map((product) => ({
-        value: product.productType,
-      }))
+      productData
+        .map((product) => product.productType)
+        .filter((product, index, self) => self.indexOf(product) === index)
+        .map((productType) => ({
+          value: productType,
+        }))
     );
   }, [productData]);
 
@@ -183,15 +187,21 @@ const OrderModifyModal = ({ openModify, setOpenModify, orderModifyData }) => {
   const filterTypeHandler = () => {
     setProductNameOptions(
       productData
-        .filter((product) =>
-          product.productType?.includes(form.getFieldValue("productType"))
+        .filter(
+          (product) =>
+            product.productType?.includes(form.getFieldValue("productType")) &&
+            product.productBrand?.includes(
+              form.getFieldValue("productBrand")
+                ? form.getFieldValue("productBrand")
+                : ""
+            )
         )
         .map((product) => ({
           value: product.productName,
         }))
     );
 
-    autoFillBrand();
+    // autoFillBrand();
     form.setFieldValue("productName", "");
   };
 
@@ -200,18 +210,43 @@ const OrderModifyModal = ({ openModify, setOpenModify, orderModifyData }) => {
       "productBrand",
       productData
         .filter(
-          (product) => product.productType == form.getFieldValue("productType")
+          (product) => product.productName == form.getFieldValue("productName")
         )
         .map((product) => product.productBrand)
     );
   };
 
+  console.log(productData.productPrice);
+
   const autoFillHandler = (value) => {
+    const price = productData?.find(
+      (product) => product.productName === form.getFieldValue("productName")
+    )?.productPrice;
+
+    setProductTotalPrice(price);
+
+    form.setFieldValue("price", price * form.getFieldValue("quantity"));
+
     form.setFieldValue(
       "productType",
       productData
         .filter((product) => product.productName == value)
         .map((product) => product.productType)
+    );
+
+    setProductTypeOptions(
+      productData
+        .filter(
+          (product) =>
+            product?.productBrand ===
+            productData?.find((product) => product.productName === value)
+              ?.productBrand
+        )
+        .map((product) => product.productType)
+        .filter((product, index, self) => self.indexOf(product) === index)
+        .map((productType) => ({
+          value: productType,
+        }))
     );
 
     autoFillBrand();
@@ -304,7 +339,8 @@ const OrderModifyModal = ({ openModify, setOpenModify, orderModifyData }) => {
           label="牌子"
           rules={[{ required: true, message: "請輸入產品牌子" }]}
         >
-          <AutoComplete
+          <Select
+            showSearch
             options={productBrandOptions}
             filterOption={(inputValue, option) =>
               option.value.toUpperCase().indexOf(inputValue.toUpperCase()) !==
@@ -321,7 +357,8 @@ const OrderModifyModal = ({ openModify, setOpenModify, orderModifyData }) => {
           label="種類"
           rules={[{ required: true, message: "請輸入產品種類" }]}
         >
-          <AutoComplete
+          <Select
+            showSearch
             options={productTypeOptions}
             filterOption={(inputValue, option) =>
               option.value.toUpperCase().indexOf(inputValue.toUpperCase()) !==
@@ -394,7 +431,15 @@ const OrderModifyModal = ({ openModify, setOpenModify, orderModifyData }) => {
           label="數量"
           rules={[{ required: true, message: "請輸入數量" }]}
         >
-          <Input />
+          <Input
+            onChange={(e) => {
+              form.setFieldValue("price", productTotalPrice * e.target.value);
+            }}
+          />
+        </Form.Item>
+
+        <Form.Item name="price" label="總數">
+          <Input defaultValue={0} disabled />
         </Form.Item>
 
         <Form.Item name="remark" label="Remark">

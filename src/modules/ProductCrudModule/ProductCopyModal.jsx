@@ -10,11 +10,12 @@ import {
   Row,
   Space,
 } from "antd";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   createProduct,
   getAllProduct,
+  modifyProduct,
 } from "../../redux/product/productAction";
 
 const formItemLayout = {
@@ -36,33 +37,54 @@ const formItemLayout = {
   },
 };
 
-const ProductAddModal = ({ open, setOpen, productBrandOptions }) => {
+const ProductCopyModal = ({
+  open,
+  setOpen,
+  productBrandOptions,
+  productModifyData,
+}) => {
   const [form] = Form.useForm();
   const dispatch = useDispatch();
+  const [productTypeOptions, setProductTypeOptions] = useState();
   const [commission, setCommission] = useState(false);
   const { productData } = useSelector((state) => state.product);
-  const [productTypeOptions, setProductTypeOptions] = useState();
+  const modifyProductData = useRef({
+    productId: "",
+    productBrand: "",
+    productType: "",
+    productName: "",
+    productCost: "",
+    discount: "",
+    productPrice: "",
+    stock: "",
+  });
 
   useEffect(() => {
     setProductTypeOptions(
       productData
-        .map((product) => product.productType)
-        .filter((product, index, self) => self.indexOf(product) === index)
-        .map((productType) => ({
+        ?.map((product) => product.productType)
+        ?.filter((product, index, self) => self.indexOf(product) === index)
+        ?.map((productType) => ({
           value: productType,
         }))
     );
-  }, [productData]);
-
-  useEffect(() => {
-    form.setFieldValue("discount", 100);
-    form.setFieldValue("stock", 0);
-  }, [open]);
+    form.setFieldValue("productBrand", productModifyData?.productBrand);
+    form.setFieldValue("productType", productModifyData?.productType);
+    form.setFieldValue("productCost", productModifyData?.productCost);
+    form.setFieldValue("productName", productModifyData?.productName);
+    productModifyData?.discount
+      ? form.setFieldValue("discount", productModifyData?.discount)
+      : form.setFieldValue("discount", 100);
+    form.setFieldValue("productPrice", productModifyData?.productPrice);
+    form.setFieldValue("stock", productModifyData?.stock);
+    form.setFieldValue("commission", productModifyData?.commission);
+    setCommission(productModifyData?.commission);
+  }, [productModifyData]);
 
   const onFinish = async () => {
     await form.validateFields();
 
-    const createProductData = {
+    modifyProductData.current = {
       productBrand: form.getFieldValue("productBrand"),
       productType: form.getFieldValue("productType"),
       productName: form.getFieldValue("productName"),
@@ -72,8 +94,8 @@ const ProductAddModal = ({ open, setOpen, productBrandOptions }) => {
       stock: form.getFieldValue("stock"),
       commission: commission,
     };
-    console.log(createProductData);
-    const result = await dispatch(createProduct(createProductData));
+
+    const result = await dispatch(createProduct(modifyProductData.current));
 
     if (result.meta.requestStatus === "fulfilled") {
       setOpen(false);
@@ -85,7 +107,7 @@ const ProductAddModal = ({ open, setOpen, productBrandOptions }) => {
 
   return (
     <Modal
-      title={<h3> 加產品資料 </h3>}
+      title={<h3> 編輯產品資料 </h3>}
       centered
       open={open}
       onCancel={() => {
@@ -105,6 +127,7 @@ const ProductAddModal = ({ open, setOpen, productBrandOptions }) => {
           <Button
             onClick={onFinish}
             style={{ backgroundColor: "#1DA57A", color: "white" }}
+            htmlType="submit"
           >
             確認
           </Button>
@@ -112,9 +135,14 @@ const ProductAddModal = ({ open, setOpen, productBrandOptions }) => {
       }
       width={750}
     >
-      <div>請填寫下列表格，添加客人資料</div>
+      <div>請填寫下列表格，編輯產品資料</div>
       <br />
-      <Form {...formItemLayout} autoComplete="off" form={form}>
+      <Form
+        {...formItemLayout}
+        autoComplete="off"
+        form={form}
+        onFinish={onFinish}
+      >
         <Form.Item
           name="productBrand"
           label="牌子"
@@ -126,9 +154,6 @@ const ProductAddModal = ({ open, setOpen, productBrandOptions }) => {
               option.value.toUpperCase().indexOf(inputValue.toUpperCase()) !==
               -1
             }
-            onChange={() => {
-              productTypeHandler();
-            }}
           />
         </Form.Item>
 
@@ -168,7 +193,7 @@ const ProductAddModal = ({ open, setOpen, productBrandOptions }) => {
               rules={[{ required: true, message: "請輸入優惠" }]}
               style={{ width: "37%" }}
             >
-              <InputNumber
+              <Input
                 prefix="x"
                 defaultValue={100}
                 suffix="%"
@@ -178,7 +203,7 @@ const ProductAddModal = ({ open, setOpen, productBrandOptions }) => {
           </Space.Compact>
         </Form.Item>
 
-        <Form.Item name="commission" label="返點">
+        <Form.Item name="commission" label="返點" valuePropName="checked">
           <Checkbox
             style={{ marginLeft: "10px" }}
             onChange={(e) => {
@@ -208,4 +233,4 @@ const ProductAddModal = ({ open, setOpen, productBrandOptions }) => {
   );
 };
 
-export default ProductAddModal;
+export default ProductCopyModal;

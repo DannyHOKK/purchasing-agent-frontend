@@ -210,7 +210,7 @@ const OrderAddModal = ({ open, setOpen, messageApi }) => {
   const autoFillHandler = (value) => {
     const price = productData?.find(
       (product) => product.productName === form.getFieldValue("productName")
-    ).productPrice;
+    )?.productPrice;
 
     setProductTotalPrice(price);
 
@@ -227,11 +227,11 @@ const OrderAddModal = ({ open, setOpen, messageApi }) => {
       productData
         .filter(
           (product) =>
-            product.productBrand ===
+            product?.productBrand ===
             productData?.find((product) => product.productName === value)
-              .productBrand
+              ?.productBrand
         )
-        .map((product) => product.productType)
+        .map((product) => product?.productType)
         .filter((product, index, self) => self.indexOf(product) === index)
         .map((productType) => ({
           value: productType,

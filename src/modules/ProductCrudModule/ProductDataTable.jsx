@@ -6,14 +6,22 @@ import {
 } from "../../redux/product/productAction";
 import { Button, Popconfirm, Table, message } from "antd";
 import ProductAddModal from "./ProductAddModal";
-import { ArrowLeftOutlined, PlusOutlined } from "@ant-design/icons";
+import {
+  ArrowLeftOutlined,
+  CheckOutlined,
+  CloseOutlined,
+  PlusOutlined,
+} from "@ant-design/icons";
 import ProductModifyModal from "./ProductModifyModal";
+import ProductCopyModal from "./ProductCopyModal";
+import { render } from "less";
 
 const ProductDataTable = ({ productLoading, productData }) => {
   const [filteredInfo, setFilteredInfo] = useState({});
   const [sortedInfo, setSortedInfo] = useState({});
   const [messageApi, contextHolder] = message.useMessage();
   const [open, setOpen] = useState(false);
+  const [openCopy, setOpenCopy] = useState(false);
   const [openModify, setOpenModify] = useState(false);
   const [productModifyData, setProductModifyData] = useState({});
   const dispatch = useDispatch();
@@ -31,8 +39,6 @@ const ProductDataTable = ({ productLoading, productData }) => {
       .reduce((accumulator, currentValue) => accumulator + currentValue, 0);
   });
 
-  console.log(orderQuantity);
-
   const handleChange = (pagination, filters, sorter) => {
     setFilteredInfo(filters);
     setSortedInfo(sorter);
@@ -40,7 +46,7 @@ const ProductDataTable = ({ productLoading, productData }) => {
 
   const refreshHandler = () => {
     dispatch(getAllProduct());
-    console.log(orderData);
+    console.log(productData);
   };
 
   const deleteProductHandler = async (productId) => {
@@ -64,11 +70,20 @@ const ProductDataTable = ({ productLoading, productData }) => {
     setOpenModify(true);
   };
 
+  const copyProductHandle = async (product) => {
+    setProductModifyData(product);
+    setOpenCopy(true);
+  };
+
   const productBrand = productData
     .map((product) => product.productBrand)
     .filter(
       (productBrand, index, self) => self.indexOf(productBrand) === index
     );
+
+  const productType = productData
+    .map((product) => product.productType)
+    .filter((productType, index, self) => self.indexOf(productType) === index);
 
   const columns = [
     {
@@ -80,6 +95,7 @@ const ProductDataTable = ({ productLoading, productData }) => {
       title: "牌子",
       dataIndex: "productBrand",
       key: "productBrand",
+      filterSearch: true,
       filters: productBrand?.map((productBrand, index) => ({
         text: productBrand,
         value: productBrand,
@@ -98,6 +114,20 @@ const ProductDataTable = ({ productLoading, productData }) => {
       title: "種類",
       dataIndex: "productType",
       key: "productType",
+      filterSearch: true,
+      filters: productType?.map((productType, index) => ({
+        text: productType,
+        value: productType,
+      })),
+      filteredValue: filteredInfo.productType || null,
+      onFilter: (value, record) => record.productType === value,
+      sorter: (a, b) =>
+        (a.productType || "").localeCompare(b.productType || "", "zh-HK", {
+          sensitivity: "base",
+        }),
+      sortOrder:
+        sortedInfo.columnKey === "productType" ? sortedInfo.order : null,
+      ellipsis: true,
     },
     {
       title: "產品",
@@ -110,6 +140,18 @@ const ProductDataTable = ({ productLoading, productData }) => {
       sortOrder:
         sortedInfo.columnKey === "productName" ? sortedInfo.order : null,
       ellipsis: true,
+    },
+    {
+      title: "返點",
+      dataIndex: "commission",
+      key: "commission",
+      render: (text, record) => {
+        return record.commission ? (
+          <CheckOutlined style={{ color: "green" }} />
+        ) : (
+          <CloseOutlined style={{ color: "red" }} />
+        );
+      },
     },
     {
       title: "原價",
@@ -144,6 +186,12 @@ const ProductDataTable = ({ productLoading, productData }) => {
       title: "尚欠",
       dataIndex: "needBuy",
       key: "needBuy",
+      sorter: (a, b) => a.needBuy - b.needBuy,
+      sortOrder: sortedInfo.columnKey === "needBuy" ? sortedInfo.order : null,
+      ellipsis: true,
+      render: (text, record) => {
+        return <>{record.needBuy * -1}</>;
+      },
     },
     // {
     //   title: "建立日期",
@@ -168,7 +216,7 @@ const ProductDataTable = ({ productLoading, productData }) => {
     {
       title: "行動",
       key: "operation",
-      width: "200px",
+      width: "240px",
       render: (text, record) => {
         return (
           <>
@@ -176,7 +224,7 @@ const ProductDataTable = ({ productLoading, productData }) => {
               color="primary"
               variant="outlined"
               style={{
-                marginRight: "10px",
+                marginRight: "5px",
               }}
               onClick={() => {
                 modifyProductHandle(record);
@@ -194,10 +242,28 @@ const ProductDataTable = ({ productLoading, productData }) => {
               okText="刪除"
               cancelText="取消"
             >
-              <Button color="danger" variant="filled">
+              <Button
+                color="danger"
+                variant="filled"
+                style={{
+                  marginRight: "5px",
+                }}
+              >
                 刪除
               </Button>
             </Popconfirm>
+            <Button
+              variant="outlined"
+              style={{
+                backgroundColor: "#1da57a",
+                color: "white",
+              }}
+              onClick={() => {
+                copyProductHandle(record);
+              }}
+            >
+              複製
+            </Button>
           </>
         );
       },
@@ -209,6 +275,7 @@ const ProductDataTable = ({ productLoading, productData }) => {
     productId: product.productId,
     productBrand: product.productBrand,
     productCost: product.productCost,
+    commission: product.commission,
     cost: product.productCost * product.discount * 0.01,
     productPrice: product.productPrice,
     productName: product.productName,
@@ -273,6 +340,12 @@ const ProductDataTable = ({ productLoading, productData }) => {
       <ProductModifyModal
         open={openModify}
         setOpen={setOpenModify}
+        productBrandOptions={productBrandOptions}
+        productModifyData={productModifyData}
+      />
+      <ProductCopyModal
+        open={openCopy}
+        setOpen={setOpenCopy}
         productBrandOptions={productBrandOptions}
         productModifyData={productModifyData}
       />

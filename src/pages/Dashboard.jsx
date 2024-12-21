@@ -65,20 +65,17 @@ const Dashboard = () => {
 
   const { orderData } = useSelector((state) => state.order);
 
-  const totalPrice = orderData
-    .map((order) => order?.product?.productPrice * order?.quantity)
-    .reduce((accumulator, currentValue) => accumulator + currentValue, 0);
-
   const totalPaidPrice = orderData
-    .filter((order) => order?.paid === true)
+    .filter((order) => order?.paid === "已付款")
     .map((order) => order?.product?.productPrice * order?.quantity)
     .reduce((accumulator, currentValue) => accumulator + currentValue, 0);
 
   const totalNotPaidPrice = orderData
-    .filter((order) => order?.paid === false)
+    .filter((order) => order?.paid === "未付款")
     .map((order) => order?.product?.productPrice * order?.quantity)
     .reduce((accumulator, currentValue) => accumulator + currentValue, 0);
 
+  const totalPrice = totalPaidPrice + totalNotPaidPrice;
   return (
     <motion.div
       transition={config}
