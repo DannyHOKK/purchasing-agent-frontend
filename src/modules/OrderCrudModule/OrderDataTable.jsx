@@ -60,7 +60,11 @@ const OrderDataTable = ({ orderLoading, orderData, productData }) => {
       sortOrder: sortedInfo.columnKey === "phone" ? sortedInfo.order : null,
       ellipsis: true,
       render: (text, record) => {
-        return record.phone !== null ? record.phone : record.instagram;
+        console.log(record.instagram);
+
+        return record.phone !== null || record.phone === ""
+          ? record.phone
+          : record.instagram;
       },
     },
     {
