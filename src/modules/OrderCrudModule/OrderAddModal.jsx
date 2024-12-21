@@ -464,8 +464,8 @@ const OrderAddModal = ({ open, setOpen, messageApi }) => {
           rules={[{ required: true, message: "請選擇是否付款" }]}
         >
           <Radio.Group>
-            <Radio value={true}>已付款</Radio>
-            <Radio value={false}>未付款</Radio>
+            <Radio value="已付款">已付款</Radio>
+            <Radio value="未付款">未付款</Radio>
           </Radio.Group>
         </Form.Item>
 

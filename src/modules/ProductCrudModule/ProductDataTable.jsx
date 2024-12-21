@@ -336,9 +336,9 @@ const ProductDataTable = ({ productLoading, productData }) => {
         loading={productLoading}
         columns={columns}
         dataSource={data}
-        pageSize={20}
         pagination={{
           position: ["bottomCenter"],
+          pageSize: 20,
         }}
         onChange={handleChange}
         style={{ minWidth: "850px" }}

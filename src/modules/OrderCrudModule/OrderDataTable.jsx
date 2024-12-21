@@ -132,11 +132,15 @@ const OrderDataTable = ({ orderLoading, orderData, productData }) => {
       filters: [
         {
           text: "已付款",
-          value: true,
+          value: "已付款",
         },
         {
           text: "未付款",
-          value: false,
+          value: "未付款",
+        },
+        {
+          text: "已退款",
+          value: "已退款",
         },
       ],
       filteredValue: filteredInfo.paid || null,
@@ -594,7 +598,6 @@ const OrderDataTable = ({ orderLoading, orderData, productData }) => {
         loading={orderLoading}
         columns={columns}
         dataSource={data}
-        pageSize={20}
         pagination={{
           position: ["bottomCenter"],
         }}
