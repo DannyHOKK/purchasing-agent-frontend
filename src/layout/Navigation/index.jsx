@@ -10,6 +10,7 @@ import {
   FileSyncOutlined,
   DashboardOutlined,
   TeamOutlined,
+  TransactionOutlined,
 } from "@ant-design/icons";
 
 const { Sider } = Layout;
@@ -45,26 +46,13 @@ function Navigation() {
             <Menu.Item key="2" icon={<CustomerServiceOutlined />}>
               <Link to="/customer">客人</Link>
             </Menu.Item>
-            {/* <Menu.Item key="24" icon={<UserOutlined />}>
-              <Link to="/selectcustomer">Custom Select Customer</Link>
-            </Menu.Item>
-            <Menu.Item key="21" icon={<FileTextOutlined />}>
-              <Link to="/lead" />
-              Lead
-            </Menu.Item> */}
             <Menu.Item key="3" icon={<FileSyncOutlined />}>
               <Link to="/product" />
               產品
             </Menu.Item>
-            {/* <Menu.Item key="31" icon={<TeamOutlined />}>
-              <Link to="/admin" />
-              Admins Management
+            <Menu.Item key="4" icon={<TransactionOutlined />}>
+              <Link to="/exchangeRate">匯率</Link>
             </Menu.Item>
-
-            <Menu.Item key="32" icon={<SettingOutlined />}>
-              <Link to="/settings" />
-              Settings
-            </Menu.Item> */}
           </Menu>
         </Sider>
       </ConfigProvider>

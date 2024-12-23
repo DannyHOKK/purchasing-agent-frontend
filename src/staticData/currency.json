@@ -1,0 +1,33 @@
+{
+  "currenciesOptions": [
+    { "value": "KRW", "label": " ₩ KRW (South Korean Won)", "symbol": "₩" },
+    { "value": "JPY", "label": " ¥ JPY (Japanese Yen)", "symbol": "¥" },
+    { "value": "THB", "label": " ฿ THB (Thai Baht)", "symbol": "฿" },
+    { "value": "CNY", "label": " ¥ CNY (Chinese Yuan)", "symbol": "¥" },
+    { "value": "HKD", "label": " HK$ HKD (Hong Kong Dollar)", "symbol": "$" },
+    { "value": "GBP", "label": " £ GBP (British Pound)", "symbol": "£" },
+    { "value": "USD", "label": " $ USD (US Dollar)", "symbol": "$" },
+    { "value": "EUR", "label": " € EUR (Euro)", "symbol": "€" },
+    { "value": "AUD", "label": " A$ AUD (Australian Dollar)", "symbol": "A$" },
+    { "value": "CAD", "label": " C$ CAD (Canadian Dollar)", "symbol": "C$" },
+    { "value": "CHF", "label": " CHF (Swiss Franc)", "symbol": "CHF" },
+    { "value": "SEK", "label": " kr SEK (Swedish Krona)", "symbol": "kr" },
+    {
+      "value": "NZD",
+      "label": " NZ$ NZD (New Zealand Dollar)",
+      "symbol": "NZ$"
+    },
+    { "value": "SGD", "label": " S$ SGD (Singapore Dollar)", "symbol": "S$" },
+    { "value": "NOK", "label": " kr NOK (Norwegian Krone)", "symbol": "kr" },
+    { "value": "MXN", "label": " $ MXN (Mexican Peso)", "symbol": "$" },
+    { "value": "RUB", "label": " ₽ RUB (Russian Ruble)", "symbol": "₽" },
+    { "value": "INR", "label": " ₹ INR (Indian Rupee)", "symbol": "₹" },
+    { "value": "BRL", "label": " R$ BRL (Brazilian Real)", "symbol": "R$" },
+    { "value": "ZAR", "label": " R ZAR (South African Rand)", "symbol": "R" },
+    {
+      "value": "AED",
+      "label": " د.إ AED (United Arab Emirates Dirham)",
+      "symbol": "د.إ"
+    }
+  ]
+}

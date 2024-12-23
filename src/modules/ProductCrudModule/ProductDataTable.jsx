@@ -27,6 +27,11 @@ const ProductDataTable = ({ productLoading, productData }) => {
   const dispatch = useDispatch();
 
   const { orderData } = useSelector((state) => state.order);
+  const { exchangeRateData } = useSelector((state) => state.exchangeRate);
+
+  const koreaExchangeRate = exchangeRateData?.find(
+    (currency) => currency.currency === "KRW"
+  )?.exchangeRate;
 
   const orderQuantity = productData.map((product) => {
     return orderData
@@ -177,7 +182,9 @@ const ProductDataTable = ({ productLoading, productData }) => {
       dataIndex: "cost",
       key: "cost",
       render: (text, record) => {
-        return <>₩ {record.cost}</>;
+        return (
+          <>HKD$ {Math.ceil((record.cost / koreaExchangeRate) * 10) / 10}</>
+        );
       },
     },
     {

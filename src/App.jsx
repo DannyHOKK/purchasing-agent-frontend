@@ -9,6 +9,7 @@ import PageLoader from "./layout/PageLoader";
 import Product from "./pages/Product";
 import Customer from "./pages/Customer";
 import { Button, ConfigProvider, Layout } from "antd";
+import ExchangeRate from "./pages/ExchangeRate";
 
 const Dashboard = lazy(() => import("./pages/Dashboard"));
 
@@ -27,6 +28,7 @@ function App() {
                       <Route path="/" element={<Dashboard />} />
                       <Route path="/product" element={<Product />} />
                       <Route path="/customer" element={<Customer />} />
+                      <Route path="/exchangeRate" element={<ExchangeRate />} />
                     </Routes>
                   </>
                 </Layout>
