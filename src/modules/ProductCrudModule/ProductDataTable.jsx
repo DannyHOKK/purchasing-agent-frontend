@@ -178,6 +178,14 @@ const ProductDataTable = ({ productLoading, productData }) => {
       },
     },
     {
+      title: "折扣",
+      dataIndex: "discount",
+      key: "discount",
+      render: (text, record) => {
+        return <>{record.discount} %</>;
+      },
+    },
+    {
       title: "成本",
       dataIndex: "cost",
       key: "cost",
@@ -294,6 +302,7 @@ const ProductDataTable = ({ productLoading, productData }) => {
     productBrand: product.productBrand,
     productCost: product.productCost,
     commission: product.commission,
+    discount: product.discount,
     cost: product.productCost * product.discount * 0.01,
     productPrice: product.productPrice,
     productName: product.productName,
