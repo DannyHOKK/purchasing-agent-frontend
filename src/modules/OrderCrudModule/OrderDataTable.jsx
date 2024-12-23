@@ -580,7 +580,7 @@ const OrderDataTable = ({ orderLoading, orderData, productData }) => {
     <div className="order-table-container">
       {contextHolder}
       <div className=" d-flex justify-content-between p-4">
-        <div>--</div>
+        <div>-</div>
         <div>
           <Button className=" me-3" onClick={refreshHandler}>
             更新表格
