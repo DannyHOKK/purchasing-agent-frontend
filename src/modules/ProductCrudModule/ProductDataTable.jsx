@@ -117,7 +117,6 @@ const ProductDataTable = ({ productLoading, productData }) => {
         }),
       sortOrder:
         sortedInfo.columnKey === "productBrand" ? sortedInfo.order : null,
-      ellipsis: true,
     },
     {
       title: "種類",
@@ -136,7 +135,6 @@ const ProductDataTable = ({ productLoading, productData }) => {
         }),
       sortOrder:
         sortedInfo.columnKey === "productType" ? sortedInfo.order : null,
-      ellipsis: true,
     },
     {
       title: "產品",
@@ -155,12 +153,12 @@ const ProductDataTable = ({ productLoading, productData }) => {
         }),
       sortOrder:
         sortedInfo.columnKey === "productName" ? sortedInfo.order : null,
-      ellipsis: true,
     },
     {
       title: "返點",
       dataIndex: "commission",
       key: "commission",
+      width: "60px",
       render: (text, record) => {
         return record.commission ? (
           <CheckOutlined style={{ color: "green" }} />
@@ -174,7 +172,7 @@ const ProductDataTable = ({ productLoading, productData }) => {
       dataIndex: "productCost",
       key: "productCost",
       render: (text, record) => {
-        return <>₩ {record.productCost}</>;
+        return <>₩{record.productCost}</>;
       },
     },
     {
@@ -182,7 +180,7 @@ const ProductDataTable = ({ productLoading, productData }) => {
       dataIndex: "discount",
       key: "discount",
       render: (text, record) => {
-        return <>{record.discount} %</>;
+        return <>{record.discount}%</>;
       },
     },
     {
@@ -191,7 +189,7 @@ const ProductDataTable = ({ productLoading, productData }) => {
       key: "cost",
       render: (text, record) => {
         return (
-          <>HKD$ {Math.ceil((record.cost / koreaExchangeRate) * 10) / 10}</>
+          <>HKD${Math.ceil((record.cost / koreaExchangeRate) * 10) / 10}</>
         );
       },
     },
@@ -200,7 +198,7 @@ const ProductDataTable = ({ productLoading, productData }) => {
       dataIndex: "productPrice",
       key: "productPrice",
       render: (text, record) => {
-        return <>$ {record.productPrice}</>;
+        return <>${record.productPrice}</>;
       },
     },
     {
@@ -214,7 +212,7 @@ const ProductDataTable = ({ productLoading, productData }) => {
       key: "needBuy",
       sorter: (a, b) => a.needBuy - b.needBuy,
       sortOrder: sortedInfo.columnKey === "needBuy" ? sortedInfo.order : null,
-      ellipsis: true,
+
       render: (text, record) => {
         return <>{record.needBuy * -1}</>;
       },
@@ -227,7 +225,7 @@ const ProductDataTable = ({ productLoading, productData }) => {
     //   // sorter: (a, b) => new Date(a.createDate) - new Date(b.createDate),
     //   // sortOrder:
     //   //   sortedInfo.columnKey === "createDate" ? sortedInfo.order : null,
-    //   // ellipsis: true,
+    //   //
     // },
     // {
     //   title: "更改日期",
@@ -237,7 +235,7 @@ const ProductDataTable = ({ productLoading, productData }) => {
     //   // sorter: (a, b) => new Date(a.createDate) - new Date(b.createDate),
     //   // sortOrder:
     //   //   sortedInfo.columnKey === "createDate" ? sortedInfo.order : null,
-    //   // ellipsis: true,
+    //   //
     // },
     {
       title: "行動",

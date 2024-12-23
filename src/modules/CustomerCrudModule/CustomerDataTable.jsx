@@ -65,7 +65,7 @@ const CustomerDataTable = ({ customerLoading, customerData }) => {
           sensitivity: "base",
         }),
       sortOrder: sortedInfo.columnKey === "phone" ? sortedInfo.order : null,
-      ellipsis: true,
+
       render: (text, record) => {
         return record.phone ? record.phone : <>-</>;
       },
@@ -79,7 +79,7 @@ const CustomerDataTable = ({ customerLoading, customerData }) => {
           sensitivity: "base",
         }),
       sortOrder: sortedInfo.columnKey === "instagram" ? sortedInfo.order : null,
-      ellipsis: true,
+
       render: (text, record) => {
         return record.instagram ? record.instagram : <>-</>;
       },
@@ -108,7 +108,6 @@ const CustomerDataTable = ({ customerLoading, customerData }) => {
       sorter: (a, b) => new Date(a.createDate) - new Date(b.createDate),
       sortOrder:
         sortedInfo.columnKey === "createDate" ? sortedInfo.order : null,
-      ellipsis: true,
     },
     {
       title: "更改日期",
@@ -118,7 +117,6 @@ const CustomerDataTable = ({ customerLoading, customerData }) => {
       sorter: (a, b) => new Date(a.createDate) - new Date(b.createDate),
       sortOrder:
         sortedInfo.columnKey === "createDate" ? sortedInfo.order : null,
-      ellipsis: true,
     },
     {
       title: "行動",

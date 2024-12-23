@@ -71,7 +71,6 @@ const OrderDataTable = ({ orderLoading, orderData, productData }) => {
 
       sortOrder:
         sortedInfo.columnKey === "showOrderName" ? sortedInfo.order : null,
-      ellipsis: true,
     },
     {
       title: "牌子",
@@ -90,13 +89,12 @@ const OrderDataTable = ({ orderLoading, orderData, productData }) => {
         }),
       sortOrder:
         sortedInfo.columnKey === "productBrand" ? sortedInfo.order : null,
-      ellipsis: true,
     },
     {
       title: "產品",
       dataIndex: "productName",
       key: "productName",
-      width: "240px",
+      width: "180px",
       filterSearch: true,
       filters: productName.map((brand, index) => ({
         text: brand,
@@ -110,7 +108,6 @@ const OrderDataTable = ({ orderLoading, orderData, productData }) => {
         }),
       sortOrder:
         sortedInfo.columnKey === "productName" ? sortedInfo.order : null,
-      ellipsis: true,
     },
     {
       title: "售價",
@@ -145,7 +142,7 @@ const OrderDataTable = ({ orderLoading, orderData, productData }) => {
       ],
       filteredValue: filteredInfo.paid || null,
       onFilter: (value, record) => record.paid === value,
-      ellipsis: true,
+
       render: (text, record) => {
         const items = [
           {
@@ -235,7 +232,7 @@ const OrderDataTable = ({ orderLoading, orderData, productData }) => {
       onFilter: (value, record) => {
         return record.takeMethod === value;
       },
-      ellipsis: true,
+
       render: (text, record) => {
         const items = [
           {
@@ -322,7 +319,6 @@ const OrderDataTable = ({ orderLoading, orderData, productData }) => {
       ],
       filteredValue: filteredInfo.paymentMethod || null,
       onFilter: (value, record) => record.paymentMethod === value,
-      ellipsis: true,
     },
     {
       title: "Remark",
@@ -334,7 +330,7 @@ const OrderDataTable = ({ orderLoading, orderData, productData }) => {
       title: "狀態",
       dataIndex: "status",
       key: "status",
-      width: "90px",
+      width: "100px",
       filters: [
         {
           text: "備貨中",
@@ -355,7 +351,6 @@ const OrderDataTable = ({ orderLoading, orderData, productData }) => {
       ],
       filteredValue: filteredInfo.status || null,
       onFilter: (value, record) => record.status === value,
-      ellipsis: true,
       render: (text, record) => {
         const items = [
           {
@@ -441,7 +436,6 @@ const OrderDataTable = ({ orderLoading, orderData, productData }) => {
       sorter: (a, b) => new Date(a.createDate) - new Date(b.createDate),
       sortOrder:
         sortedInfo.columnKey === "createDate" ? sortedInfo.order : null,
-      ellipsis: true,
     },
     {
       title: "行動",
