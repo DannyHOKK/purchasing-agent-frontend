@@ -52,7 +52,7 @@ const ExchangeTable = () => {
         );
         return (
           <>
-            HKD$1 ~ {exchange?.symbol} {record.exchangeRate}
+            HKD$1 = {exchange?.symbol} {record.exchangeRate}
           </>
         );
       },

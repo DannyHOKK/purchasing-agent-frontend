@@ -48,6 +48,8 @@ const ProductModifyModal = ({
   const [productTypeOptions, setProductTypeOptions] = useState();
   const [commission, setCommission] = useState(false);
   const { productData } = useSelector((state) => state.product);
+  const { exchangeRateData } = useSelector((state) => state.exchangeRate);
+
   const modifyProductData = useRef({
     productId: "",
     productBrand: "",
@@ -58,6 +60,10 @@ const ProductModifyModal = ({
     productPrice: "",
     stock: "",
   });
+
+  const koreaExchangeRate = exchangeRateData?.find(
+    (currency) => currency.currency === "KRW"
+  )?.exchangeRate;
 
   useEffect(() => {
     setProductTypeOptions(
@@ -80,6 +86,16 @@ const ProductModifyModal = ({
     form.setFieldValue("stock", productModifyData?.stock);
     form.setFieldValue("commission", productModifyData?.commission);
     setCommission(productModifyData?.commission);
+
+    form.setFieldValue(
+      "price",
+      Math.ceil(
+        ((productModifyData?.productCost * productModifyData?.discount) /
+          100 /
+          koreaExchangeRate) *
+          10
+      ) / 10
+    );
   }, [productModifyData]);
 
   const onFinish = async () => {
@@ -188,7 +204,21 @@ const ProductModifyModal = ({
               rules={[{ required: true, message: "請輸入產品成本" }]}
               style={{ width: "63%" }}
             >
-              <Input prefix="₩" suffix="KRW" />
+              <Input
+                prefix="₩"
+                suffix="KRW"
+                onChange={(e) => {
+                  form.setFieldValue(
+                    "price",
+                    Math.ceil(
+                      ((e.target.value * form.getFieldValue("discount")) /
+                        100 /
+                        koreaExchangeRate) *
+                        10
+                    ) / 10
+                  );
+                }}
+              />
             </Form.Item>
             <Form.Item
               name="discount"
@@ -200,9 +230,24 @@ const ProductModifyModal = ({
                 defaultValue={100}
                 suffix="%"
                 style={{ width: "100%" }}
+                onChange={(e) => {
+                  form.setFieldValue(
+                    "price",
+                    Math.ceil(
+                      (((e.target.value / 100) *
+                        form.getFieldValue("productCost")) /
+                        koreaExchangeRate) *
+                        10
+                    ) / 10
+                  );
+                }}
               />
             </Form.Item>
           </Space.Compact>
+        </Form.Item>
+
+        <Form.Item name="price" label="港元">
+          <Input value={0} disabled />
         </Form.Item>
 
         <Form.Item name="commission" label="返點" valuePropName="checked">
