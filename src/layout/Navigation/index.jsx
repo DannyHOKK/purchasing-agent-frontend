@@ -11,6 +11,7 @@ import {
   DashboardOutlined,
   TeamOutlined,
   TransactionOutlined,
+  PieChartOutlined,
 } from "@ant-design/icons";
 
 const { Sider } = Layout;
@@ -52,6 +53,9 @@ function Navigation() {
             </Menu.Item>
             <Menu.Item key="4" icon={<TransactionOutlined />}>
               <Link to="/exchangeRate">匯率</Link>
+            </Menu.Item>
+            <Menu.Item key="5" icon={<PieChartOutlined />}>
+              <Link to="/expense">消費記錄</Link>
             </Menu.Item>
           </Menu>
         </Sider>

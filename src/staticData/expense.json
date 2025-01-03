@@ -1,0 +1,19 @@
+{
+  "consumeType": [
+    { "value": "代購", "label": "代購" },
+    { "value": "機票", "label": "機票" },
+    { "value": "住宿", "label": "住宿" },
+    { "value": "交通", "label": "交通" },
+    { "value": "飲食", "label": "飲食" },
+    { "value": "衣物", "label": "衣物" },
+    { "value": "護膚", "label": "護膚" },
+    { "value": "家人", "label": "家人" },
+    { "value": "朋友", "label": "朋友" },
+    { "value": "唱錢", "label": "唱錢" },
+    { "value": "其他", "label": "其他" }
+  ],
+  "payment": [
+    { "value": "現金", "label": "現金" },
+    { "value": "信用卡", "label": "信用卡" }
+  ]
+}
