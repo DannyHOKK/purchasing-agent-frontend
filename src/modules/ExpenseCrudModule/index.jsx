@@ -1,13 +1,14 @@
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { getExchangeRate } from "../../redux/exchangeRate/exchangeRateAction";
 import ExpenseForm from "./ExpenseForm";
+import ExpenseTable from "./ExpenseTable";
+import { getAllExpense } from "../../redux/expense/expenseAction";
 
 const ExpenseCrud = () => {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    dispatch(getExchangeRate());
+    dispatch(getAllExpense());
   }, []);
 
   return (
@@ -27,7 +28,7 @@ const ExpenseCrud = () => {
         className="whiteBox shadow"
         style={{ color: "#595959", fontSize: 13 }}
       >
-        {/* <ExchangeTable /> */}
+        <ExpenseTable />
       </div>
     </>
   );

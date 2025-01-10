@@ -9,7 +9,7 @@ import {
   Space,
   message,
 } from "antd";
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import expenseData from "../../staticData/expense.json";
 
@@ -47,9 +47,12 @@ const ExpenseForm = () => {
   const [messageApi, contextHolder] = message.useMessage();
   const { exchangeRateData } = useSelector((state) => state.exchangeRate);
 
-  const koreaExchangeRate = exchangeRateData?.find(
-    (currency) => currency.currency === "KRW"
-  )?.exchangeRate;
+  const koreaExchangeRate = useMemo(
+    () =>
+      exchangeRateData?.find((currency) => currency.currency === "KRW")
+        ?.exchangeRate,
+    [exchangeRateData]
+  );
 
   console.log(koreaExchangeRate);
   const onFinish = async () => {

@@ -1,5 +1,5 @@
 import { Badge, Button, Dropdown, Popconfirm, Table, Tag, message } from "antd";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import OrderAddModal from "./OrderAddModal";
 import { PlusOutlined, QuestionCircleOutlined } from "@ant-design/icons";
 import { useDispatch } from "react-redux";
@@ -21,23 +21,67 @@ const OrderDataTable = ({ orderLoading, orderData, productData }) => {
   const [openModify, setOpenModify] = useState(false);
   const dispatch = useDispatch();
 
-  const customerPhone = orderData
-    .map((order) =>
-      order.orderPlatform === "phone"
-        ? order.customer.phone
-        : order.customer.instagram
-    )
-    .filter((phone, index, self) => self.indexOf(phone) === index);
+  // const customerPhone = useMemo(
+  //   () =>
+  //     orderData
+  //       .map((order) =>
+  //         order.orderPlatform === "phone"
+  //           ? order.customer.phone
+  //           : order.customer.instagram
+  //       )
+  //       .filter((phone, index, self) => self.indexOf(phone) === index),
+  //   [orderData]
+  // );
 
-  const productBrand = orderData
-    .map((order) => order.product.productBrand)
-    .filter(
-      (productBrand, index, self) => self.indexOf(productBrand) === index
+  // const productBrand = useMemo(
+  //   () =>
+  //     orderData
+  //       .map((order) => order.product.productBrand)
+  //       .filter(
+  //         (productBrand, index, self) => self.indexOf(productBrand) === index
+  //       ),
+  //   [orderData]
+  // );
+
+  // const productName = useMemo(
+  //   () =>
+  //     orderData
+  //       .map((order) => order.product.productName)
+  //       .filter(
+  //         (productName, index, self) => self.indexOf(productName) === index
+  //       ),
+  //   []
+  // );
+  const { customerPhone, productBrand, productName } = useMemo(() => {
+    const result = orderData.reduce(
+      (acc, order) => {
+        // Get phone or Instagram based on orderPlatform
+        const contact =
+          order.orderPlatform === "phone"
+            ? order.customer.phone
+            : order.customer.instagram;
+        // Add to customerPhones if unique
+        if (!acc.customerPhone.includes(contact)) {
+          acc.customerPhone.push(contact);
+        }
+
+        // Add to productBrands if unique
+        if (!acc.productBrand.includes(order.product.productBrand)) {
+          acc.productBrand.push(order.product.productBrand);
+        }
+
+        // Add to productNames if unique
+        if (!acc.productName.includes(order.product.productName)) {
+          acc.productName.push(order.product.productName);
+        }
+
+        return acc;
+      },
+      { customerPhone: [], productBrand: [], productName: [] }
     );
 
-  const productName = orderData
-    .map((order) => order.product.productName)
-    .filter((productName, index, self) => self.indexOf(productName) === index);
+    return result;
+  }, [orderData]);
 
   const columns = [
     {
