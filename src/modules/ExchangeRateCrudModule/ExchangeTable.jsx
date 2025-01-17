@@ -1,18 +1,47 @@
-import { Table } from "antd";
-import React from "react";
-import { useSelector } from "react-redux";
+import { Button, Popconfirm, Table, message } from "antd";
+import React, { useMemo } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import currency from "../../staticData/currency.json";
-
-const currenciesOptions = currency.currenciesOptions.map((currency) => ({
-  value: currency.value,
-  label: currency.label,
-  symbol: currency.symbol,
-}));
+import {
+  deleteExchange,
+  getExchangeRate,
+} from "../../redux/exchangeRate/exchangeRateAction";
 
 const ExchangeTable = () => {
+  const dispatch = useDispatch();
+  const [messageApi, contextHolder] = message.useMessage();
   const { exchangeRateData, exchangeRateLoading } = useSelector(
     (state) => state.exchangeRate
   );
+
+  const currenciesOptions = useMemo(
+    () =>
+      currency.currenciesOptions.map((currency) => ({
+        value: currency.value,
+        label: currency.label,
+        symbol: currency.symbol,
+      })),
+    [currency]
+  );
+
+  console.log(exchangeRateData);
+
+  const deleteExchangeHandler = async (currency) => {
+    const result = await dispatch(deleteExchange(currency));
+    console.log(result);
+    if (result.meta.requestStatus === "fulfilled") {
+      dispatch(getExchangeRate());
+      messageApi.open({
+        type: "success",
+        content: result.payload.msg,
+      });
+    } else {
+      messageApi.open({
+        type: "error",
+        content: result.payload,
+      });
+    }
+  };
 
   const columns = [
     {
@@ -25,11 +54,6 @@ const ExchangeTable = () => {
       dataIndex: "currency",
       key: "currency",
       render: (text, record) => {
-        console.log(
-          currenciesOptions?.find(
-            (currency) => currency.value === record.currency
-          )?.symbol
-        );
         return (
           <>
             {
@@ -68,6 +92,36 @@ const ExchangeTable = () => {
       dataIndex: "modifyDate",
       key: "modifyDate",
       width: "180px",
+    },
+    {
+      title: "行動",
+      key: "operation",
+      render: (text, record) => {
+        return (
+          <>
+            <Popconfirm
+              placement="topLeft"
+              title="刪除"
+              description="是否確認刪除?"
+              onConfirm={() => {
+                deleteExchangeHandler(record.currency);
+              }}
+              okText="刪除"
+              cancelText="取消"
+            >
+              <Button
+                color="danger"
+                variant="filled"
+                style={{
+                  marginRight: "5px",
+                }}
+              >
+                刪除
+              </Button>
+            </Popconfirm>
+          </>
+        );
+      },
     },
   ];
 

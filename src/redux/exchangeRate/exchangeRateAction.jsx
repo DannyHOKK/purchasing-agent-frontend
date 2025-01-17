@@ -50,3 +50,26 @@ export const getExchangeRate = createAsyncThunk(
     }
   }
 );
+
+export const deleteExchange = createAsyncThunk(
+  "api/exchangeRate/deleteExchange",
+  async (exchangeId, { rejectWithValue }) => {
+    try {
+      const response = await axios.delete(
+        `${backendURL}/api/exchangeRate/deleteExchange/${exchangeId}`
+      );
+
+      if (response.data.code === -1) {
+        return rejectWithValue(response.data.msg);
+      }
+      return response.data;
+    } catch (error) {
+      // return custom error message from backend if present
+      if (error.response && error.response.data.message) {
+        return rejectWithValue(error.response.data.message);
+      } else {
+        return rejectWithValue(error.message);
+      }
+    }
+  }
+);

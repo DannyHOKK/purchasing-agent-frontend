@@ -12,6 +12,10 @@ import {
 import React, { useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import expenseData from "../../staticData/expense.json";
+import {
+  createConsumption,
+  getAllExpense,
+} from "../../redux/expense/expenseAction";
 
 const formItemLayout = {
   labelCol: {
@@ -42,8 +46,8 @@ const paymentOptions = expenseData.payment.map((payment) => ({
 }));
 
 const ExpenseForm = () => {
-  const [form] = Form.useForm();
   const dispatch = useDispatch();
+  const [form] = Form.useForm();
   const [messageApi, contextHolder] = message.useMessage();
   const { exchangeRateData } = useSelector((state) => state.exchangeRate);
 
@@ -54,25 +58,30 @@ const ExpenseForm = () => {
     [exchangeRateData]
   );
 
-  console.log(koreaExchangeRate);
   const onFinish = async () => {
     await form.validateFields();
 
-    // const exchangeRateDTO = {
-    //   currency: form.getFieldValue("currency"),
-    //   exchangeRate: form.getFieldValue("exchangeRate"),
-    // };
+    const expenseDTO = {
+      shopName: form.getFieldValue("shopName"),
+      payDate: form.getFieldValue("payDate"),
+      consumeType: form.getFieldValue("consumeType"),
+      consumeCost: form.getFieldValue("consumeCost"),
+      payment: form.getFieldValue("payment"),
+    };
 
-    // const result = await dispatch(createCurrency(exchangeRateDTO));
+    console.log(expenseDTO);
 
-    // if (result.meta.requestStatus === "fulfilled") {
-    //   form.resetFields();
-    //   messageApi.open({
-    //     type: "success",
-    //     content: "創立成功",
-    //   });
-    //   dispatch(getExchangeRate());
-    // }
+    const result = await dispatch(createConsumption(expenseDTO));
+
+    console.log(result);
+    if (result.meta.requestStatus === "fulfilled") {
+      form.resetFields();
+      messageApi.open({
+        type: "success",
+        content: "創立成功",
+      });
+      dispatch(getAllExpense());
+    }
   };
 
   return (
@@ -87,7 +96,7 @@ const ExpenseForm = () => {
         className=" mt-4"
       >
         <Form.Item
-          name="createDate"
+          name="payDate"
           label="日期"
           rules={[{ required: true, message: "請選擇日期" }]}
         >
@@ -112,7 +121,13 @@ const ExpenseForm = () => {
         <Form.Item
           name="consumeCost"
           label="價格"
-          rules={[{ required: true, message: "請輸入價格" }]}
+          rules={[
+            { required: true, message: "請輸入價格" },
+            {
+              pattern: /^[0-9]*$/,
+              message: "只允许输入数字!",
+            },
+          ]}
         >
           <Input
             prefix="₩"

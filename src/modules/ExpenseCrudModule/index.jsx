@@ -3,12 +3,14 @@ import { useDispatch, useSelector } from "react-redux";
 import ExpenseForm from "./ExpenseForm";
 import ExpenseTable from "./ExpenseTable";
 import { getAllExpense } from "../../redux/expense/expenseAction";
+import { getExchangeRate } from "../../redux/exchangeRate/exchangeRateAction";
 
 const ExpenseCrud = () => {
   const dispatch = useDispatch();
 
   useEffect(() => {
     dispatch(getAllExpense());
+    dispatch(getExchangeRate());
   }, []);
 
   return (

@@ -217,26 +217,6 @@ const ProductDataTable = ({ productLoading, productData }) => {
         return <>{record.needBuy * -1}</>;
       },
     },
-    // {
-    //   title: "建立日期",
-    //   dataIndex: "createDate",
-    //   key: "createDate",
-    //   width: "180px",
-    //   // sorter: (a, b) => new Date(a.createDate) - new Date(b.createDate),
-    //   // sortOrder:
-    //   //   sortedInfo.columnKey === "createDate" ? sortedInfo.order : null,
-    //   //
-    // },
-    // {
-    //   title: "更改日期",
-    //   dataIndex: "modifyDate",
-    //   key: "modifyDate",
-    //   width: "180px",
-    //   // sorter: (a, b) => new Date(a.createDate) - new Date(b.createDate),
-    //   // sortOrder:
-    //   //   sortedInfo.columnKey === "createDate" ? sortedInfo.order : null,
-    //   //
-    // },
     {
       title: "行動",
       key: "operation",
