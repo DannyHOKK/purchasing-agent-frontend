@@ -216,8 +216,6 @@ const OrderModifyModal = ({ openModify, setOpenModify, orderModifyData }) => {
     );
   };
 
-  console.log(productData.productPrice);
-
   const autoFillHandler = (value) => {
     const price = productData?.find(
       (product) => product.productName === form.getFieldValue("productName")

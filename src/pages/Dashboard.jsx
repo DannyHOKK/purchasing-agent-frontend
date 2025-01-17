@@ -53,7 +53,7 @@ const Dashboard = () => {
                   color={tagColor}
                   style={{ margin: "0 auto", justifyContent: "center" }}
                 >
-                  {tagContent}
+                  ${tagContent}
                 </Tag>
               </Col>
             </Row>

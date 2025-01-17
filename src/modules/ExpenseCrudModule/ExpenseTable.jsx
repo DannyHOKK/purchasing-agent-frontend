@@ -3,34 +3,35 @@ import React, { useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import currency from "../../staticData/currency.json";
 import {
-  deleteExchange,
-  getExchangeRate,
-} from "../../redux/exchangeRate/exchangeRateAction";
+  deleteExpense,
+  getAllExpense,
+} from "../../redux/expense/expenseAction";
 
-const ExchangeTable = () => {
+const currenciesOptions = currency.currenciesOptions.map((currency) => ({
+  value: currency.value,
+  label: currency.label,
+  symbol: currency.symbol,
+}));
+
+const ExpenseTable = () => {
   const dispatch = useDispatch();
   const [messageApi, contextHolder] = message.useMessage();
   const { exchangeRateData, exchangeRateLoading } = useSelector(
     (state) => state.exchangeRate
   );
-
-  const currenciesOptions = useMemo(
+  const { expenseData } = useSelector((state) => state.expense);
+  const koreaExchangeRate = useMemo(
     () =>
-      currency.currenciesOptions.map((currency) => ({
-        value: currency.value,
-        label: currency.label,
-        symbol: currency.symbol,
-      })),
-    [currency]
+      exchangeRateData?.find((currency) => currency.currency === "KRW")
+        ?.exchangeRate,
+    [exchangeRateData]
   );
 
-  console.log(exchangeRateData);
-
-  const deleteExchangeHandler = async (currency) => {
-    const result = await dispatch(deleteExchange(currency));
+  const deleteHandler = async (expenseId) => {
+    const result = await dispatch(deleteExpense(expenseId));
     console.log(result);
     if (result.meta.requestStatus === "fulfilled") {
-      dispatch(getExchangeRate());
+      dispatch(getAllExpense());
       messageApi.open({
         type: "success",
         content: result.payload.msg,
@@ -50,36 +51,39 @@ const ExchangeTable = () => {
       key: "id",
     },
     {
-      title: "貨幣",
-      dataIndex: "currency",
-      key: "currency",
+      title: "店鋪",
+      dataIndex: "shopName",
+      key: "shopName",
+    },
+    {
+      title: "消費種類",
+      dataIndex: "consumeType",
+      key: "consumeType",
+    },
+    {
+      title: "價格",
+      dataIndex: "consumeCost",
+      key: "consumeCost",
+    },
+    {
+      title: "港幣",
+      dataIndex: "hkdPrice",
+      key: "hkdPrice",
       render: (text, record) => {
         return (
-          <>
-            {
-              currenciesOptions?.find(
-                (currency) => currency.value === record.currency
-              )?.symbol
-            }{" "}
-            ({record.currency})
-          </>
+          <>${Math.ceil((record.consumeCost / koreaExchangeRate) * 10) / 10}</>
         );
       },
     },
     {
-      title: "匯率",
-      dataIndex: "exchangeRate",
-      key: "exchangeRate",
-      render: (text, record) => {
-        const exchange = currenciesOptions?.find(
-          (currency) => currency.value === record.currency
-        );
-        return (
-          <>
-            HKD$1 = {exchange?.symbol} {record.exchangeRate}
-          </>
-        );
-      },
+      title: "付款方式",
+      dataIndex: "payment",
+      key: "payment",
+    },
+    {
+      title: "付款日期",
+      dataIndex: "payDate",
+      key: "payDate",
     },
     {
       title: "建立日期",
@@ -104,7 +108,7 @@ const ExchangeTable = () => {
               title="刪除"
               description="是否確認刪除?"
               onConfirm={() => {
-                deleteExchangeHandler(record.currency);
+                deleteHandler(record.expenseId);
               }}
               okText="刪除"
               cancelText="取消"
@@ -125,12 +129,17 @@ const ExchangeTable = () => {
     },
   ];
 
-  const data = exchangeRateData?.map((exchange, index) => ({
+  const data = expenseData?.map((expense, index) => ({
     id: index + 1,
-    currency: exchange?.currency,
-    exchangeRate: exchange?.exchangeRate,
-    createDate: exchange?.createDate.split(".")[0].replaceAll("T", " "),
-    modifyDate: exchange?.modifyDate.split(".")[0].replaceAll("T", " "),
+    expenseId: expense.expenseId,
+    shopName: expense.shopName,
+    consumeType: expense.consumeType,
+    consumeCost: expense.consumeCost,
+    hkdPrice: expense.hkdPrice,
+    payment: expense.payment,
+    payDate: expense.payDate,
+    createDate: expense?.createDate.split(".")[0].replaceAll("T", " "),
+    modifyDate: expense?.modifyDate.split(".")[0].replaceAll("T", " "),
   }));
 
   return (
@@ -148,4 +157,4 @@ const ExchangeTable = () => {
   );
 };
 
-export default ExchangeTable;
+export default ExpenseTable;
