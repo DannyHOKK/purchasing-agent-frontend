@@ -130,7 +130,7 @@ const ExchangeTable = () => {
   }));
 
   return (
-    <div className=" p-4 container order-table-container">
+    <div className=" p-4 container order-table-container mb-5 mb-sm-0 ">
       <h4>貨幣表格</h4>
       <Table
         loading={exchangeRateLoading}

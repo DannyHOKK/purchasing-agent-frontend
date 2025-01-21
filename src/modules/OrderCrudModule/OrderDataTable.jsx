@@ -616,7 +616,7 @@ const OrderDataTable = ({ orderLoading, orderData, productData }) => {
   };
 
   return (
-    <div className="mb-5 mb-sm-0 position-relative">
+    <div className="mb-5 mb-sm-0">
       {contextHolder}
       <div className=" d-flex justify-content-between p-4 position-absolute">
         <div>-</div>

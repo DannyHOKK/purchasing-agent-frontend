@@ -309,7 +309,7 @@ const ProductDataTable = ({ productLoading, productData }) => {
     }));
 
   return (
-    <div className="order-table-container">
+    <div className="order-table-container mb-5 mb-sm-0 ">
       {contextHolder}
       <div>
         <div className=" d-flex justify-content-between m-4">
