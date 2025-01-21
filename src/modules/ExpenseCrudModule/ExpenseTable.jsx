@@ -92,12 +92,6 @@ const ExpenseTable = () => {
       width: "180px",
     },
     {
-      title: "更改日期",
-      dataIndex: "modifyDate",
-      key: "modifyDate",
-      width: "180px",
-    },
-    {
       title: "行動",
       key: "operation",
       render: (text, record) => {
@@ -143,7 +137,7 @@ const ExpenseTable = () => {
   }));
 
   return (
-    <div className=" p-4 container-sm">
+    <div className=" p-4 container order-table-container">
       <h4>貨幣表格</h4>
       <Table
         loading={exchangeRateLoading}

@@ -140,6 +140,7 @@ const ProductDataTable = ({ productLoading, productData }) => {
       title: "產品",
       dataIndex: "productName",
       key: "productName",
+      minWidth: "100px",
       filterSearch: true,
       filters: productName?.map((productName, index) => ({
         text: productName,
@@ -205,6 +206,7 @@ const ProductDataTable = ({ productLoading, productData }) => {
       title: "訂單數量",
       dataIndex: "quantity",
       key: "quantity",
+      minWidth: "70px",
     },
     {
       title: "尚欠",

@@ -17,7 +17,7 @@ const Dashboard = () => {
 
   const TopCard = ({ title, tagContent, tagColor, prefix }) => {
     return (
-      <Col className="gutter-row" span={6}>
+      <Col className="gutter-row my-2" xs={24} md={12} lg={6}>
         <div
           className="whiteBox shadow"
           style={{ color: "#595959", fontSize: 13, height: "106px" }}
@@ -84,7 +84,21 @@ const Dashboard = () => {
       exit={{ y: -20, opacity: 0 }}
     >
       <PageLayout>
-        <Row gutter={[20, 20]}>
+        <Row
+          // gutter={[20, 20]}
+          gutter={{
+            xs: 2,
+            sm: 8,
+            md: 12,
+            lg: 24,
+          }}
+          // gutter={{
+          //   xs:6,
+          //   sm:12,
+          //   md:24,
+          // }}
+          className=" d-lg-flex"
+        >
           <TopCard
             title={"訂單總數"}
             tagColor={"cyan"}
