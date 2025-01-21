@@ -618,7 +618,7 @@ const OrderDataTable = ({ orderLoading, orderData, productData }) => {
   return (
     <div className="mb-5 mb-sm-0">
       {contextHolder}
-      <div className=" d-flex justify-content-between p-4 position-absolute">
+      <div className=" d-flex justify-content-between p-4">
         <div>-</div>
         <div>
           <Button className=" me-3" onClick={refreshHandler}>
