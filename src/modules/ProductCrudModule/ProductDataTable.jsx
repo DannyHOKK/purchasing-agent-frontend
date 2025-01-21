@@ -339,7 +339,7 @@ const ProductDataTable = ({ productLoading, productData }) => {
           pageSize: 20,
         }}
         onChange={handleChange}
-        style={{ minWidth: "850px" }}
+        scroll={{ x: "max-content" }}
       />
       <ProductAddModal
         open={open}

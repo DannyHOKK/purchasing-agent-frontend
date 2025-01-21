@@ -616,9 +616,9 @@ const OrderDataTable = ({ orderLoading, orderData, productData }) => {
   };
 
   return (
-    <div className="order-table-container">
+    <div className="mb-5 mb-sm-0 position-relative">
       {contextHolder}
-      <div className=" d-flex justify-content-between p-4">
+      <div className=" d-flex justify-content-between p-4 position-absolute">
         <div>-</div>
         <div>
           <Button className=" me-3" onClick={refreshHandler}>
@@ -637,11 +637,11 @@ const OrderDataTable = ({ orderLoading, orderData, productData }) => {
         loading={orderLoading}
         columns={columns}
         dataSource={data}
+        scroll={{ x: "max-content" }}
         pagination={{
           position: ["bottomCenter"],
         }}
         onChange={handleChange}
-        style={{ minWidth: "1100px" }}
       />
       <OrderAddModal open={open} setOpen={setOpen} messageApi={messageApi} />
       <OrderModifyModal

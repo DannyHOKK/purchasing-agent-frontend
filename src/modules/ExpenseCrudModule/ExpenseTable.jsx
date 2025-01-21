@@ -151,6 +151,7 @@ const ExpenseTable = () => {
         pagination={{
           position: ["bottomCenter"],
         }}
+        scroll={{ x: "max-content" }}
       />
     </div>
   );

@@ -200,7 +200,7 @@ const CustomerDataTable = ({ customerLoading, customerData }) => {
           pageSize: 20,
         }}
         onChange={handleChange}
-        style={{ minWidth: "850px" }}
+        scroll={{ x: "max-content" }}
       />
       <CustomerAddModal open={open} setOpen={setOpen} messageApi={messageApi} />
       <CustomerModifyModal

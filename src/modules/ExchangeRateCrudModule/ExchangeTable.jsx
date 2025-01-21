@@ -139,6 +139,7 @@ const ExchangeTable = () => {
         pagination={{
           position: ["bottomCenter"],
         }}
+        scroll={{ x: "max-content" }}
       />
     </div>
   );
