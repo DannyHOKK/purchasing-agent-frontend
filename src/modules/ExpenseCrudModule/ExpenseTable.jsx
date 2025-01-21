@@ -54,16 +54,19 @@ const ExpenseTable = () => {
       title: "店鋪",
       dataIndex: "shopName",
       key: "shopName",
+      minWidth: "100px",
     },
     {
       title: "消費種類",
       dataIndex: "consumeType",
       key: "consumeType",
+      minWidth: "70px",
     },
     {
       title: "價格",
       dataIndex: "consumeCost",
       key: "consumeCost",
+      minWidth: "100px",
     },
     {
       title: "港幣",
@@ -79,11 +82,13 @@ const ExpenseTable = () => {
       title: "付款方式",
       dataIndex: "payment",
       key: "payment",
+      minWidth: "100px",
     },
     {
       title: "付款日期",
       dataIndex: "payDate",
       key: "payDate",
+      minWidth: "150px",
     },
     {
       title: "建立日期",

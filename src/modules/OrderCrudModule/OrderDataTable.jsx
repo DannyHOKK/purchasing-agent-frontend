@@ -120,7 +120,7 @@ const OrderDataTable = ({ orderLoading, orderData, productData }) => {
       title: "牌子",
       dataIndex: "productBrand",
       key: "productBrand",
-      width: "100px",
+      minWidth: "100px",
       filters: productBrand.map((brand, index) => ({
         text: brand,
         value: brand,
@@ -138,7 +138,7 @@ const OrderDataTable = ({ orderLoading, orderData, productData }) => {
       title: "產品",
       dataIndex: "productName",
       key: "productName",
-      width: "180px",
+      minWidth: "180px",
       filterSearch: true,
       filters: productName.map((brand, index) => ({
         text: brand,
@@ -157,19 +157,19 @@ const OrderDataTable = ({ orderLoading, orderData, productData }) => {
       title: "售價",
       dataIndex: "productPrice",
       key: "productPrice",
-      width: "80px",
+      minWidth: "80px",
     },
     {
       title: "數量",
       dataIndex: "quantity",
       key: "quantity",
-      width: "60px",
+      minWidth: "60px",
     },
     {
       title: "付款",
       dataIndex: "paid",
       key: "paid",
-      width: "90px",
+      minWidth: "90px",
       filters: [
         {
           text: "已付款",
@@ -261,7 +261,7 @@ const OrderDataTable = ({ orderLoading, orderData, productData }) => {
       title: "運輸",
       dataIndex: "takeMethod",
       key: "takeMethod",
-      width: "80px",
+      minWidth: "80px",
       filters: [
         {
           text: "自取",
@@ -368,13 +368,13 @@ const OrderDataTable = ({ orderLoading, orderData, productData }) => {
       title: "Remark",
       dataIndex: "remark",
       key: "remark",
-      width: "90px",
+      // width: "90px",
     },
     {
       title: "狀態",
       dataIndex: "status",
       key: "status",
-      width: "100px",
+      minWidth: "100px",
       filters: [
         {
           text: "備貨中",
@@ -489,6 +489,7 @@ const OrderDataTable = ({ orderLoading, orderData, productData }) => {
         return (
           <>
             <Button
+              className="mb-2 mb-sm-0"
               color="primary"
               variant="outlined"
               style={{

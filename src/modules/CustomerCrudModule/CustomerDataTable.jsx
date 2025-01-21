@@ -126,6 +126,7 @@ const CustomerDataTable = ({ customerLoading, customerData }) => {
         return (
           <>
             <Button
+              className="mb-2 mb-sm-0"
               color="primary"
               variant="outlined"
               style={{

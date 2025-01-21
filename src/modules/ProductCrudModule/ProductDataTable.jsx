@@ -227,6 +227,7 @@ const ProductDataTable = ({ productLoading, productData }) => {
         return (
           <>
             <Button
+              className="mb-2 mb-sm-0"
               color="primary"
               variant="outlined"
               style={{
@@ -249,6 +250,7 @@ const ProductDataTable = ({ productLoading, productData }) => {
               cancelText="取消"
             >
               <Button
+                className="mb-2 mb-sm-0"
                 color="danger"
                 variant="filled"
                 style={{
