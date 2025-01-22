@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import PageLayout from "../layout/PageLayout";
 import ExchangeRateCrud from "../modules/ExchangeRateCrudModule";
 import ExchangeTable from "../modules/ExchangeRateCrudModule/ExchangeTable";
+import ExchangeRecordTable from "../modules/ExchangeRateCrudModule/ExchangeRecordTable";
 
 const ExchangeRate = () => {
   const config = {
@@ -24,6 +25,15 @@ const ExchangeRate = () => {
           style={{ color: "#595959", fontSize: 13 }}
         >
           <ExchangeRateCrud />
+        </div>
+
+        <div className="space30"></div>
+
+        <div
+          className="whiteBox shadow"
+          style={{ color: "#595959", fontSize: 13 }}
+        >
+          <ExchangeRecordTable />
         </div>
 
         <div className="space30"></div>

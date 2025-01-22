@@ -1,7 +1,7 @@
 import { Badge, Table, Button, message, Popconfirm } from "antd";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import CustomerAddModal from "./CustomerAddModal";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import {
   deleteCustomer,
   getAllCustomer,
@@ -9,7 +9,7 @@ import {
 import { ArrowLeftOutlined, PlusOutlined } from "@ant-design/icons";
 import CustomerModifyModal from "./CustomerModifyModal";
 
-const CustomerDataTable = ({ customerLoading, customerData }) => {
+const CustomerDataTable = () => {
   const [filteredInfo, setFilteredInfo] = useState({});
   const [sortedInfo, setSortedInfo] = useState({});
   const [openModify, setOpenModify] = useState(false);
@@ -17,6 +17,14 @@ const CustomerDataTable = ({ customerLoading, customerData }) => {
   const [open, setOpen] = useState(false);
   const [messageApi, contextHolder] = message.useMessage();
   const dispatch = useDispatch();
+
+  const { customerLoading, customerData } = useSelector(
+    (state) => state.customer
+  );
+
+  useEffect(() => {
+    dispatch(getAllCustomer());
+  }, []);
 
   const handleChange = (pagination, filters, sorter) => {
     setFilteredInfo(filters);
@@ -54,7 +62,6 @@ const CustomerDataTable = ({ customerLoading, customerData }) => {
       title: "#",
       dataIndex: "id",
       key: "id",
-      width: "60px",
     },
     {
       title: "電話",
@@ -104,7 +111,6 @@ const CustomerDataTable = ({ customerLoading, customerData }) => {
       title: "建立日期",
       dataIndex: "createDate",
       key: "createDate",
-      width: "180px",
       sorter: (a, b) => new Date(a.createDate) - new Date(b.createDate),
       sortOrder:
         sortedInfo.columnKey === "createDate" ? sortedInfo.order : null,
@@ -113,7 +119,6 @@ const CustomerDataTable = ({ customerLoading, customerData }) => {
       title: "更改日期",
       dataIndex: "modifyDate",
       key: "modifyDate",
-      width: "180px",
       sorter: (a, b) => new Date(a.createDate) - new Date(b.createDate),
       sortOrder:
         sortedInfo.columnKey === "createDate" ? sortedInfo.order : null,
@@ -121,7 +126,6 @@ const CustomerDataTable = ({ customerLoading, customerData }) => {
     {
       title: "行動",
       key: "operation",
-      width: "180px",
       render: (text, record) => {
         return (
           <>
@@ -158,16 +162,22 @@ const CustomerDataTable = ({ customerLoading, customerData }) => {
     },
   ];
 
-  const data = customerData?.map((customer, index) => ({
-    id: index + 1,
-    customerId: customer.customerId,
-    phone: customer.phone ? customer.phone : null,
-    instagram: customer.instagram ? customer.instagram : null,
-    shippingAddress: customer.shippingAddress ? customer.shippingAddress : null,
-    remark: customer.remark ? customer.remark : null,
-    createDate: customer?.createDate?.split(".")[0]?.replaceAll("T", " "),
-    modifyDate: customer?.modifyDate?.split(".")[0]?.replaceAll("T", " "),
-  }));
+  const data = useMemo(
+    () =>
+      customerData?.map((customer, index) => ({
+        id: index + 1,
+        customerId: customer.customerId,
+        phone: customer.phone ? customer.phone : null,
+        instagram: customer.instagram ? customer.instagram : null,
+        shippingAddress: customer.shippingAddress
+          ? customer.shippingAddress
+          : null,
+        remark: customer.remark ? customer.remark : null,
+        createDate: customer?.createDate?.split(".")[0]?.replaceAll("T", " "),
+        modifyDate: customer?.modifyDate?.split(".")[0]?.replaceAll("T", " "),
+      })),
+    [customerData]
+  );
 
   return (
     <div className="order-table-container mb-5 mb-sm-0 ">

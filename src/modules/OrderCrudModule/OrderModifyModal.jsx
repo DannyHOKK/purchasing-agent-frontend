@@ -9,7 +9,7 @@ import {
   Switch,
   message,
 } from "antd";
-import React, { useEffect, useRef, useState } from "react";
+import React, { memo, useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   createProduct,
@@ -43,7 +43,7 @@ const formItemLayout = {
 
 const OrderModifyModal = ({ openModify, setOpenModify, orderModifyData }) => {
   const { productData } = useSelector((state) => state.product);
-  const { allCustomer } = useSelector((state) => state.customer);
+  const { customerData } = useSelector((state) => state.customer);
   const [form] = Form.useForm();
   const dispatch = useDispatch();
   const [orderPlatform, setOrderPlatform] = useState();
@@ -131,7 +131,7 @@ const OrderModifyModal = ({ openModify, setOpenModify, orderModifyData }) => {
     }
   };
 
-  const phoneOptions = allCustomer
+  const phoneOptions = customerData
     .filter((customer) => customer.phone)
     .map((customer) => customer.phone)
     .filter((customer, index, self) => self.indexOf(customer) === index)
@@ -139,7 +139,7 @@ const OrderModifyModal = ({ openModify, setOpenModify, orderModifyData }) => {
       value: phone,
     }));
 
-  const instagramOptions = allCustomer
+  const instagramOptions = customerData
     .filter((customer) => customer.instagram)
     .map((customer) => customer.instagram)
     .filter((customer, index, self) => self.indexOf(customer) === index)
@@ -450,4 +450,4 @@ const OrderModifyModal = ({ openModify, setOpenModify, orderModifyData }) => {
   );
 };
 
-export default OrderModifyModal;
+export default memo(OrderModifyModal);

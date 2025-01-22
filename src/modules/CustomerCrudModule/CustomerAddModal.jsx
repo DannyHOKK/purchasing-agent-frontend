@@ -1,5 +1,5 @@
 import { Button, Cascader, Divider, Form, Input, Modal, Select } from "antd";
-import React, { useEffect, useRef, useState } from "react";
+import React, { memo, useEffect, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import {
@@ -110,4 +110,4 @@ const CustomerAddModal = ({ open, setOpen, messageApi }) => {
   );
 };
 
-export default CustomerAddModal;
+export default memo(CustomerAddModal);

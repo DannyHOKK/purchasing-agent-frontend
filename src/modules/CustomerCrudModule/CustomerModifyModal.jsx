@@ -1,5 +1,5 @@
 import { Button, Cascader, Divider, Form, Input, Modal, Select } from "antd";
-import React, { useEffect, useRef, useState } from "react";
+import React, { memo, useEffect, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
 import {
   getAllCustomer,
@@ -32,6 +32,7 @@ const CustomerModifyModal = ({
   messageApi,
 }) => {
   const [form] = Form.useForm();
+  const [test, setTest] = useState("");
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -39,7 +40,6 @@ const CustomerModifyModal = ({
     form.setFieldValue("phone", customerModifyData?.phone);
     form.setFieldValue("remark", customerModifyData?.remark);
     form.setFieldValue("shippingAddress", customerModifyData?.shippingAddress);
-    console.log(customerModifyData.remark !== undefined);
   }, [customerModifyData]);
 
   const onFinish = async () => {
@@ -119,5 +119,4 @@ const CustomerModifyModal = ({
     </Modal>
   );
 };
-
-export default CustomerModifyModal;
+export default memo(CustomerModifyModal);

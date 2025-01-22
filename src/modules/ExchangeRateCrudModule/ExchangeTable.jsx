@@ -24,8 +24,6 @@ const ExchangeTable = () => {
     [currency]
   );
 
-  console.log(exchangeRateData);
-
   const deleteExchangeHandler = async (currency) => {
     const result = await dispatch(deleteExchange(currency));
     console.log(result);
@@ -53,7 +51,6 @@ const ExchangeTable = () => {
       title: "貨幣",
       dataIndex: "currency",
       key: "currency",
-      minWidth: "100px",
       render: (text, record) => {
         return (
           <>
@@ -71,7 +68,6 @@ const ExchangeTable = () => {
       title: "匯率",
       dataIndex: "exchangeRate",
       key: "exchangeRate",
-      minWidth: "150px",
       render: (text, record) => {
         const exchange = currenciesOptions?.find(
           (currency) => currency.value === record.currency
@@ -87,7 +83,6 @@ const ExchangeTable = () => {
       title: "建立日期",
       dataIndex: "createDate",
       key: "createDate",
-      minWidth: "160px",
     },
     {
       title: "行動",

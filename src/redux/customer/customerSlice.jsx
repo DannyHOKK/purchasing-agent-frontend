@@ -11,7 +11,7 @@ const initialState = {
   customerLoading: false,
   customerError: null,
   customerSuccess: false,
-  allCustomer: [],
+  customerData: [],
 };
 
 const customerSlice = createSlice({
@@ -27,7 +27,7 @@ const customerSlice = createSlice({
       .addCase(getAllCustomer.fulfilled, (state, { payload }) => {
         state.customerLoading = false;
         state.customerSuccess = true;
-        state.allCustomer = payload.data;
+        state.customerData = payload.data;
       })
       .addCase(getAllCustomer.rejected, (state, { payload }) => {
         state.customerLoading = false;

@@ -9,7 +9,7 @@ import {
   Switch,
   message,
 } from "antd";
-import React, { useEffect, useRef, useState } from "react";
+import React, { memo, useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   createProduct,
@@ -43,7 +43,8 @@ const formItemLayout = {
 
 const OrderAddModal = ({ open, setOpen, messageApi }) => {
   const { productData } = useSelector((state) => state.product);
-  const { allCustomer } = useSelector((state) => state.customer);
+  const { customerData } = useSelector((state) => state.customer);
+  const { orderLoading } = useSelector((state) => state.order);
   const [form] = Form.useForm();
   const dispatch = useDispatch();
   const [orderPlatform, setOrderPlatform] = useState("instagram");
@@ -122,7 +123,7 @@ const OrderAddModal = ({ open, setOpen, messageApi }) => {
     }
   };
 
-  const phoneOptions = allCustomer
+  const phoneOptions = customerData
     .filter((customer) => customer.phone)
     .map((customer) => customer.phone)
     .filter((customer, index, self) => self.indexOf(customer) === index)
@@ -130,7 +131,7 @@ const OrderAddModal = ({ open, setOpen, messageApi }) => {
       value: phone,
     }));
 
-  const instagramOptions = allCustomer
+  const instagramOptions = customerData
     .filter((customer) => customer.instagram)
     .map((customer) => customer.instagram)
     .filter((customer, index, self) => self.indexOf(customer) === index)
@@ -339,12 +340,14 @@ const OrderAddModal = ({ open, setOpen, messageApi }) => {
           <Button
             onClick={onFinish}
             style={{ backgroundColor: "#1DA57A", color: "white" }}
+            loading={orderLoading}
           >
             確認
           </Button>
           <Button
             onClick={addOrderHandler}
             style={{ backgroundColor: "blue", color: "white" }}
+            loading={orderLoading}
           >
             加訂單
           </Button>
@@ -543,4 +546,4 @@ const OrderAddModal = ({ open, setOpen, messageApi }) => {
   );
 };
 
-export default OrderAddModal;
+export default memo(OrderAddModal);

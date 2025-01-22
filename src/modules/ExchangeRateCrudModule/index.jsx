@@ -2,6 +2,7 @@ import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import ExchangeForm from "./ExchangeForm";
 import { getExchangeRate } from "../../redux/exchangeRate/exchangeRateAction";
+import { getAllExchangeRecord } from "../../redux/exchangeRecord/exchangeRecordAction";
 
 const ExchangeRateCrud = () => {
   const { exchangeRateLoading, exchangeRateData } = useSelector(
@@ -12,6 +13,7 @@ const ExchangeRateCrud = () => {
 
   useEffect(() => {
     dispatch(getExchangeRate());
+    dispatch(getAllExchangeRecord());
   }, []);
 
   return (

@@ -140,7 +140,6 @@ const ProductDataTable = ({ productLoading, productData }) => {
       title: "產品",
       dataIndex: "productName",
       key: "productName",
-      minWidth: "100px",
       filterSearch: true,
       filters: productName?.map((productName, index) => ({
         text: productName,
@@ -156,10 +155,20 @@ const ProductDataTable = ({ productLoading, productData }) => {
         sortedInfo.columnKey === "productName" ? sortedInfo.order : null,
     },
     {
+      title: "尚欠",
+      dataIndex: "needBuy",
+      key: "needBuy",
+      sorter: (a, b) => a.needBuy - b.needBuy,
+      sortOrder: sortedInfo.columnKey === "needBuy" ? sortedInfo.order : null,
+
+      render: (text, record) => {
+        return <>{record.needBuy * -1}</>;
+      },
+    },
+    {
       title: "返點",
       dataIndex: "commission",
       key: "commission",
-      width: "60px",
       render: (text, record) => {
         return record.commission ? (
           <CheckOutlined style={{ color: "green" }} />
@@ -206,23 +215,10 @@ const ProductDataTable = ({ productLoading, productData }) => {
       title: "訂單數量",
       dataIndex: "quantity",
       key: "quantity",
-      minWidth: "70px",
-    },
-    {
-      title: "尚欠",
-      dataIndex: "needBuy",
-      key: "needBuy",
-      sorter: (a, b) => a.needBuy - b.needBuy,
-      sortOrder: sortedInfo.columnKey === "needBuy" ? sortedInfo.order : null,
-
-      render: (text, record) => {
-        return <>{record.needBuy * -1}</>;
-      },
     },
     {
       title: "行動",
       key: "operation",
-      width: "240px",
       render: (text, record) => {
         return (
           <>

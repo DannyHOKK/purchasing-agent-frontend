@@ -19,7 +19,6 @@ const { SubMenu } = Menu;
 
 function Navigation() {
   const [collapsed, setCollapsed] = useState(false);
-
   const onCollapse = () => {
     setCollapsed(!collapsed);
   };
@@ -40,65 +39,71 @@ function Navigation() {
           <div className=" icon-container">
             <img src="icon.png" className="icon" />
           </div>
-          <Menu theme="dark" defaultSelectedKeys={["1"]} mode="inline">
-            <Menu.Item key="1" icon={<DashboardOutlined />}>
-              <Link to="/" />
-              主頁
+          <Menu
+            theme="dark"
+            defaultSelectedKeys={[localStorage.getItem("selectKey")]}
+            mode="inline"
+          >
+            <Menu.Item
+              key="1"
+              icon={<DashboardOutlined />}
+              onClick={() => {
+                localStorage.setItem("selectKey", "1");
+              }}
+            >
+              <Link to="/">主頁</Link>
             </Menu.Item>
-            <Menu.Item key="2" icon={<CustomerServiceOutlined />}>
+            <Menu.Item
+              key="2"
+              icon={<CustomerServiceOutlined />}
+              onClick={() => {
+                localStorage.setItem("selectKey", "2");
+              }}
+            >
               <Link to="/customer">客人</Link>
             </Menu.Item>
-            <Menu.Item key="3" icon={<FileSyncOutlined />}>
-              <Link to="/product" />
-              產品
+            <Menu.Item
+              key="3"
+              icon={<FileSyncOutlined />}
+              onClick={() => {
+                localStorage.setItem("selectKey", "3");
+              }}
+            >
+              <Link to="/product">產品</Link>
             </Menu.Item>
-            <Menu.Item key="4" icon={<TransactionOutlined />}>
+            <Menu.Item
+              key="4"
+              icon={<TransactionOutlined />}
+              onClick={() => {
+                localStorage.setItem("selectKey", "4");
+              }}
+            >
               <Link to="/exchangeRate">匯率</Link>
             </Menu.Item>
-            <Menu.Item key="5" icon={<PieChartOutlined />}>
+            <Menu.Item
+              key="5"
+              icon={<PieChartOutlined />}
+              onClick={() => {
+                localStorage.setItem("selectKey", "5");
+              }}
+            >
               <Link to="/expense">消費記錄</Link>
             </Menu.Item>
           </Menu>
         </Sider>
 
         <div className="bottombar">
-          {/* <ul className="nav-link">
-            <li>
-              <NavLink>
-                <DashboardOutlined />
-                <div>主頁</div>
-              </NavLink>
-            </li>
-            <li>
-              <NavLink>
-                <CustomerServiceOutlined />
-                <div>客人</div>
-              </NavLink>
-            </li>
-            <li>
-              <NavLink>
-                <CustomerServiceOutlined />
-                <div>客人</div>
-              </NavLink>
-            </li>
-            <li>
-              <NavLink>
-                <CustomerServiceOutlined />
-                <div>客人</div>
-              </NavLink>
-            </li>
-            <li>
-              <NavLink>
-                <CustomerServiceOutlined />
-                <div>客人</div>
-              </NavLink>
-            </li>
-          </ul> */}
-          <Menu className="bottom-menu">
+          <Menu
+            className="bottom-menu"
+            defaultSelectedKeys={[localStorage.getItem("selectKey")]}
+          >
             <Menu.Item
               key="1"
               icon={<DashboardOutlined />}
               className="bottom-menu-item"
+              onClick={() => {
+                localStorage.setItem("selectKey", "1");
+              }}
             >
               <Link to="/">主頁</Link>
             </Menu.Item>
@@ -106,6 +111,9 @@ function Navigation() {
               key="2"
               icon={<CustomerServiceOutlined />}
               className="bottom-menu-item"
+              onClick={() => {
+                localStorage.setItem("selectKey", "2");
+              }}
             >
               <Link to="/customer">客人</Link>
             </Menu.Item>
@@ -113,6 +121,9 @@ function Navigation() {
               key="3"
               icon={<FileSyncOutlined />}
               className="bottom-menu-item"
+              onClick={() => {
+                localStorage.setItem("selectKey", "3");
+              }}
             >
               <Link to="/product" />
               產品
@@ -121,6 +132,9 @@ function Navigation() {
               key="4"
               icon={<TransactionOutlined />}
               className="bottom-menu-item"
+              onClick={() => {
+                localStorage.setItem("selectKey", "4");
+              }}
             >
               <Link to="/exchangeRate">匯率</Link>
             </Menu.Item>
@@ -128,6 +142,9 @@ function Navigation() {
               key="5"
               icon={<PieChartOutlined />}
               className="bottom-menu-item"
+              onClick={() => {
+                localStorage.setItem("selectKey", "5");
+              }}
             >
               <Link to="/expense">消費記錄</Link>
             </Menu.Item>

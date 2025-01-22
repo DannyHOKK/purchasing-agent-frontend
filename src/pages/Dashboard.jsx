@@ -17,7 +17,7 @@ const Dashboard = () => {
 
   const TopCard = ({ title, tagContent, tagColor, prefix }) => {
     return (
-      <Col className="gutter-row my-2" xs={24} md={12} lg={6}>
+      <Col className="gutter-row my-2" xs={24} md={24} lg={8}>
         <div
           className="whiteBox shadow"
           style={{ color: "#595959", fontSize: 13, height: "106px" }}
@@ -53,7 +53,7 @@ const Dashboard = () => {
                   color={tagColor}
                   style={{ margin: "0 auto", justifyContent: "center" }}
                 >
-                  ${tagContent}
+                  {tagContent}
                 </Tag>
               </Col>
             </Row>
@@ -109,19 +109,19 @@ const Dashboard = () => {
             title={"訂單金額"}
             tagColor={"green"}
             prefix={"總共"}
-            tagContent={totalPrice}
+            tagContent={"$" + totalPrice}
           />
-          <TopCard
+          {/* <TopCard
             title={"已付款總數"}
             tagColor={"purple"}
             prefix={"總共"}
-            tagContent={totalPaidPrice}
-          />
+            tagContent={"$" + totalPaidPrice}
+          /> */}
           <TopCard
-            title={"未付款總數"}
+            title={"未付款訂單"}
             tagColor={"purple"}
             prefix={"總共"}
-            tagContent={totalNotPaidPrice}
+            tagContent={"$" + totalNotPaidPrice}
           />
         </Row>
         <div className="space30"></div>
