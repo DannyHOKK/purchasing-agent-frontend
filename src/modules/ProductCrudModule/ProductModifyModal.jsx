@@ -149,7 +149,6 @@ const ProductModifyModal = ({
       open={open}
       onCancel={() => {
         setOpen(false);
-        form.resetFields();
       }}
       footer={
         <>

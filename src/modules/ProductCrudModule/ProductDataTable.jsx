@@ -33,19 +33,15 @@ const ProductDataTable = ({ productLoading, productData }) => {
     (exchangeRate) => exchangeRate.currency
   );
 
-  const currenciesOptions = useMemo(
-    () =>
-      currency.currenciesOptions
-        .filter((option) => {
-          return exchangeCurrency.includes(option.value);
-        })
-        .map((currency) => ({
-          value: currency.value,
-          label: currency.label,
-          symbol: currency.symbol,
-        })),
-    [currency]
-  );
+  const currenciesOptions = currency.currenciesOptions
+    .filter((option) => {
+      return exchangeCurrency.includes(option.value);
+    })
+    .map((currency) => ({
+      value: currency.value,
+      label: currency.label,
+      symbol: currency.symbol,
+    }));
 
   const orderQuantity = productData.map((product) => {
     return orderData

@@ -257,16 +257,16 @@ const OrderModifyModal = ({ openModify, setOpenModify, orderModifyData }) => {
       open={openModify}
       onCancel={() => {
         setOpenModify(false);
-        form.resetFields();
-        form.setFieldValue("orderPlatform", orderPlatform);
+        // form.resetFields();
+        // form.setFieldValue("orderPlatform", orderPlatform);
       }}
       footer={
         <>
           <Button
             onClick={() => {
               setOpenModify(false);
-              form.resetFields();
-              form.setFieldValue("orderPlatform", orderPlatform);
+              // form.resetFields();
+              // form.setFieldValue("orderPlatform", orderPlatform);
             }}
           >
             取消
