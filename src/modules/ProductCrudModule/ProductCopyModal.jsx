@@ -55,9 +55,7 @@ const ProductCopyModal = ({
   const [symbol, setSymbol] = useState();
   const [selectedCurrency, setSelectedCurrency] = useState();
   const [messageApi, contextHolder] = message.useMessage();
-  const [exchangeRate, setExchangeRate] = useState(
-    productModifyData?.currency?.exchangeRate
-  );
+  const [exchangeRate, setExchangeRate] = useState();
 
   const exchangeCurrency = exchangeRateData.map(
     (exchangeRate) => exchangeRate.currency
@@ -103,6 +101,7 @@ const ProductCopyModal = ({
           10
       ) / 10
     );
+    setExchangeRate(productModifyData?.currency?.exchangeRate);
   }, [productModifyData]);
 
   const onFinish = async () => {

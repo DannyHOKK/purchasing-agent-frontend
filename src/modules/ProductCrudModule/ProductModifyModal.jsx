@@ -54,9 +54,7 @@ const ProductModifyModal = ({
   const { exchangeRateData } = useSelector((state) => state.exchangeRate);
   const [symbol, setSymbol] = useState();
   const [selectedCurrency, setSelectedCurrency] = useState();
-  const [exchangeRate, setExchangeRate] = useState(
-    productModifyData?.currency?.exchangeRate
-  );
+  const [exchangeRate, setExchangeRate] = useState();
   const [messageApi, contextHolder] = message.useMessage();
 
   const exchangeCurrency = exchangeRateData.map(
@@ -105,6 +103,8 @@ const ProductModifyModal = ({
           10
       ) / 10
     );
+
+    setExchangeRate(productModifyData?.currency?.exchangeRate);
   }, [productModifyData]);
 
   const onFinish = async () => {
@@ -272,6 +272,15 @@ const ProductModifyModal = ({
 
                   const formattedPrice = new Intl.NumberFormat().format(
                     calculatedPrice
+                  );
+
+                  console.log(
+                    Math.ceil(
+                      ((e.target.value * form.getFieldValue("discount")) /
+                        100 /
+                        exchangeRate) *
+                        10
+                    ) / 10
                   );
 
                   form.setFieldValue("price", formattedPrice);
