@@ -222,7 +222,7 @@ const ProductDataTable = ({ productLoading, productData }) => {
       key: "cost",
       render: (text, record) => {
         const formattedPrice = new Intl.NumberFormat().format(
-          Math.ceil((record.cost / record.currency.exchangeRate) * 10) / 10
+          Math.ceil((record.cost / record.currency?.exchangeRate) * 10) / 10
         );
 
         return <>HKD${formattedPrice}</>;
