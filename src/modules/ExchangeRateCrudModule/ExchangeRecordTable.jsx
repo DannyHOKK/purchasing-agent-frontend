@@ -2,7 +2,10 @@ import { Button, Popconfirm, Table, message } from "antd";
 import React, { memo, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import currency from "../../staticData/currency.json";
-import { getAllExchangeRecord } from "../../redux/exchangeRecord/exchangeRecordAction";
+import {
+  deleteExchangeRecord,
+  getAllExchangeRecord,
+} from "../../redux/exchangeRecord/exchangeRecordAction";
 import { PlusOutlined } from "@ant-design/icons";
 import ExchangeRecordAddModal from "./ExchangeRecordAddModal";
 
@@ -28,25 +31,21 @@ const ExchangeRecordTable = () => {
     [currency]
   );
 
-  useEffect(() => {
-    console.log(exchangeRecordData);
-  }, [exchangeRecordData]);
+  const deleteExchangeHandler = async (exchangeId) => {
+    const result = await dispatch(deleteExchangeRecord(exchangeId));
 
-  const deleteExchangeHandler = async (currency) => {
-    // const result = await dispatch(deleteExchange(currency));
-    // console.log(result);
-    // if (result.meta.requestStatus === "fulfilled") {
-    //   dispatch(getExchangeRate());
-    //   messageApi.open({
-    //     type: "success",
-    //     content: result.payload.msg,
-    //   });
-    // } else {
-    //   messageApi.open({
-    //     type: "error",
-    //     content: result.payload,
-    //   });
-    // }
+    if (result.meta.requestStatus === "fulfilled") {
+      dispatch(getAllExchangeRecord());
+      messageApi.open({
+        type: "success",
+        content: result.payload.msg,
+      });
+    } else {
+      messageApi.open({
+        type: "error",
+        content: result.payload,
+      });
+    }
   };
 
   const columns = [
@@ -103,14 +102,14 @@ const ExchangeRecordTable = () => {
       },
     },
     {
-      title: "建立日期",
-      dataIndex: "createDate",
-      key: "createDate",
-    },
-    {
       title: "兌換日期",
       dataIndex: "exchangeDate",
       key: "exchangeDate",
+    },
+    {
+      title: "建立日期",
+      dataIndex: "createDate",
+      key: "createDate",
     },
     {
       title: "行動",
@@ -123,7 +122,7 @@ const ExchangeRecordTable = () => {
               title="刪除"
               description="是否確認刪除?"
               onConfirm={() => {
-                deleteExchangeHandler(record.currency);
+                deleteExchangeHandler(record.exchangeId);
               }}
               okText="刪除"
               cancelText="取消"
@@ -144,14 +143,19 @@ const ExchangeRecordTable = () => {
     },
   ];
 
-  const data = exchangeRecordData?.map((exchange, index) => ({
-    id: index + 1,
-    currency: exchange?.currency,
-    exchangeCost: exchange?.exchangeCost,
-    exchangeDate: exchange?.exchangeDate,
-    exchangeRate: exchange?.exchangeRate,
-    createDate: exchange?.createDate.split(".")[0].replaceAll("T", " "),
-  }));
+  const data = useMemo(
+    () =>
+      exchangeRecordData?.map((exchange, index) => ({
+        id: index + 1,
+        exchangeId: exchange?.exchangeId,
+        currency: exchange?.currency,
+        exchangeCost: exchange?.exchangeCost,
+        exchangeDate: exchange?.exchangeDate,
+        exchangeRate: exchange?.exchangeRate,
+        createDate: exchange?.createDate.split(".")[0].replaceAll("T", " "),
+      })),
+    [exchangeRecordData]
+  );
 
   const refreshHandler = () => {
     dispatch(getAllExchangeRecord());
@@ -170,7 +174,7 @@ const ExchangeRecordTable = () => {
             onClick={() => setOpen(true)}
           >
             <PlusOutlined />
-            加訂單
+            加兌換記錄
           </Button>
         </div>
       </div>

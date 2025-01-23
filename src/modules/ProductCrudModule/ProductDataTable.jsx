@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   deleteProductById,
@@ -15,23 +15,37 @@ import {
 import ProductModifyModal from "./ProductModifyModal";
 import ProductCopyModal from "./ProductCopyModal";
 import { render } from "less";
+import currency from "../../staticData/currency.json";
 
 const ProductDataTable = ({ productLoading, productData }) => {
   const [filteredInfo, setFilteredInfo] = useState({});
   const [sortedInfo, setSortedInfo] = useState({});
-  const [messageApi, contextHolder] = message.useMessage();
   const [open, setOpen] = useState(false);
   const [openCopy, setOpenCopy] = useState(false);
   const [openModify, setOpenModify] = useState(false);
   const [productModifyData, setProductModifyData] = useState({});
   const dispatch = useDispatch();
-
-  const { orderData } = useSelector((state) => state.order);
   const { exchangeRateData } = useSelector((state) => state.exchangeRate);
+  const { orderData } = useSelector((state) => state.order);
+  const [messageApi, contextHolder] = message.useMessage();
 
-  const koreaExchangeRate = exchangeRateData?.find(
-    (currency) => currency.currency === "KRW"
-  )?.exchangeRate;
+  const exchangeCurrency = exchangeRateData.map(
+    (exchangeRate) => exchangeRate.currency
+  );
+
+  const currenciesOptions = useMemo(
+    () =>
+      currency.currenciesOptions
+        .filter((option) => {
+          return exchangeCurrency.includes(option.value);
+        })
+        .map((currency) => ({
+          value: currency.value,
+          label: currency.label,
+          symbol: currency.symbol,
+        })),
+    [currency]
+  );
 
   const orderQuantity = productData.map((product) => {
     return orderData
@@ -182,7 +196,16 @@ const ProductDataTable = ({ productLoading, productData }) => {
       dataIndex: "productCost",
       key: "productCost",
       render: (text, record) => {
-        return <>₩{record.productCost}</>;
+        const symbol = currenciesOptions?.find(
+          (currency) => currency.value === record.currency.currency
+        )?.symbol;
+
+        return (
+          <>
+            {symbol}
+            {record.productCost}
+          </>
+        );
       },
     },
     {
@@ -198,9 +221,11 @@ const ProductDataTable = ({ productLoading, productData }) => {
       dataIndex: "cost",
       key: "cost",
       render: (text, record) => {
-        return (
-          <>HKD${Math.ceil((record.cost / koreaExchangeRate) * 10) / 10}</>
+        const formattedPrice = new Intl.NumberFormat().format(
+          Math.ceil((record.cost / record.currency.exchangeRate) * 10) / 10
         );
+
+        return <>HKD${formattedPrice}</>;
       },
     },
     {
@@ -274,39 +299,48 @@ const ProductDataTable = ({ productLoading, productData }) => {
     },
   ];
 
-  const data = productData?.map((product, index) => ({
-    id: index + 1,
-    productId: product.productId,
-    productBrand: product.productBrand,
-    productCost: product.productCost,
-    commission: product.commission,
-    discount: product.discount,
-    cost: product.productCost * product.discount * 0.01,
-    productPrice: product.productPrice,
-    productName: product.productName,
-    productType: product.productType,
-    quantity: (
-      <>
-        {orderQuantity[index]} ({product.stock})
-      </>
-    ),
-    needBuy: orderQuantity[index] - product.stock,
-    stock: product.stock,
-    discount: product.discount,
-    createDate: product.createDate.split(".")[0].replaceAll("T", " "),
-    modifyDate: product.modifyDate.split(".")[0].replaceAll("T", " "),
-  }));
+  const data = useMemo(
+    () =>
+      productData?.map((product, index) => ({
+        id: index + 1,
+        productId: product.productId,
+        productBrand: product.productBrand,
+        productCost: product.productCost,
+        commission: product.commission,
+        discount: product.discount,
+        cost: product.productCost * product.discount * 0.01,
+        productPrice: product.productPrice,
+        productName: product.productName,
+        productType: product.productType,
+        quantity: (
+          <>
+            {orderQuantity[index]} ({product.stock})
+          </>
+        ),
+        needBuy: orderQuantity[index] - product.stock,
+        stock: product.stock,
+        discount: product.discount,
+        createDate: product.createDate.split(".")[0].replaceAll("T", " "),
+        modifyDate: product.modifyDate.split(".")[0].replaceAll("T", " "),
 
-  const productBrandOptions = productData
-    ?.map((brand) => brand.productBrand)
-    .filter((brand, index, self) => self.indexOf(brand) === index)
-    .map((brand, index) => ({
-      value: brand,
-    }));
+        currency: product?.exchangeRate,
+      })),
+    [productData]
+  );
+
+  const productBrandOptions = useMemo(
+    () =>
+      productData
+        ?.map((brand) => brand.productBrand)
+        .filter((brand, index, self) => self.indexOf(brand) === index)
+        .map((brand, index) => ({
+          value: brand,
+        })),
+    []
+  );
 
   return (
     <div className="order-table-container mb-5 mb-sm-0 ">
-      {contextHolder}
       <div>
         <div className=" d-flex justify-content-between m-4">
           <a onClick={() => window.history.back()} className="my-auto">

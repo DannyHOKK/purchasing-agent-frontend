@@ -78,6 +78,8 @@ const ExchangeRecordAddModal = ({ open, setOpen }) => {
       open={open}
       onCancel={() => {
         setOpen(false);
+        setSymbol("");
+        setSelectedCurrency("");
         form.resetFields();
       }}
       footer={

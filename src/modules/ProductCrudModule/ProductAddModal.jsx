@@ -8,14 +8,16 @@ import {
   InputNumber,
   Modal,
   Row,
+  Select,
   Space,
 } from "antd";
-import React, { useEffect, useState } from "react";
+import React, { memo, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   createProduct,
   getAllProduct,
 } from "../../redux/product/productAction";
+import currency from "../../staticData/currency.json";
 
 const formItemLayout = {
   labelCol: {
@@ -43,10 +45,23 @@ const ProductAddModal = ({ open, setOpen, productBrandOptions }) => {
   const { productData } = useSelector((state) => state.product);
   const { exchangeRateData } = useSelector((state) => state.exchangeRate);
   const [productTypeOptions, setProductTypeOptions] = useState();
+  const [symbol, setSymbol] = useState();
+  const [selectedCurrency, setSelectedCurrency] = useState();
+  const [exchangeRate, setExchangeRate] = useState();
 
-  const koreaExchangeRate = exchangeRateData?.find(
-    (currency) => currency.currency === "KRW"
-  )?.exchangeRate;
+  const exchangeCurrency = exchangeRateData.map(
+    (exchangeRate) => exchangeRate.currency
+  );
+
+  const currenciesOptions = currency.currenciesOptions
+    .filter((option) => {
+      return exchangeCurrency.includes(option.value);
+    })
+    .map((currency) => ({
+      value: currency.value,
+      label: currency.label,
+      symbol: currency.symbol,
+    }));
 
   useEffect(() => {
     setProductTypeOptions(
@@ -73,11 +88,12 @@ const ProductAddModal = ({ open, setOpen, productBrandOptions }) => {
       productName: form.getFieldValue("productName"),
       productCost: form.getFieldValue("productCost"),
       discount: form.getFieldValue("discount"),
+      currency: form.getFieldValue("currency"),
       productPrice: form.getFieldValue("productPrice"),
       stock: form.getFieldValue("stock"),
       commission: commission,
     };
-    console.log(createProductData);
+
     const result = await dispatch(createProduct(createProductData));
 
     if (result.meta.requestStatus === "fulfilled") {
@@ -85,7 +101,6 @@ const ProductAddModal = ({ open, setOpen, productBrandOptions }) => {
       form.resetFields();
       dispatch(getAllProduct());
     }
-    console.log(result);
   };
 
   return (
@@ -159,6 +174,41 @@ const ProductAddModal = ({ open, setOpen, productBrandOptions }) => {
           <Input />
         </Form.Item>
 
+        <Form.Item
+          name="currency"
+          label="貨幣"
+          rules={[{ required: true, message: "請輸入產品成本" }]}
+        >
+          <Select
+            showSearch
+            options={currenciesOptions}
+            onChange={(value) => {
+              setSymbol(
+                currenciesOptions?.find((currency) => currency.value === value)
+                  ?.symbol
+              );
+              setSelectedCurrency(
+                currenciesOptions?.find((currency) => currency.value === value)
+                  ?.value
+              );
+
+              const rate = exchangeRateData.find(
+                (exchangeRate) => exchangeRate.currency === value
+              ).exchangeRate;
+              setExchangeRate(rate);
+
+              const formattedPrice = new Intl.NumberFormat().format(
+                (form.getFieldValue("productCost") *
+                  form.getFieldValue("discount")) /
+                  rate /
+                  100
+              );
+
+              form.setFieldValue("price", formattedPrice);
+            }}
+          />
+        </Form.Item>
+
         <Form.Item label="成本" style={{ margin: "0" }}>
           <Space.Compact>
             <Form.Item
@@ -167,18 +217,22 @@ const ProductAddModal = ({ open, setOpen, productBrandOptions }) => {
               style={{ width: "63%" }}
             >
               <Input
-                prefix="₩"
-                suffix="KRW"
+                prefix={symbol}
+                suffix={selectedCurrency}
                 onChange={(e) => {
-                  form.setFieldValue(
-                    "price",
+                  const calculatedPrice =
                     Math.ceil(
                       ((e.target.value * form.getFieldValue("discount")) /
                         100 /
-                        koreaExchangeRate) *
+                        exchangeRate) *
                         10
-                    ) / 10
+                    ) / 10;
+
+                  const formattedPrice = new Intl.NumberFormat().format(
+                    calculatedPrice
                   );
+
+                  form.setFieldValue("price", formattedPrice);
                 }}
               />
             </Form.Item>
@@ -193,15 +247,17 @@ const ProductAddModal = ({ open, setOpen, productBrandOptions }) => {
                 suffix="%"
                 style={{ width: "100%" }}
                 onChange={(e) => {
-                  form.setFieldValue(
-                    "price",
+                  const calculatedPrice =
                     Math.ceil(
                       (((e.target.value / 100) *
                         form.getFieldValue("productCost")) /
-                        koreaExchangeRate) *
+                        exchangeRate) *
                         10
-                    ) / 10
+                    ) / 10;
+                  const formattedPrice = new Intl.NumberFormat().format(
+                    calculatedPrice
                   );
+                  form.setFieldValue("price", formattedPrice);
                 }}
               />
             </Form.Item>
@@ -242,4 +298,4 @@ const ProductAddModal = ({ open, setOpen, productBrandOptions }) => {
   );
 };
 
-export default ProductAddModal;
+export default memo(ProductAddModal);

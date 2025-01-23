@@ -7,12 +7,6 @@ import {
   getAllExpense,
 } from "../../redux/expense/expenseAction";
 
-const currenciesOptions = currency.currenciesOptions.map((currency) => ({
-  value: currency.value,
-  label: currency.label,
-  symbol: currency.symbol,
-}));
-
 const ExpenseTable = () => {
   const dispatch = useDispatch();
   const [messageApi, contextHolder] = message.useMessage();
@@ -20,12 +14,20 @@ const ExpenseTable = () => {
     (state) => state.exchangeRate
   );
   const { expenseData } = useSelector((state) => state.expense);
-  const koreaExchangeRate = useMemo(
-    () =>
-      exchangeRateData?.find((currency) => currency.currency === "KRW")
-        ?.exchangeRate,
-    [exchangeRateData]
+
+  const exchangeCurrency = exchangeRateData.map(
+    (exchangeRate) => exchangeRate.currency
   );
+
+  const currenciesOptions = currency.currenciesOptions
+    .filter((option) => {
+      return exchangeCurrency.includes(option.value);
+    })
+    .map((currency) => ({
+      value: currency.value,
+      label: currency.label,
+      symbol: currency.symbol,
+    }));
 
   const deleteHandler = async (expenseId) => {
     const result = await dispatch(deleteExpense(expenseId));
@@ -64,15 +66,28 @@ const ExpenseTable = () => {
       title: "價格",
       dataIndex: "consumeCost",
       key: "consumeCost",
+      render: (text, record) => {
+        const symbol = currenciesOptions?.find(
+          (currency) => currency.value === record.currency?.currency
+        )?.symbol;
+
+        return (
+          <>
+            {symbol} {new Intl.NumberFormat().format(record.consumeCost)}
+          </>
+        );
+      },
     },
     {
       title: "港幣",
       dataIndex: "hkdPrice",
       key: "hkdPrice",
       render: (text, record) => {
-        return (
-          <>${Math.ceil((record.consumeCost / koreaExchangeRate) * 10) / 10}</>
+        const formattedPrice = new Intl.NumberFormat().format(
+          Math.ceil((record.consumeCost / record.currency?.exchangeRate) * 10) /
+            10
         );
+        return <>$ {formattedPrice}</>;
       },
     },
     {
@@ -133,6 +148,8 @@ const ExpenseTable = () => {
     payDate: expense.payDate,
     createDate: expense?.createDate.split(".")[0].replaceAll("T", " "),
     modifyDate: expense?.modifyDate.split(".")[0].replaceAll("T", " "),
+
+    currency: expense?.exchangeRate,
   }));
 
   return (

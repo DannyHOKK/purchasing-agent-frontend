@@ -28,24 +28,6 @@ const OrderDataTable = () => {
 
   const { orderLoading, orderData } = useSelector((state) => state.order);
 
-  // const customerPhone = orderData
-  //   .map((order) =>
-  //     order.orderPlatform === "phone"
-  //       ? order.customer.phone
-  //       : order.customer.instagram
-  //   )
-  //   .filter((phone, index, self) => self.indexOf(phone) === index);
-
-  // const productBrand = orderData
-  //   .map((order) => order.product.productBrand)
-  //   .filter(
-  //     (productBrand, index, self) => self.indexOf(productBrand) === index
-  //   );
-
-  // const productName = orderData
-  //   .map((order) => order.product.productName)
-  //   .filter((productName, index, self) => self.indexOf(productName) === index);
-
   const { customerPhone, productBrand, productName } = useMemo(() => {
     const result = orderData.reduce(
       (acc, order) => {
@@ -77,8 +59,9 @@ const OrderDataTable = () => {
     return result;
   }, [orderData]);
 
-  const columns = useMemo(
-    () => [
+  const columns = useMemo(() => {
+    console.log("rerender columns");
+    return [
       {
         title: "#",
         dataIndex: "id",
@@ -499,39 +482,33 @@ const OrderDataTable = () => {
           );
         },
       },
-    ],
-    [customerPhone, productBrand, productName, filteredInfo, sortedInfo]
-  );
+    ];
+  }, [customerPhone, productBrand, productName, filteredInfo, sortedInfo]);
 
-  useEffect(() => {
-    console.log("columns rerender");
-  }, [columns]);
-
-  const data = useMemo(
-    () =>
-      orderData?.map((order, index) => ({
-        id: index + 1,
-        orderId: order.orderId,
-        phone: order?.customer?.phone,
-        instagram: order?.customer?.instagram,
-        showOrderName:
-          order.orderPlatform === "phone"
-            ? order?.customer?.phone
-            : order?.customer?.instagram,
-        productBrand: order?.product?.productBrand,
-        productName: order?.product?.productName,
-        productPrice: <>${order?.product?.productPrice * order?.quantity}</>,
-        orderPlatform: order?.orderPlatform,
-        quantity: order?.quantity,
-        paid: order?.paid,
-        takeMethod: order?.takeMethod,
-        paymentMethod: order?.paymentMethod,
-        remark: order?.remark,
-        createDate: order?.createDate.split(".")[0].replaceAll("T", " "),
-        status: order?.status,
-      })),
-    [orderData]
-  );
+  const data = useMemo(() => {
+    console.log("rerender data");
+    return orderData?.map((order, index) => ({
+      id: index + 1,
+      orderId: order.orderId,
+      phone: order?.customer?.phone,
+      instagram: order?.customer?.instagram,
+      showOrderName:
+        order.orderPlatform === "phone"
+          ? order?.customer?.phone
+          : order?.customer?.instagram,
+      productBrand: order?.product?.productBrand,
+      productName: order?.product?.productName,
+      productPrice: <>${order?.product?.productPrice * order?.quantity}</>,
+      orderPlatform: order?.orderPlatform,
+      quantity: order?.quantity,
+      paid: order?.paid,
+      takeMethod: order?.takeMethod,
+      paymentMethod: order?.paymentMethod,
+      remark: order?.remark,
+      createDate: order?.createDate.split(".")[0].replaceAll("T", " "),
+      status: order?.status,
+    }));
+  }, [orderData]);
 
   const handleChange = (pagination, filters, sorter) => {
     setFilteredInfo(filters);

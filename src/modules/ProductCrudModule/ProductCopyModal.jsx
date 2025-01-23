@@ -8,15 +8,18 @@ import {
   InputNumber,
   Modal,
   Row,
+  Select,
   Space,
+  message,
 } from "antd";
-import React, { useEffect, useRef, useState } from "react";
+import React, { memo, useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   createProduct,
   getAllProduct,
   modifyProduct,
 } from "../../redux/product/productAction";
+import currency from "../../staticData/currency.json";
 
 const formItemLayout = {
   labelCol: {
@@ -48,16 +51,27 @@ const ProductCopyModal = ({
   const [productTypeOptions, setProductTypeOptions] = useState();
   const [commission, setCommission] = useState(false);
   const { productData } = useSelector((state) => state.product);
-  const modifyProductData = useRef({
-    productId: "",
-    productBrand: "",
-    productType: "",
-    productName: "",
-    productCost: "",
-    discount: "",
-    productPrice: "",
-    stock: "",
-  });
+  const { exchangeRateData } = useSelector((state) => state.exchangeRate);
+  const [symbol, setSymbol] = useState();
+  const [selectedCurrency, setSelectedCurrency] = useState();
+  const [messageApi, contextHolder] = message.useMessage();
+  const [exchangeRate, setExchangeRate] = useState(
+    productModifyData?.currency?.exchangeRate
+  );
+
+  const exchangeCurrency = exchangeRateData.map(
+    (exchangeRate) => exchangeRate.currency
+  );
+
+  const currenciesOptions = currency.currenciesOptions
+    .filter((option) => {
+      return exchangeCurrency.includes(option.value);
+    })
+    .map((currency) => ({
+      value: currency.value,
+      label: currency.label,
+      symbol: currency.symbol,
+    }));
 
   useEffect(() => {
     setProductTypeOptions(
@@ -75,34 +89,53 @@ const ProductCopyModal = ({
     productModifyData?.discount
       ? form.setFieldValue("discount", productModifyData?.discount)
       : form.setFieldValue("discount", 100);
+    form.setFieldValue("currency", productModifyData?.currency?.currency);
     form.setFieldValue("productPrice", productModifyData?.productPrice);
     form.setFieldValue("stock", productModifyData?.stock);
     form.setFieldValue("commission", productModifyData?.commission);
     setCommission(productModifyData?.commission);
+    form.setFieldValue(
+      "price",
+      Math.ceil(
+        ((productModifyData?.productCost * productModifyData?.discount) /
+          100 /
+          productModifyData?.currency?.exchangeRate) *
+          10
+      ) / 10
+    );
   }, [productModifyData]);
 
   const onFinish = async () => {
     await form.validateFields();
 
-    modifyProductData.current = {
+    const modifyProductData = {
       productBrand: form.getFieldValue("productBrand"),
       productType: form.getFieldValue("productType"),
       productName: form.getFieldValue("productName"),
       productCost: form.getFieldValue("productCost"),
       discount: form.getFieldValue("discount"),
+      currency: form.getFieldValue("currency"),
       productPrice: form.getFieldValue("productPrice"),
       stock: form.getFieldValue("stock"),
       commission: commission,
     };
 
-    const result = await dispatch(createProduct(modifyProductData.current));
+    const result = await dispatch(createProduct(modifyProductData));
 
     if (result.meta.requestStatus === "fulfilled") {
+      messageApi.open({
+        type: "success",
+        content: result.payload.msg,
+      });
       setOpen(false);
       form.resetFields();
       dispatch(getAllProduct());
+    } else {
+      messageApi.open({
+        type: "error",
+        content: result.payload,
+      });
     }
-    console.log(result);
   };
 
   return (
@@ -135,6 +168,7 @@ const ProductCopyModal = ({
       }
       width={750}
     >
+      {contextHolder}
       <div>請填寫下列表格，編輯產品資料</div>
       <br />
       <Form
@@ -179,6 +213,41 @@ const ProductCopyModal = ({
           <Input />
         </Form.Item>
 
+        <Form.Item
+          name="currency"
+          label="貨幣"
+          rules={[{ required: true, message: "請輸入產品成本" }]}
+        >
+          <Select
+            showSearch
+            options={currenciesOptions}
+            onChange={(value) => {
+              setSymbol(
+                currenciesOptions?.find((currency) => currency.value === value)
+                  ?.symbol
+              );
+              setSelectedCurrency(
+                currenciesOptions?.find((currency) => currency.value === value)
+                  ?.value
+              );
+
+              const rate = exchangeRateData.find(
+                (exchangeRate) => exchangeRate.currency === value
+              ).exchangeRate;
+              setExchangeRate(rate);
+
+              const formattedPrice = new Intl.NumberFormat().format(
+                (form.getFieldValue("productCost") *
+                  form.getFieldValue("discount")) /
+                  rate /
+                  100
+              );
+
+              form.setFieldValue("price", formattedPrice);
+            }}
+          />
+        </Form.Item>
+
         <Form.Item label="成本" style={{ margin: "0" }}>
           <Space.Compact>
             <Form.Item
@@ -186,7 +255,25 @@ const ProductCopyModal = ({
               rules={[{ required: true, message: "請輸入產品成本" }]}
               style={{ width: "63%" }}
             >
-              <Input prefix="₩" suffix="KRW" />
+              <Input
+                prefix={symbol}
+                suffix={selectedCurrency}
+                onChange={(e) => {
+                  const calculatedPrice =
+                    Math.ceil(
+                      ((e.target.value * form.getFieldValue("discount")) /
+                        100 /
+                        exchangeRate) *
+                        10
+                    ) / 10;
+
+                  const formattedPrice = new Intl.NumberFormat().format(
+                    calculatedPrice
+                  );
+
+                  form.setFieldValue("price", formattedPrice);
+                }}
+              />
             </Form.Item>
             <Form.Item
               name="discount"
@@ -198,9 +285,26 @@ const ProductCopyModal = ({
                 defaultValue={100}
                 suffix="%"
                 style={{ width: "100%" }}
+                onChange={(e) => {
+                  const calculatedPrice =
+                    Math.ceil(
+                      (((e.target.value / 100) *
+                        form.getFieldValue("productCost")) /
+                        exchangeRate) *
+                        10
+                    ) / 10;
+                  const formattedPrice = new Intl.NumberFormat().format(
+                    calculatedPrice
+                  );
+                  form.setFieldValue("price", formattedPrice);
+                }}
               />
             </Form.Item>
           </Space.Compact>
+        </Form.Item>
+
+        <Form.Item name="price" label="港元">
+          <Input value={0} disabled />
         </Form.Item>
 
         <Form.Item name="commission" label="返點" valuePropName="checked">
@@ -233,4 +337,4 @@ const ProductCopyModal = ({
   );
 };
 
-export default ProductCopyModal;
+export default memo(ProductCopyModal);

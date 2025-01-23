@@ -16,6 +16,7 @@ import {
   createConsumption,
   getAllExpense,
 } from "../../redux/expense/expenseAction";
+import currency from "../../staticData/currency.json";
 
 const formItemLayout = {
   labelCol: {
@@ -50,13 +51,23 @@ const ExpenseForm = () => {
   const [form] = Form.useForm();
   const [messageApi, contextHolder] = message.useMessage();
   const { exchangeRateData } = useSelector((state) => state.exchangeRate);
+  const [symbol, setSymbol] = useState();
+  const [selectedCurrency, setSelectedCurrency] = useState();
+  const [exchangeRate, setExchangeRate] = useState();
 
-  const koreaExchangeRate = useMemo(
-    () =>
-      exchangeRateData?.find((currency) => currency.currency === "KRW")
-        ?.exchangeRate,
-    [exchangeRateData]
+  const exchangeCurrency = exchangeRateData.map(
+    (exchangeRate) => exchangeRate.currency
   );
+
+  const currenciesOptions = currency.currenciesOptions
+    .filter((option) => {
+      return exchangeCurrency.includes(option.value);
+    })
+    .map((currency) => ({
+      value: currency.value,
+      label: currency.label,
+      symbol: currency.symbol,
+    }));
 
   const onFinish = async () => {
     await form.validateFields();
@@ -67,13 +78,11 @@ const ExpenseForm = () => {
       consumeType: form.getFieldValue("consumeType"),
       consumeCost: form.getFieldValue("consumeCost"),
       payment: form.getFieldValue("payment"),
+      currency: form.getFieldValue("currency"),
     };
-
-    console.log(expenseDTO);
 
     const result = await dispatch(createConsumption(expenseDTO));
 
-    console.log(result);
     if (result.meta.requestStatus === "fulfilled") {
       form.resetFields();
       messageApi.open({
@@ -119,6 +128,41 @@ const ExpenseForm = () => {
         </Form.Item>
 
         <Form.Item
+          name="currency"
+          label="貨幣"
+          rules={[{ required: true, message: "請輸入產品成本" }]}
+        >
+          <Select
+            showSearch
+            options={currenciesOptions}
+            onChange={(value) => {
+              setSymbol(
+                currenciesOptions?.find((currency) => currency.value === value)
+                  ?.symbol
+              );
+              setSelectedCurrency(
+                currenciesOptions?.find((currency) => currency.value === value)
+                  ?.value
+              );
+
+              const rate = exchangeRateData.find(
+                (exchangeRate) => exchangeRate.currency === value
+              ).exchangeRate;
+              setExchangeRate(rate);
+
+              const formattedPrice = new Intl.NumberFormat().format(
+                (form.getFieldValue("productCost") *
+                  form.getFieldValue("discount")) /
+                  rate /
+                  100
+              );
+
+              form.setFieldValue("price", formattedPrice);
+            }}
+          />
+        </Form.Item>
+
+        <Form.Item
           name="consumeCost"
           label="價格"
           rules={[
@@ -130,11 +174,12 @@ const ExpenseForm = () => {
           ]}
         >
           <Input
-            prefix="₩"
+            prefix={symbol}
+            suffix={selectedCurrency}
             onChange={(e) => {
               form.setFieldValue(
                 "hkdCost",
-                Math.ceil((e.target.value / koreaExchangeRate) * 10) / 10
+                Math.ceil((e.target.value / exchangeRate) * 10) / 10
               );
             }}
           />
