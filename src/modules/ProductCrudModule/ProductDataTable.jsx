@@ -193,7 +193,7 @@ const ProductDataTable = ({ productLoading, productData }) => {
       key: "productCost",
       render: (text, record) => {
         const symbol = currenciesOptions?.find(
-          (currency) => currency.value === record.currency.currency
+          (currency) => currency.value === record.currency?.currency
         )?.symbol;
 
         return (

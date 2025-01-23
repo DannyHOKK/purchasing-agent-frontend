@@ -276,14 +276,18 @@ const OrderAddModal = ({ open, setOpen, messageApi }) => {
         );
 
         setProductTypeOptions(
-          productData?.map((product) => ({
-            value: product.productType,
-          }))
+          productData
+            .map((product) => product.productType)
+            .filter((product, index, self) => self.indexOf(product) === index)
+            .map((productType) => ({
+              value: productType,
+            }))
         );
 
         form.setFieldValue("productBrand", "");
         form.setFieldValue("productType", "");
         form.setFieldValue("productName", "");
+        form.setFieldValue("quantity", "");
 
         messageApi.open({
           type: "success",
