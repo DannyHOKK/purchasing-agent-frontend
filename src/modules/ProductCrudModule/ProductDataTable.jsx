@@ -114,6 +114,7 @@ const ProductDataTable = ({ productLoading, productData }) => {
       title: "牌子",
       dataIndex: "productBrand",
       key: "productBrand",
+      // fixed: "left",
       filterSearch: true,
       filters: productBrand?.map((productBrand, index) => ({
         text: productBrand,
@@ -150,6 +151,8 @@ const ProductDataTable = ({ productLoading, productData }) => {
       title: "產品",
       dataIndex: "productName",
       key: "productName",
+      fixed: "left",
+      width: "150px",
       filterSearch: true,
       filters: productName?.map((productName, index) => ({
         text: productName,
@@ -213,15 +216,26 @@ const ProductDataTable = ({ productLoading, productData }) => {
       },
     },
     {
+      title: "重量",
+      dataIndex: "weight",
+      key: "weight",
+      render: (text, record) => {
+        return <>{record.weight}kg</>;
+      },
+    },
+    {
       title: "成本",
       dataIndex: "cost",
       key: "cost",
       render: (text, record) => {
+        const weight = record.weight;
         const formattedPrice = new Intl.NumberFormat().format(
-          Math.ceil((record.cost / record.currency?.exchangeRate) * 10) / 10
+          Math.ceil(
+            (record.cost / record.currency?.exchangeRate + weight * 25) * 10
+          ) / 10
         );
 
-        return <>HKD${formattedPrice}</>;
+        return <span style={{ color: "red" }}>HKD${formattedPrice}</span>;
       },
     },
     {
@@ -229,7 +243,23 @@ const ProductDataTable = ({ productLoading, productData }) => {
       dataIndex: "productPrice",
       key: "productPrice",
       render: (text, record) => {
-        return <>${record.productPrice}</>;
+        return <span style={{ color: "blue" }}>${record.productPrice}</span>;
+      },
+    },
+    {
+      title: "盈利",
+      dataIndex: "profit",
+      key: "profit",
+      render: (text, record) => {
+        const weight = record.weight;
+        const formattedPrice = new Intl.NumberFormat().format(
+          Math.ceil(
+            (record.productPrice -
+              (record.cost / record.currency?.exchangeRate + weight * 25)) *
+              10
+          ) / 10
+        );
+        return <span style={{ color: "green" }}>${formattedPrice}</span>;
       },
     },
     {
@@ -308,6 +338,7 @@ const ProductDataTable = ({ productLoading, productData }) => {
         productPrice: product.productPrice,
         productName: product.productName,
         productType: product.productType,
+        weight: product.weight,
         quantity: (
           <>
             {orderQuantity[index]} ({product.stock})
@@ -332,11 +363,12 @@ const ProductDataTable = ({ productLoading, productData }) => {
         .map((brand, index) => ({
           value: brand,
         })),
-    []
+    [productData]
   );
 
   return (
     <div className="order-table-container mb-5 mb-sm-0 ">
+      {contextHolder}
       <div>
         <div className=" d-flex justify-content-between m-4">
           <a onClick={() => window.history.back()} className="my-auto">
@@ -357,6 +389,7 @@ const ProductDataTable = ({ productLoading, productData }) => {
         </div>
       </div>
       <Table
+        size="middle"
         loading={productLoading}
         columns={columns}
         dataSource={data}
@@ -371,18 +404,21 @@ const ProductDataTable = ({ productLoading, productData }) => {
         open={open}
         setOpen={setOpen}
         productBrandOptions={productBrandOptions}
+        messageApi={messageApi}
       />
       <ProductModifyModal
         open={openModify}
         setOpen={setOpenModify}
         productBrandOptions={productBrandOptions}
         productModifyData={productModifyData}
+        messageApi={messageApi}
       />
       <ProductCopyModal
         open={openCopy}
         setOpen={setOpenCopy}
         productBrandOptions={productBrandOptions}
         productModifyData={productModifyData}
+        messageApi={messageApi}
       />
     </div>
   );

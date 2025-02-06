@@ -45,6 +45,13 @@ a {
   color: white !important; /* 修改文本颜色 */
 }
 
+.pageLayout {
+  padding: 30px 20px;
+  margin: 20px auto;
+  width: 100%;
+  max-width: 1500px;
+}
+
 @media screen and (max-width: 575px) {
   .leftsidebar {
     display: none;
@@ -82,5 +89,8 @@ a {
   .ant-menu-title-content {
     margin-inline-start: 0px !important;
     padding: 0px !important;
+  }
+  .pageLayout {
+    padding: 30px 10px;
   }
 }

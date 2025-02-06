@@ -38,11 +38,16 @@ const formItemLayout = {
   },
 };
 
-const ProductAddModal = ({ open, setOpen, productBrandOptions }) => {
+const ProductAddModal = ({
+  open,
+  setOpen,
+  productBrandOptions,
+  messageApi,
+}) => {
   const [form] = Form.useForm();
   const dispatch = useDispatch();
   const [commission, setCommission] = useState(false);
-  const { productData } = useSelector((state) => state.product);
+  const { productData, productLoading } = useSelector((state) => state.product);
   const { exchangeRateData } = useSelector((state) => state.exchangeRate);
   const [productTypeOptions, setProductTypeOptions] = useState();
   const [symbol, setSymbol] = useState();
@@ -87,6 +92,7 @@ const ProductAddModal = ({ open, setOpen, productBrandOptions }) => {
       productType: form.getFieldValue("productType"),
       productName: form.getFieldValue("productName"),
       productCost: form.getFieldValue("productCost"),
+      weight: form.getFieldValue("weight"),
       discount: form.getFieldValue("discount"),
       currency: form.getFieldValue("currency"),
       productPrice: form.getFieldValue("productPrice"),
@@ -100,6 +106,37 @@ const ProductAddModal = ({ open, setOpen, productBrandOptions }) => {
       setOpen(false);
       form.resetFields();
       dispatch(getAllProduct());
+      messageApi.open({
+        type: "success",
+        content: "成功建立貨品",
+      });
+    }
+  };
+
+  const addProductHandler = async () => {
+    await form.validateFields();
+
+    const createProductData = {
+      productBrand: form.getFieldValue("productBrand"),
+      productType: form.getFieldValue("productType"),
+      productName: form.getFieldValue("productName"),
+      productCost: form.getFieldValue("productCost"),
+      weight: form.getFieldValue("weight"),
+      discount: form.getFieldValue("discount"),
+      currency: form.getFieldValue("currency"),
+      productPrice: form.getFieldValue("productPrice"),
+      stock: form.getFieldValue("stock"),
+      commission: commission,
+    };
+
+    const result = await dispatch(createProduct(createProductData));
+
+    if (result.meta.requestStatus === "fulfilled") {
+      dispatch(getAllProduct());
+      messageApi.open({
+        type: "success",
+        content: "成功建立貨品",
+      });
     }
   };
 
@@ -127,6 +164,13 @@ const ProductAddModal = ({ open, setOpen, productBrandOptions }) => {
             style={{ backgroundColor: "#1DA57A", color: "white" }}
           >
             確認
+          </Button>
+          <Button
+            onClick={addProductHandler}
+            style={{ backgroundColor: "blue", color: "white" }}
+            loading={productLoading}
+          >
+            加貨品
           </Button>
         </>
       }
@@ -233,6 +277,10 @@ const ProductAddModal = ({ open, setOpen, productBrandOptions }) => {
                   );
 
                   form.setFieldValue("price", formattedPrice);
+                  form.setFieldValue(
+                    "profit",
+                    form.getFieldValue("productPrice") - formattedPrice
+                  );
                 }}
               />
             </Form.Item>
@@ -258,10 +306,46 @@ const ProductAddModal = ({ open, setOpen, productBrandOptions }) => {
                     calculatedPrice
                   );
                   form.setFieldValue("price", formattedPrice);
+                  form.setFieldValue(
+                    "profit",
+                    form.getFieldValue("productPrice") - formattedPrice
+                  );
                 }}
               />
             </Form.Item>
           </Space.Compact>
+        </Form.Item>
+
+        <Form.Item
+          name="weight"
+          label="重量"
+          rules={[{ required: true, message: "請輸入產品重量" }]}
+        >
+          <Input
+            suffix="公斤"
+            onChange={(e) => {
+              const cost = form.getFieldValue("productCost");
+              const discount = form.getFieldValue("discount");
+              const productPrice = form.getFieldValue("productPrice");
+              const calculatedPrice =
+                Math.ceil(
+                  (e.target.value * 25 +
+                    (cost * discount) / 100 / exchangeRate) *
+                    10
+                ) / 10;
+              const formattedPrice = new Intl.NumberFormat().format(
+                calculatedPrice
+              );
+
+              if (productPrice) {
+                form.setFieldValue(
+                  "profit",
+                  Math.ceil((productPrice - formattedPrice) * 10) / 10
+                );
+              }
+              form.setFieldValue("price", formattedPrice);
+            }}
+          />
         </Form.Item>
 
         <Form.Item name="price" label="港元">
@@ -282,7 +366,21 @@ const ProductAddModal = ({ open, setOpen, productBrandOptions }) => {
           label="售價"
           rules={[{ required: true, message: "請輸入產品售價" }]}
         >
-          <Input prefix="$" suffix="HKD" />
+          <Input
+            prefix="$"
+            suffix="HKD"
+            onChange={(e) => {
+              form.setFieldValue(
+                "profit",
+                Math.ceil((e.target.value - form.getFieldValue("price")) * 10) /
+                  10
+              );
+            }}
+          />
+        </Form.Item>
+
+        <Form.Item name="profit" label="盈利">
+          <Input defaultValue={0} disabled />
         </Form.Item>
 
         <Form.Item

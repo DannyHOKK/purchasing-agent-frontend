@@ -45,6 +45,7 @@ const ProductModifyModal = ({
   setOpen,
   productBrandOptions,
   productModifyData,
+  messageApi,
 }) => {
   const [form] = Form.useForm();
   const dispatch = useDispatch();
@@ -55,7 +56,6 @@ const ProductModifyModal = ({
   const [symbol, setSymbol] = useState();
   const [selectedCurrency, setSelectedCurrency] = useState();
   const [exchangeRate, setExchangeRate] = useState();
-  const [messageApi, contextHolder] = message.useMessage();
 
   const exchangeCurrency = exchangeRateData.map(
     (exchangeRate) => exchangeRate.currency
@@ -72,6 +72,15 @@ const ProductModifyModal = ({
     }));
 
   useEffect(() => {
+    const price =
+      Math.ceil(
+        ((productModifyData?.productCost * productModifyData?.discount) /
+          100 /
+          productModifyData?.currency?.exchangeRate +
+          productModifyData?.weight * 25) *
+          10
+      ) / 10;
+
     setProductTypeOptions(
       productData
         ?.map((product) => product.productType)
@@ -89,21 +98,17 @@ const ProductModifyModal = ({
       ? form.setFieldValue("discount", productModifyData?.discount)
       : form.setFieldValue("discount", 100);
     form.setFieldValue("productPrice", productModifyData?.productPrice);
+    form.setFieldValue("weight", productModifyData?.weight);
     form.setFieldValue("currency", productModifyData.currency?.currency);
     form.setFieldValue("stock", productModifyData?.stock);
     form.setFieldValue("commission", productModifyData?.commission);
     setCommission(productModifyData?.commission);
 
+    form.setFieldValue("price", price);
     form.setFieldValue(
-      "price",
-      Math.ceil(
-        ((productModifyData?.productCost * productModifyData?.discount) /
-          100 /
-          productModifyData?.currency?.exchangeRate) *
-          10
-      ) / 10
+      "profit",
+      Math.ceil((productModifyData?.productPrice - price) * 10) / 10
     );
-
     setExchangeRate(productModifyData?.currency?.exchangeRate);
   }, [productModifyData]);
 
@@ -116,6 +121,7 @@ const ProductModifyModal = ({
       productType: form.getFieldValue("productType"),
       productName: form.getFieldValue("productName"),
       productCost: form.getFieldValue("productCost"),
+      weight: form.getFieldValue("weight"),
       currency: form.getFieldValue("currency"),
       discount: form.getFieldValue("discount"),
       productPrice: form.getFieldValue("productPrice"),
@@ -171,7 +177,6 @@ const ProductModifyModal = ({
       }
       width={750}
     >
-      {contextHolder}
       <div>請填寫下列表格，編輯產品資料</div>
       <br />
       <Form
@@ -315,6 +320,31 @@ const ProductModifyModal = ({
           </Space.Compact>
         </Form.Item>
 
+        <Form.Item
+          name="weight"
+          label="重量"
+          rules={[{ required: true, message: "請輸入產品重量" }]}
+        >
+          <Input
+            suffix="公斤"
+            onChange={(e) => {
+              const cost = form.getFieldValue("productCost");
+              const discount = form.getFieldValue("discount");
+              const calculatedPrice =
+                Math.ceil(
+                  (e.target.value * 25 +
+                    (cost * discount) / 100 / exchangeRate) *
+                    10
+                ) / 10;
+              const formattedPrice = new Intl.NumberFormat().format(
+                calculatedPrice
+              );
+              console.log(price);
+              form.setFieldValue("price", formattedPrice);
+            }}
+          />
+        </Form.Item>
+
         <Form.Item name="price" label="港元">
           <Input value={0} disabled />
         </Form.Item>
@@ -333,7 +363,21 @@ const ProductModifyModal = ({
           label="售價"
           rules={[{ required: true, message: "請輸入產品售價" }]}
         >
-          <Input prefix="$" suffix="HKD" />
+          <Input
+            prefix="$"
+            suffix="HKD"
+            onChange={(e) => {
+              form.setFieldValue(
+                "profit",
+                Math.ceil((e.target.value - form.getFieldValue("price")) * 10) /
+                  10
+              );
+            }}
+          />
+        </Form.Item>
+
+        <Form.Item name="profit" label="盈利">
+          <Input defaultValue={0} disabled />
         </Form.Item>
 
         <Form.Item

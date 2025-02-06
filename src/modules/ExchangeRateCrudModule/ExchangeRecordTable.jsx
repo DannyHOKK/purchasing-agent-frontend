@@ -58,6 +58,7 @@ const ExchangeRecordTable = () => {
       title: "貨幣",
       dataIndex: "currency",
       key: "currency",
+      fixed: "left",
       render: (text, record) => {
         return <>{record.currency}</>;
       },

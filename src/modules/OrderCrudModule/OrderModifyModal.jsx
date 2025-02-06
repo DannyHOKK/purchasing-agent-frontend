@@ -407,6 +407,7 @@ const OrderModifyModal = ({ openModify, setOpenModify, orderModifyData }) => {
           <Radio.Group>
             <Radio value={"自取"}>自取</Radio>
             <Radio value={"郵寄"}>郵寄</Radio>
+            <Radio value={"未知"}>未知</Radio>
           </Radio.Group>
         </Form.Item>
 

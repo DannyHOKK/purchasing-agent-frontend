@@ -67,6 +67,7 @@ const CustomerDataTable = () => {
       title: "電話",
       dataIndex: "phone",
       key: "phone",
+      fixed: "left",
       sorter: (a, b) =>
         (a.phone || "").localeCompare(b.phone || "", "zh-HK", {
           sensitivity: "base",
@@ -81,6 +82,7 @@ const CustomerDataTable = () => {
       title: "Instagram",
       dataIndex: "instagram",
       key: "instagram",
+      fixed: "left",
       sorter: (a, b) =>
         (a.instagram || "").localeCompare(b.instagram || "", "zh-HK", {
           sensitivity: "base",
@@ -202,6 +204,7 @@ const CustomerDataTable = () => {
         </div>
       </div>
       <Table
+        size="middle"
         loading={customerLoading}
         columns={columns}
         dataSource={data}

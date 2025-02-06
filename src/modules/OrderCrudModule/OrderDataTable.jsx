@@ -241,6 +241,10 @@ const OrderDataTable = () => {
             text: "郵寄",
             value: "郵寄",
           },
+          {
+            text: "未知",
+            value: "未知",
+          },
         ],
         filteredValue: filteredInfo.takeMethod || null,
         onFilter: (value, record) => {
@@ -273,6 +277,18 @@ const OrderDataTable = () => {
               ),
               key: "1",
             },
+            {
+              label: (
+                <a
+                  onClick={() => {
+                    changeTakeMethodOrderHandler(record.orderId, "未知");
+                  }}
+                >
+                  未知
+                </a>
+              ),
+              key: "2",
+            },
           ];
 
           if (record.takeMethod === "自取") {
@@ -298,6 +314,21 @@ const OrderDataTable = () => {
                   }}
                 >
                   郵寄
+                </Tag>
+              </Dropdown>
+            );
+          } else if (record.takeMethod === "未知") {
+            return (
+              <Dropdown menu={{ items }} trigger={["click"]}>
+                <Tag
+                  color="red"
+                  style={{
+                    margin: "0 auto",
+                    justifyContent: "center",
+                    border: "1px solid #E1E100",
+                  }}
+                >
+                  未知
                 </Tag>
               </Dropdown>
             );
@@ -603,6 +634,7 @@ const OrderDataTable = () => {
         </div>
       </div>
       <Table
+        size="middle"
         loading={orderLoading}
         columns={columns}
         dataSource={data}
