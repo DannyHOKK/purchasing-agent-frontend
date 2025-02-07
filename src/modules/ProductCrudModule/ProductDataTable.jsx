@@ -114,6 +114,7 @@ const ProductDataTable = ({ productLoading, productData }) => {
       title: "牌子",
       dataIndex: "productBrand",
       key: "productBrand",
+      width: "100px",
       // fixed: "left",
       filterSearch: true,
       filters: productBrand?.map((productBrand, index) => ({
@@ -133,6 +134,7 @@ const ProductDataTable = ({ productLoading, productData }) => {
       title: "種類",
       dataIndex: "productType",
       key: "productType",
+      width: "100px",
       filterSearch: true,
       filters: productType?.map((productType, index) => ({
         text: productType,
@@ -152,7 +154,7 @@ const ProductDataTable = ({ productLoading, productData }) => {
       dataIndex: "productName",
       key: "productName",
       fixed: "left",
-      width: "150px",
+      width: "180px",
       filterSearch: true,
       filters: productName?.map((productName, index) => ({
         text: productName,
