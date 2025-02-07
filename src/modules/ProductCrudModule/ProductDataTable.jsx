@@ -114,7 +114,7 @@ const ProductDataTable = ({ productLoading, productData }) => {
       title: "牌子",
       dataIndex: "productBrand",
       key: "productBrand",
-      width: "100px",
+      width: "80px",
       // fixed: "left",
       filterSearch: true,
       filters: productBrand?.map((productBrand, index) => ({
@@ -134,7 +134,7 @@ const ProductDataTable = ({ productLoading, productData }) => {
       title: "種類",
       dataIndex: "productType",
       key: "productType",
-      width: "100px",
+      width: "80px",
       filterSearch: true,
       filters: productType?.map((productType, index) => ({
         text: productType,
