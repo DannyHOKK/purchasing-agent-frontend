@@ -6,6 +6,7 @@ import OrderCrud from "../modules/OrderCrudModule";
 import { useDispatch, useSelector } from "react-redux";
 import { getAllOrders } from "../redux/order/orderAction";
 import { PlusOutlined } from "@ant-design/icons";
+import OrderDataTable from "../modules/OrderCrudModule/OrderDataTable";
 
 const Dashboard = () => {
   const config = {
@@ -17,7 +18,7 @@ const Dashboard = () => {
 
   const TopCard = ({ title, tagContent, tagColor, prefix }) => {
     return (
-      <Col className="gutter-row my-2" xs={24} md={24} lg={8}>
+      <Col className="gutter-row my-2" xs={24} md={12} lg={6}>
         <div
           className="whiteBox shadow"
           style={{ color: "#595959", fontSize: 13, height: "106px" }}
@@ -75,7 +76,26 @@ const Dashboard = () => {
     .map((order) => order?.product?.productPrice * order?.quantity)
     .reduce((accumulator, currentValue) => accumulator + currentValue, 0);
 
+  const totalProfit = orderData
+    .filter((order) => order?.paid === "已付款")
+    .map(
+      (order) =>
+        Math.ceil(
+          (order?.product?.productPrice -
+            ((order?.product?.discount * order?.product?.productCost) /
+              100 /
+              order?.product?.exchangeRate?.exchangeRate +
+              order?.product?.weight * 25)) *
+            order?.quantity *
+            10
+        ) / 10
+    )
+    .reduce((accumulator, currentValue) => accumulator + currentValue, 0);
+
+  console.log(orderData);
+
   const totalPrice = totalPaidPrice + totalNotPaidPrice;
+
   return (
     <motion.div
       transition={config}
@@ -111,17 +131,17 @@ const Dashboard = () => {
             prefix={"總共"}
             tagContent={"$" + totalPrice}
           />
-          {/* <TopCard
-            title={"已付款總數"}
-            tagColor={"purple"}
-            prefix={"總共"}
-            tagContent={"$" + totalPaidPrice}
-          /> */}
           <TopCard
             title={"未付款訂單"}
             tagColor={"purple"}
             prefix={"總共"}
             tagContent={"$" + totalNotPaidPrice}
+          />
+          <TopCard
+            title={"總盈利"}
+            tagColor={"purple"}
+            prefix={"總共"}
+            tagContent={"$" + totalProfit}
           />
         </Row>
         <div className="space30"></div>

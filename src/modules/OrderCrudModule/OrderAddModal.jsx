@@ -47,21 +47,11 @@ const OrderAddModal = ({ open, setOpen, messageApi }) => {
   const { orderLoading } = useSelector((state) => state.order);
   const [form] = Form.useForm();
   const dispatch = useDispatch();
-  const [orderPlatform, setOrderPlatform] = useState("instagram");
+  const [orderPlatform, setOrderPlatform] = useState("phone");
   const [productTypeOptions, setProductTypeOptions] = useState();
   const [productNameOptions, setProductNameOptions] = useState();
   const [openCustomerAdd, setOpenCustomerAdd] = useState(false);
   const [productTotalPrice, setProductTotalPrice] = useState();
-  const ordersDTO = useRef({
-    phone: "",
-    instagram: "",
-    productName: "",
-    paid: false,
-    quantity: 0,
-    takeMethod: "",
-    paymentMethod: "",
-    remark: "",
-  });
 
   useEffect(() => {
     setProductNameOptions(
@@ -78,12 +68,15 @@ const OrderAddModal = ({ open, setOpen, messageApi }) => {
           value: productType,
         }))
     );
+
+    form.setFieldValue("takeMethod", "未知");
+    form.setFieldValue("paid", "未付款");
   }, [productData, open]);
 
   const onFinish = async () => {
     await form.validateFields();
 
-    ordersDTO.current = {
+    const ordersDTO = {
       phone: form.getFieldValue("phone"),
       instagram: form.getFieldValue("instagram"),
       productName: form.getFieldValue("productName"),
@@ -95,18 +88,15 @@ const OrderAddModal = ({ open, setOpen, messageApi }) => {
       remark: form.getFieldValue("remark") ? form.getFieldValue("remark") : " ",
     };
 
-    createOrderHandler();
+    createOrderHandler(ordersDTO);
   };
 
-  const createOrderHandler = async () => {
-    const checkExistResult = await dispatch(
-      checkCustomerExist(ordersDTO.current)
-    );
+  const createOrderHandler = async (ordersDTO) => {
+    const checkExistResult = await dispatch(checkCustomerExist(ordersDTO));
 
     if (checkExistResult.meta.requestStatus === "fulfilled") {
-      const result = await dispatch(createOrder(ordersDTO.current));
+      const result = await dispatch(createOrder(ordersDTO));
 
-      console.log(result);
       if (result.meta.requestStatus === "fulfilled") {
         setOpen(false);
         form.resetFields();
@@ -245,26 +235,25 @@ const OrderAddModal = ({ open, setOpen, messageApi }) => {
   const addOrderHandler = async () => {
     await form.validateFields();
 
-    ordersDTO.current = {
+    const ordersDTO = {
       phone: form.getFieldValue("phone"),
       instagram: form.getFieldValue("instagram"),
       productName: form.getFieldValue("productName"),
       paid: form.getFieldValue("paid"),
+      orderPlatform: orderPlatform,
       quantity: form.getFieldValue("quantity"),
       takeMethod: form.getFieldValue("takeMethod"),
       paymentMethod: form.getFieldValue("paymentMethod"),
       remark: form.getFieldValue("remark") ? form.getFieldValue("remark") : " ",
     };
-    createAddOrderHandler();
+    createAddOrderHandler(ordersDTO);
   };
 
-  const createAddOrderHandler = async () => {
-    const checkExistResult = await dispatch(
-      checkCustomerExist(ordersDTO.current)
-    );
+  const createAddOrderHandler = async (ordersDTO) => {
+    const checkExistResult = await dispatch(checkCustomerExist(ordersDTO));
 
     if (checkExistResult.meta.requestStatus === "fulfilled") {
-      const result = await dispatch(createOrder(ordersDTO.current));
+      const result = await dispatch(createOrder(ordersDTO));
 
       if (result.meta.requestStatus === "fulfilled") {
         dispatch(getAllOrders());
@@ -376,6 +365,7 @@ const OrderAddModal = ({ open, setOpen, messageApi }) => {
             }}
             checkedChildren="電話"
             unCheckedChildren="IG"
+            defaultChecked={true}
           />
         </Form.Item>
         {orderPlatform === "phone" && (
