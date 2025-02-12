@@ -237,7 +237,7 @@ const ProductDataTable = ({ productLoading, productData }) => {
           ) / 10
         );
 
-        return <span style={{ color: "red" }}>HKD${formattedPrice}</span>;
+        return <span style={{ color: "purple" }}>HKD${formattedPrice}</span>;
       },
     },
     {
@@ -261,7 +261,11 @@ const ProductDataTable = ({ productLoading, productData }) => {
               10
           ) / 10
         );
-        return <span style={{ color: "green" }}>${formattedPrice}</span>;
+        return formattedPrice < 0 ? (
+          <span style={{ color: "red" }}>${formattedPrice}</span>
+        ) : (
+          <span style={{ color: "green" }}>${formattedPrice}</span>
+        );
       },
     },
     {

@@ -18,6 +18,11 @@ import {
   getAllProduct,
 } from "../../redux/product/productAction";
 import currency from "../../staticData/currency.json";
+import {
+  CloseOutlined,
+  MinusCircleOutlined,
+  PlusOutlined,
+} from "@ant-design/icons";
 
 const formItemLayout = {
   labelCol: {
@@ -34,6 +39,19 @@ const formItemLayout = {
     },
     sm: {
       span: 12,
+    },
+  },
+};
+
+const formItemLayoutWithOutLabel = {
+  wrapperCol: {
+    xs: {
+      span: 24,
+      offset: 0,
+    },
+    sm: {
+      span: 20,
+      offset: 4,
     },
   },
 };
@@ -87,6 +105,10 @@ const ProductAddModal = ({
   const onFinish = async () => {
     await form.validateFields();
 
+    const productColor = form
+      .getFieldValue("productColor")
+      .map((color) => color.color);
+
     const createProductData = {
       productBrand: form.getFieldValue("productBrand"),
       productType: form.getFieldValue("productType"),
@@ -98,6 +120,7 @@ const ProductAddModal = ({
       productPrice: form.getFieldValue("productPrice"),
       stock: form.getFieldValue("stock"),
       commission: commission,
+      productColor: productColor,
     };
 
     const result = await dispatch(createProduct(createProductData));
@@ -110,11 +133,20 @@ const ProductAddModal = ({
         type: "success",
         content: "成功建立貨品",
       });
+    } else {
+      messageApi.open({
+        type: "error",
+        content: result.payload,
+      });
     }
   };
 
   const addProductHandler = async () => {
     await form.validateFields();
+
+    const productColor = form
+      .getFieldValue("productColor")
+      .map((color) => color.color);
 
     const createProductData = {
       productBrand: form.getFieldValue("productBrand"),
@@ -127,15 +159,23 @@ const ProductAddModal = ({
       productPrice: form.getFieldValue("productPrice"),
       stock: form.getFieldValue("stock"),
       commission: commission,
+      productColor: productColor,
     };
+    console.log(createProductData);
 
     const result = await dispatch(createProduct(createProductData));
 
+    console.log(result);
     if (result.meta.requestStatus === "fulfilled") {
       dispatch(getAllProduct());
       messageApi.open({
         type: "success",
         content: "成功建立貨品",
+      });
+    } else {
+      messageApi.open({
+        type: "error",
+        content: result.payload,
       });
     }
   };
@@ -217,6 +257,90 @@ const ProductAddModal = ({
         >
           <Input />
         </Form.Item>
+
+        <Form.Item label="顏色">
+          <Form.List name="productColor">
+            {(subFields, subOpt) => (
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  rowGap: 16,
+                }}
+              >
+                {subFields.map((subField) => (
+                  <div key={subField.key} className=" d-flex">
+                    <Form.Item
+                      noStyle
+                      name={[subField.name, "color"]}
+                      rules={[
+                        {
+                          required: true,
+                          message: "請輸入顏色",
+                        },
+                      ]}
+                    >
+                      <Input placeholder="顏色" />
+                    </Form.Item>
+                    <CloseOutlined
+                      className=" ms-2"
+                      onClick={() => {
+                        subOpt.remove(subField.name);
+                      }}
+                    />
+                  </div>
+                ))}
+                <Button type="dashed" onClick={() => subOpt.add()} block>
+                  + 加顏色
+                </Button>
+              </div>
+            )}
+          </Form.List>
+        </Form.Item>
+
+        {/* <Form.Item label="顏色">
+          <Form.List name="color">
+            {(fields, { add, remove }) => (
+              <>
+                {fields.map(({ key, name, ...restField }) => (
+                  <Space
+                    key={key}
+                    style={{
+                      display: "flex",
+                      // marginBottom: 2,
+                    }}
+                    align="baseline"
+                  >
+                    <Form.Item
+                      {...restField}
+                      name={[name, "color"]}
+                      rules={[
+                        {
+                          required: true,
+                          message: "請輸入顏色",
+                        },
+                      ]}
+                    >
+                      <Input placeholder="顏色" />
+                    </Form.Item>
+
+                    <MinusCircleOutlined onClick={() => remove(name)} />
+                  </Space>
+                ))}
+                <Form.Item>
+                  <Button
+                    type="dashed"
+                    onClick={() => add()}
+                    block
+                    icon={<PlusOutlined />}
+                  >
+                    加顏色
+                  </Button>
+                </Form.Item>
+              </>
+            )}
+          </Form.List>
+        </Form.Item> */}
 
         <Form.Item
           name="currency"

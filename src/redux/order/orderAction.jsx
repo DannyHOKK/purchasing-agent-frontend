@@ -169,3 +169,27 @@ export const changeTakeMethodOrder = createAsyncThunk(
     }
   }
 );
+
+export const changePaymentMethod = createAsyncThunk(
+  "api/order/changePaymentMethod",
+  async (ordersDTO, { rejectWithValue }) => {
+    try {
+      const response = await axios.post(
+        `${backendURL}/api/order/changePaymentMethod`,
+        ordersDTO
+      );
+
+      if (response.data.code === -1) {
+        return rejectWithValue(response.data.msg);
+      }
+      return response.data;
+    } catch (error) {
+      // return custom error message from backend if present
+      if (error.response && error.response.data.message) {
+        return rejectWithValue(error.response.data.message);
+      } else {
+        return rejectWithValue(error.message);
+      }
+    }
+  }
+);

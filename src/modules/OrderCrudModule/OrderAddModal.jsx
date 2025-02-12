@@ -70,7 +70,7 @@ const OrderAddModal = ({ open, setOpen, messageApi }) => {
     );
 
     form.setFieldValue("takeMethod", "未知");
-    form.setFieldValue("paid", "未付款");
+    form.setFieldValue("paid", "已付款");
   }, [productData, open]);
 
   const onFinish = async () => {

@@ -9,6 +9,7 @@ import {
   changeStatusOrder,
   deleteOrderById,
   getAllOrders,
+  changePaymentMethod,
 } from "../../redux/order/orderAction";
 import OrderModifyModal from "./OrderModifyModal";
 
@@ -363,6 +364,102 @@ const OrderDataTable = () => {
         ],
         filteredValue: filteredInfo.paymentMethod || null,
         onFilter: (value, record) => record.paymentMethod === value,
+        render: (text, record) => {
+          const items = [
+            {
+              label: (
+                <a
+                  onClick={() => {
+                    changePaymentMethodHandler(record.orderId, "PAYME");
+                  }}
+                >
+                  PAYME
+                </a>
+              ),
+              key: "0",
+            },
+            {
+              label: (
+                <a
+                  onClick={() => {
+                    changePaymentMethodHandler(record.orderId, "FPS");
+                  }}
+                >
+                  FPS
+                </a>
+              ),
+              key: "1",
+            },
+            {
+              label: (
+                <a
+                  onClick={() => {
+                    changePaymentMethodHandler(record.orderId, "ALIPAY");
+                  }}
+                >
+                  ALIPAY
+                </a>
+              ),
+              key: "2",
+            },
+            {
+              label: (
+                <a
+                  onClick={() => {
+                    changePaymentMethodHandler(record.orderId, "BANK");
+                  }}
+                >
+                  BANK
+                </a>
+              ),
+              key: "3",
+            },
+            {
+              label: (
+                <a
+                  onClick={() => {
+                    changePaymentMethodHandler(record.orderId, "CARMEN");
+                  }}
+                >
+                  CARMEN
+                </a>
+              ),
+              key: "4",
+            },
+          ];
+
+          if (record.paymentMethod === "PAYME") {
+            return (
+              <Dropdown menu={{ items }} trigger={["click"]}>
+                PAYME
+              </Dropdown>
+            );
+          } else if (record.paymentMethod === "FPS") {
+            return (
+              <Dropdown menu={{ items }} trigger={["click"]}>
+                FPS
+              </Dropdown>
+            );
+          } else if (record.paymentMethod === "ALIPAY") {
+            return (
+              <Dropdown menu={{ items }} trigger={["click"]}>
+                ALIPAY
+              </Dropdown>
+            );
+          } else if (record.paymentMethod === "BANK") {
+            return (
+              <Dropdown menu={{ items }} trigger={["click"]}>
+                BANK
+              </Dropdown>
+            );
+          } else if (record.paymentMethod === "CARMEN") {
+            return (
+              <Dropdown menu={{ items }} trigger={["click"]}>
+                CARMEN
+              </Dropdown>
+            );
+          }
+        },
       },
       {
         title: "Remark",
@@ -609,6 +706,18 @@ const OrderDataTable = () => {
       takeMethod: takeMethod,
     };
     const result = await dispatch(changeTakeMethodOrder(orderStatusDTO));
+
+    if (result.meta.requestStatus === "fulfilled") {
+      refreshHandler();
+    }
+  };
+
+  const changePaymentMethodHandler = async (orderId, paymentMethod) => {
+    const orderStatusDTO = {
+      orderId: orderId,
+      paymentMethod: paymentMethod,
+    };
+    const result = await dispatch(changePaymentMethod(orderStatusDTO));
 
     if (result.meta.requestStatus === "fulfilled") {
       refreshHandler();

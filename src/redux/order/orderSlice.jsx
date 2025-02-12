@@ -1,6 +1,7 @@
 import { createSlice } from "@reduxjs/toolkit";
 import {
   changePaidOrder,
+  changePaymentMethod,
   changeStatusOrder,
   changeTakeMethodOrder,
   createOrder,
@@ -104,6 +105,18 @@ const orderSlice = createSlice({
         state.orderSuccess = true;
       })
       .addCase(changeTakeMethodOrder.rejected, (state, { payload }) => {
+        state.orderLoading = false;
+        state.orderError = payload;
+      })
+      .addCase(changePaymentMethod.pending, (state) => {
+        state.orderLoading = true;
+        state.orderError = null;
+      })
+      .addCase(changePaymentMethod.fulfilled, (state, { payload }) => {
+        state.orderLoading = false;
+        state.orderSuccess = true;
+      })
+      .addCase(changePaymentMethod.rejected, (state, { payload }) => {
         state.orderLoading = false;
         state.orderError = payload;
       });
