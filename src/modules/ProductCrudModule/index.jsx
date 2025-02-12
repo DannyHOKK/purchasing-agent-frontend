@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { getAllProduct } from "../../redux/product/productAction";
 import ProductDataTable from "./ProductDataTable";
 import { getExchangeRate } from "../../redux/exchangeRate/exchangeRateAction";
+import { getAllOrders } from "../../redux/order/orderAction";
 
 const ProductCrud = () => {
   const { productLoading, productData } = useSelector((state) => state.product);
@@ -12,6 +13,7 @@ const ProductCrud = () => {
   useEffect(() => {
     dispatch(getAllProduct());
     dispatch(getExchangeRate());
+    dispatch(getAllOrders());
   }, []);
 
   return (
