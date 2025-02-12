@@ -401,7 +401,7 @@ const ProductDataTable = ({ productLoading, productData }) => {
         dataSource={data}
         pagination={{
           position: ["bottomCenter"],
-          pageSize: 20,
+          pageSize: 50,
         }}
         onChange={handleChange}
         scroll={{ x: "max-content" }}
