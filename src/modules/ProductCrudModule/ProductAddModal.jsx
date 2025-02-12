@@ -100,6 +100,17 @@ const ProductAddModal = ({
   useEffect(() => {
     form.setFieldValue("discount", 100);
     form.setFieldValue("stock", 0);
+
+    const savedCurrency = localStorage.getItem("exchangeCurrency");
+    const savedSymbol = localStorage.getItem("exchangeSymbol");
+    const savedRate = localStorage.getItem("exchangeRate");
+
+    if (savedCurrency) {
+      form.setFieldsValue({ currency: savedCurrency });
+      setSelectedCurrency(savedCurrency);
+      setSymbol(savedSymbol);
+      setExchangeRate(Number(savedRate));
+    }
   }, [open]);
 
   const onFinish = async () => {
@@ -232,9 +243,6 @@ const ProductAddModal = ({
               option.value.toUpperCase().indexOf(inputValue.toUpperCase()) !==
               -1
             }
-            onChange={() => {
-              productTypeHandler();
-            }}
           />
         </Form.Item>
 
@@ -300,50 +308,6 @@ const ProductAddModal = ({
           </Form.List>
         </Form.Item>
 
-        {/* <Form.Item label="顏色">
-          <Form.List name="color">
-            {(fields, { add, remove }) => (
-              <>
-                {fields.map(({ key, name, ...restField }) => (
-                  <Space
-                    key={key}
-                    style={{
-                      display: "flex",
-                      // marginBottom: 2,
-                    }}
-                    align="baseline"
-                  >
-                    <Form.Item
-                      {...restField}
-                      name={[name, "color"]}
-                      rules={[
-                        {
-                          required: true,
-                          message: "請輸入顏色",
-                        },
-                      ]}
-                    >
-                      <Input placeholder="顏色" />
-                    </Form.Item>
-
-                    <MinusCircleOutlined onClick={() => remove(name)} />
-                  </Space>
-                ))}
-                <Form.Item>
-                  <Button
-                    type="dashed"
-                    onClick={() => add()}
-                    block
-                    icon={<PlusOutlined />}
-                  >
-                    加顏色
-                  </Button>
-                </Form.Item>
-              </>
-            )}
-          </Form.List>
-        </Form.Item> */}
-
         <Form.Item
           name="currency"
           label="貨幣"
@@ -375,6 +339,18 @@ const ProductAddModal = ({
               );
 
               form.setFieldValue("price", formattedPrice);
+
+              localStorage.setItem(
+                "exchangeSymbol",
+                currenciesOptions?.find((currency) => currency.value === value)
+                  ?.symbol
+              );
+              localStorage.setItem(
+                "exchangeCurrency",
+                currenciesOptions?.find((currency) => currency.value === value)
+                  ?.value
+              );
+              localStorage.setItem("exchangeRate", rate);
             }}
           />
         </Form.Item>

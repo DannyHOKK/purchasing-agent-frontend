@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   deleteProductById,
   getAllProduct,
+  modifyProduct,
 } from "../../redux/product/productAction";
 import { Button, Popconfirm, Table, message } from "antd";
 import ProductAddModal from "./ProductAddModal";
@@ -61,7 +62,6 @@ const ProductDataTable = ({ productLoading, productData }) => {
 
   const refreshHandler = () => {
     dispatch(getAllProduct());
-    console.log(productData);
   };
 
   const deleteProductHandler = async (productId) => {
@@ -103,6 +103,39 @@ const ProductDataTable = ({ productLoading, productData }) => {
   const productName = productData
     .map((product) => product.productName)
     .filter((productName, index, self) => self.indexOf(productName) === index);
+
+  const updateQuantity = async (record, delta) => {
+    const modifyProductData = {
+      productId: record?.productId,
+      productBrand: record.productBrand,
+      productType: record.productType,
+      productName: record.productName,
+      productCost: record.productCost,
+      weight: record.weight,
+      currency: record.currency.currency,
+      discount: record.discount,
+      productPrice: record.productPrice,
+      stock: record.stock + delta,
+      commission: record.commission,
+    };
+
+    console.log(modifyProductData);
+
+    const result = await dispatch(modifyProduct(modifyProductData));
+
+    if (result.meta.requestStatus === "fulfilled") {
+      messageApi.open({
+        type: "success",
+        content: result.payload.msg,
+      });
+      refreshHandler();
+    } else {
+      messageApi.open({
+        type: "error",
+        content: result.payload,
+      });
+    }
+  };
 
   const columns = [
     {
@@ -177,7 +210,17 @@ const ProductDataTable = ({ productLoading, productData }) => {
       sortOrder: sortedInfo.columnKey === "needBuy" ? sortedInfo.order : null,
 
       render: (text, record) => {
-        return <>{record.needBuy * -1}</>;
+        return (
+          <>
+            <Button size="small" onClick={() => updateQuantity(record, -1)}>
+              -
+            </Button>{" "}
+            {record.needBuy * -1}{" "}
+            <Button size="small" onClick={() => updateQuantity(record, 1)}>
+              +
+            </Button>
+          </>
+        );
       },
     },
     {

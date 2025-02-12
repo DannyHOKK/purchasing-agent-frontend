@@ -487,6 +487,14 @@ const OrderDataTable = () => {
             text: "斷貨",
             value: "斷貨",
           },
+          {
+            text: "已通知",
+            value: "已通知",
+          },
+          {
+            text: "在倉",
+            value: "在倉",
+          },
         ],
         filteredValue: filteredInfo.status || null,
         onFilter: (value, record) => record.status === value,
@@ -503,6 +511,30 @@ const OrderDataTable = () => {
                 </a>
               ),
               key: "0",
+            },
+            {
+              label: (
+                <a
+                  onClick={() => {
+                    changeStatusOrderHandler(record.orderId, "已通知");
+                  }}
+                >
+                  已通知
+                </a>
+              ),
+              key: "4",
+            },
+            {
+              label: (
+                <a
+                  onClick={() => {
+                    changeStatusOrderHandler(record.orderId, "在倉");
+                  }}
+                >
+                  在倉
+                </a>
+              ),
+              key: "5",
             },
             {
               label: (
@@ -561,6 +593,16 @@ const OrderDataTable = () => {
               {record.status === "斷貨" && (
                 <Dropdown menu={{ items }} trigger={["click"]}>
                   <Badge status="default" text="斷貨" />
+                </Dropdown>
+              )}
+              {record.status === "在倉" && (
+                <Dropdown menu={{ items }} trigger={["click"]}>
+                  <Badge status="default" text="在倉" />
+                </Dropdown>
+              )}
+              {record.status === "已通知" && (
+                <Dropdown menu={{ items }} trigger={["click"]}>
+                  <Badge status="default" text="已通知" />
                 </Dropdown>
               )}
             </>
