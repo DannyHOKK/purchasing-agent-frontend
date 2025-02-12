@@ -107,7 +107,7 @@ const ProductAddModal = ({
 
     const productColor = form
       .getFieldValue("productColor")
-      .map((color) => color.color);
+      ?.map((color) => color.color);
 
     const createProductData = {
       productBrand: form.getFieldValue("productBrand"),
@@ -122,6 +122,8 @@ const ProductAddModal = ({
       commission: commission,
       productColor: productColor,
     };
+
+    console.log(createProductData);
 
     const result = await dispatch(createProduct(createProductData));
 
