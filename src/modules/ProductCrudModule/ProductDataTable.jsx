@@ -374,35 +374,31 @@ const ProductDataTable = ({ productLoading, productData }) => {
     },
   ];
 
-  const data = useMemo(
-    () =>
-      productData?.map((product, index) => ({
-        id: index + 1,
-        productId: product.productId,
-        productBrand: product.productBrand,
-        productCost: product.productCost,
-        commission: product.commission,
-        discount: product.discount,
-        cost: product.productCost * product.discount * 0.01,
-        productPrice: product.productPrice,
-        productName: product.productName,
-        productType: product.productType,
-        weight: product.weight,
-        quantity: (
-          <>
-            {orderQuantity[index]} ({product.stock})
-          </>
-        ),
-        needBuy: orderQuantity[index] - product.stock,
-        stock: product.stock,
-        discount: product.discount,
-        createDate: product.createDate.split(".")[0].replaceAll("T", " "),
-        modifyDate: product.modifyDate.split(".")[0].replaceAll("T", " "),
+  const data = productData?.map((product, index) => ({
+    id: index + 1,
+    productId: product.productId,
+    productBrand: product.productBrand,
+    productCost: product.productCost,
+    commission: product.commission,
+    discount: product.discount,
+    cost: product.productCost * product.discount * 0.01,
+    productPrice: product.productPrice,
+    productName: product.productName,
+    productType: product.productType,
+    weight: product.weight,
+    quantity: (
+      <>
+        {orderQuantity[index]} ({product.stock})
+      </>
+    ),
+    needBuy: orderQuantity[index] - product.stock,
+    stock: product.stock,
+    discount: product.discount,
+    createDate: product.createDate.split(".")[0].replaceAll("T", " "),
+    modifyDate: product.modifyDate.split(".")[0].replaceAll("T", " "),
 
-        currency: product?.exchangeRate,
-      })),
-    [productData]
-  );
+    currency: product?.exchangeRate,
+  }));
 
   const productBrandOptions = useMemo(
     () =>
