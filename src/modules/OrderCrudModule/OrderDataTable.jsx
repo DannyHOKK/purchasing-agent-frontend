@@ -1,4 +1,13 @@
-import { Badge, Button, Dropdown, Popconfirm, Table, Tag, message } from "antd";
+import {
+  Badge,
+  Button,
+  Dropdown,
+  Popconfirm,
+  Switch,
+  Table,
+  Tag,
+  message,
+} from "antd";
 import React, { useEffect, useMemo, useState } from "react";
 import OrderAddModal from "./OrderAddModal";
 import { PlusOutlined, QuestionCircleOutlined } from "@ant-design/icons";
@@ -12,6 +21,7 @@ import {
   changePaymentMethod,
 } from "../../redux/order/orderAction";
 import OrderModifyModal from "./OrderModifyModal";
+import OrderPackagingModal from "./OrderPackagingModal";
 
 const OrderDataTable = () => {
   const [filteredInfo, setFilteredInfo] = useState({});
@@ -20,6 +30,9 @@ const OrderDataTable = () => {
   const [messageApi, contextHolder] = message.useMessage();
   const [open, setOpen] = useState(false);
   const [openModify, setOpenModify] = useState(false);
+  const [openPackaging, setOpenPackaging] = useState(false);
+  const [selectedRowKeys, setSelectedRowKeys] = useState([]);
+  const [isEnableRowSelection, setIsEnableRowSelection] = useState(false);
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -137,6 +150,149 @@ const OrderDataTable = () => {
         title: "數量",
         dataIndex: "quantity",
         key: "quantity",
+      },
+      {
+        title: "狀態",
+        dataIndex: "status",
+        key: "status",
+        filters: [
+          {
+            text: "備貨中",
+            value: "備貨中",
+          },
+          {
+            text: "已取",
+            value: "已取",
+          },
+          {
+            text: "已寄出",
+            value: "已寄出",
+          },
+          {
+            text: "斷貨",
+            value: "斷貨",
+          },
+          {
+            text: "已通知",
+            value: "已通知",
+          },
+          {
+            text: "在倉",
+            value: "在倉",
+          },
+        ],
+        filteredValue: filteredInfo.status || null,
+        onFilter: (value, record) => record.status === value,
+        render: (text, record) => {
+          const items = [
+            {
+              label: (
+                <a
+                  onClick={() => {
+                    changeStatusOrderHandler(record.orderId, "備貨中");
+                  }}
+                >
+                  備貨中
+                </a>
+              ),
+              key: "0",
+            },
+            {
+              label: (
+                <a
+                  onClick={() => {
+                    changeStatusOrderHandler(record.orderId, "已通知");
+                  }}
+                >
+                  已通知
+                </a>
+              ),
+              key: "4",
+            },
+            {
+              label: (
+                <a
+                  onClick={() => {
+                    changeStatusOrderHandler(record.orderId, "在倉");
+                  }}
+                >
+                  在倉
+                </a>
+              ),
+              key: "5",
+            },
+            {
+              label: (
+                <a
+                  onClick={() => {
+                    changeStatusOrderHandler(record.orderId, "已寄出");
+                  }}
+                >
+                  已寄出
+                </a>
+              ),
+              key: "1",
+            },
+            {
+              label: (
+                <a
+                  onClick={() => {
+                    changeStatusOrderHandler(record.orderId, "已取");
+                  }}
+                >
+                  已取
+                </a>
+              ),
+              key: "2",
+            },
+            {
+              label: (
+                <a
+                  onClick={() => {
+                    changeStatusOrderHandler(record.orderId, "斷貨");
+                  }}
+                >
+                  斷貨
+                </a>
+              ),
+              key: "3",
+            },
+          ];
+          return (
+            <>
+              {record.status === "備貨中" && (
+                <Dropdown menu={{ items }} trigger={["click"]}>
+                  <Badge status="processing" text="備貨中" />
+                </Dropdown>
+              )}
+              {record.status === "已寄出" && (
+                <Dropdown menu={{ items }} trigger={["click"]}>
+                  <Badge status="processing" color="yellow" text="已寄出" />
+                </Dropdown>
+              )}
+              {record.status === "已取" && (
+                <Dropdown menu={{ items }} trigger={["click"]}>
+                  <Badge status="processing" color="pink" text="已取" />
+                </Dropdown>
+              )}
+              {record.status === "斷貨" && (
+                <Dropdown menu={{ items }} trigger={["click"]}>
+                  <Badge status="default" color="red" text="斷貨" />
+                </Dropdown>
+              )}
+              {record.status === "在倉" && (
+                <Dropdown menu={{ items }} trigger={["click"]}>
+                  <Badge status="processing" color="volcano" text="在倉" />
+                </Dropdown>
+              )}
+              {record.status === "已通知" && (
+                <Dropdown menu={{ items }} trigger={["click"]}>
+                  <Badge status="processing" color="lime" text="已通知" />
+                </Dropdown>
+              )}
+            </>
+          );
+        },
       },
       {
         title: "付款",
@@ -467,149 +623,6 @@ const OrderDataTable = () => {
         key: "remark",
       },
       {
-        title: "狀態",
-        dataIndex: "status",
-        key: "status",
-        filters: [
-          {
-            text: "備貨中",
-            value: "備貨中",
-          },
-          {
-            text: "已取",
-            value: "已取",
-          },
-          {
-            text: "已寄出",
-            value: "已寄出",
-          },
-          {
-            text: "斷貨",
-            value: "斷貨",
-          },
-          {
-            text: "已通知",
-            value: "已通知",
-          },
-          {
-            text: "在倉",
-            value: "在倉",
-          },
-        ],
-        filteredValue: filteredInfo.status || null,
-        onFilter: (value, record) => record.status === value,
-        render: (text, record) => {
-          const items = [
-            {
-              label: (
-                <a
-                  onClick={() => {
-                    changeStatusOrderHandler(record.orderId, "備貨中");
-                  }}
-                >
-                  備貨中
-                </a>
-              ),
-              key: "0",
-            },
-            {
-              label: (
-                <a
-                  onClick={() => {
-                    changeStatusOrderHandler(record.orderId, "已通知");
-                  }}
-                >
-                  已通知
-                </a>
-              ),
-              key: "4",
-            },
-            {
-              label: (
-                <a
-                  onClick={() => {
-                    changeStatusOrderHandler(record.orderId, "在倉");
-                  }}
-                >
-                  在倉
-                </a>
-              ),
-              key: "5",
-            },
-            {
-              label: (
-                <a
-                  onClick={() => {
-                    changeStatusOrderHandler(record.orderId, "已寄出");
-                  }}
-                >
-                  已寄出
-                </a>
-              ),
-              key: "1",
-            },
-            {
-              label: (
-                <a
-                  onClick={() => {
-                    changeStatusOrderHandler(record.orderId, "已取");
-                  }}
-                >
-                  已取
-                </a>
-              ),
-              key: "2",
-            },
-            {
-              label: (
-                <a
-                  onClick={() => {
-                    changeStatusOrderHandler(record.orderId, "斷貨");
-                  }}
-                >
-                  斷貨
-                </a>
-              ),
-              key: "3",
-            },
-          ];
-          return (
-            <>
-              {record.status === "備貨中" && (
-                <Dropdown menu={{ items }} trigger={["click"]}>
-                  <Badge status="processing" text="備貨中" />
-                </Dropdown>
-              )}
-              {record.status === "已寄出" && (
-                <Dropdown menu={{ items }} trigger={["click"]}>
-                  <Badge color="yellow" text="已寄出" />
-                </Dropdown>
-              )}
-              {record.status === "已取" && (
-                <Dropdown menu={{ items }} trigger={["click"]}>
-                  <Badge color="pink" text="已取" />
-                </Dropdown>
-              )}
-              {record.status === "斷貨" && (
-                <Dropdown menu={{ items }} trigger={["click"]}>
-                  <Badge status="default" text="斷貨" />
-                </Dropdown>
-              )}
-              {record.status === "在倉" && (
-                <Dropdown menu={{ items }} trigger={["click"]}>
-                  <Badge status="default" text="在倉" />
-                </Dropdown>
-              )}
-              {record.status === "已通知" && (
-                <Dropdown menu={{ items }} trigger={["click"]}>
-                  <Badge status="default" text="已通知" />
-                </Dropdown>
-              )}
-            </>
-          );
-        },
-      },
-      {
         title: "付款時間",
         dataIndex: "createDate",
         key: "createDate",
@@ -659,6 +672,7 @@ const OrderDataTable = () => {
     console.log("rerender data");
     return orderData?.map((order, index) => ({
       id: index + 1,
+      key: order.orderId,
       orderId: order.orderId,
       phone: order?.customer?.phone,
       instagram: order?.customer?.instagram,
@@ -766,12 +780,45 @@ const OrderDataTable = () => {
     }
   };
 
+  const enableRowSelectionHandler = (checked) => {
+    setIsEnableRowSelection(checked);
+    if (!checked) setSelectedRowKeys([]);
+  };
+
+  const rowSelection = isEnableRowSelection
+    ? {
+        selectedRowKeys,
+        onChange: (selectedKeys) => {
+          setSelectedRowKeys(selectedKeys);
+        },
+      }
+    : undefined; // Disable selection if switch is off
+
+  const openPackagingHandler = () => {
+    if (selectedRowKeys.length !== 0) {
+      setOpenPackaging(true);
+    } else {
+      messageApi.open({
+        type: "error",
+        content: "請選擇訂單",
+      });
+    }
+  };
+
   return (
     <div className="mb-5 mb-sm-0 mx-3">
       {contextHolder}
       <div className=" d-flex justify-content-between p-4">
         <div>-</div>
         <div>
+          {isEnableRowSelection && (
+            <>
+              <Button className=" me-3" onClick={openPackagingHandler}>
+                打包
+              </Button>
+            </>
+          )}
+          <Switch className=" me-3" onClick={enableRowSelectionHandler} />
           <Button className=" me-3" onClick={refreshHandler}>
             更新表格
           </Button>
@@ -795,12 +842,19 @@ const OrderDataTable = () => {
           position: ["bottomCenter"],
         }}
         onChange={handleChange}
+        rowSelection={rowSelection}
       />
       <OrderAddModal open={open} setOpen={setOpen} messageApi={messageApi} />
       <OrderModifyModal
         openModify={openModify}
         setOpenModify={setOpenModify}
         orderModifyData={orderModifyData}
+      />
+      <OrderPackagingModal
+        messageApi={messageApi}
+        selectedRowKeys={selectedRowKeys}
+        openPackaging={openPackaging}
+        setOpenPackaging={setOpenPackaging}
       />
     </div>
   );
