@@ -471,7 +471,7 @@ const ProductDataTable = () => {
           currency: product?.exchangeRate,
         };
       }),
-    [productData, productStockData]
+    [orderQuantity, productData, productStockData]
   );
 
   const productBrandOptions = useMemo(
