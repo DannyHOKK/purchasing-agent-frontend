@@ -5,10 +5,6 @@ import { getExchangeRate } from "../../redux/exchangeRate/exchangeRateAction";
 import { getAllExchangeRecord } from "../../redux/exchangeRecord/exchangeRecordAction";
 
 const ExchangeRateCrud = () => {
-  const { exchangeRateLoading, exchangeRateData } = useSelector(
-    (state) => state.exchangeRate
-  );
-
   const dispatch = useDispatch();
 
   useEffect(() => {

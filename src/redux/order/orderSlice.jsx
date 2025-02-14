@@ -7,6 +7,7 @@ import {
   createOrder,
   deleteOrderById,
   getAllOrders,
+  getPackageName,
   modifyOrder,
 } from "./orderAction";
 
@@ -15,6 +16,7 @@ const initialState = {
   orderError: null,
   orderSuccess: false,
   orderData: [],
+  orderPackageName: [],
 };
 
 const orderSlice = createSlice({
@@ -119,6 +121,15 @@ const orderSlice = createSlice({
       .addCase(changePaymentMethod.rejected, (state, { payload }) => {
         state.orderLoading = false;
         state.orderError = payload;
+      })
+      .addCase(getPackageName.pending, (state) => {
+        state.orderLoading = true;
+        state.orderError = null;
+      })
+      .addCase(getPackageName.fulfilled, (state, { payload }) => {
+        state.orderLoading = false;
+        state.orderSuccess = true;
+        state.orderPackageName = payload.data;
       });
   },
 });

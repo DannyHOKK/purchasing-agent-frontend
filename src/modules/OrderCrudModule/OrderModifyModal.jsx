@@ -62,6 +62,9 @@ const OrderModifyModal = ({ openModify, setOpenModify, orderModifyData }) => {
     paymentMethod: "",
     remark: "",
   });
+  const packageName = localStorage.getItem("packageName")
+    ? localStorage.getItem("packageName")
+    : "預設";
 
   useEffect(() => {
     setProductNameOptions(
@@ -127,7 +130,7 @@ const OrderModifyModal = ({ openModify, setOpenModify, orderModifyData }) => {
 
     if (result.meta.requestStatus === "fulfilled") {
       setOpenModify(false);
-      dispatch(getAllOrders());
+      dispatch(getAllOrders(packageName));
     }
   };
 

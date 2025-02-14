@@ -5,11 +5,14 @@ const backendURL = import.meta.env.VITE_APP_API_URL;
 
 export const getAllOrders = createAsyncThunk(
   "api/order/getAllOrders",
-  async (empty, { rejectWithValue }) => {
+  async (packageName, { rejectWithValue }) => {
     try {
-      const response = await axios.get(
+      const response = await axios.post(
         `${backendURL}/api/order/getAllOrders`,
-        ""
+        null,
+        {
+          params: { packageName },
+        }
       );
 
       if (response.data.code === -1) {
@@ -201,6 +204,30 @@ export const batchPackaging = createAsyncThunk(
       const response = await axios.post(
         `${backendURL}/api/order/batchPackaging`,
         orderPackagingDTO
+      );
+
+      if (response.data.code === -1) {
+        return rejectWithValue(response.data.msg);
+      }
+      return response.data;
+    } catch (error) {
+      // return custom error message from backend if present
+      if (error.response && error.response.data.message) {
+        return rejectWithValue(error.response.data.message);
+      } else {
+        return rejectWithValue(error.message);
+      }
+    }
+  }
+);
+
+export const getPackageName = createAsyncThunk(
+  "api/order/getPackageName",
+  async (orderPackagingDTO, { rejectWithValue }) => {
+    try {
+      const response = await axios.get(
+        `${backendURL}/api/order/getPackageName`,
+        ""
       );
 
       if (response.data.code === -1) {

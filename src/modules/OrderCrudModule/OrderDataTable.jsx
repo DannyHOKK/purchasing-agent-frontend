@@ -3,6 +3,7 @@ import {
   Button,
   Dropdown,
   Popconfirm,
+  Select,
   Switch,
   Table,
   Tag,
@@ -35,12 +36,21 @@ const OrderDataTable = () => {
   const [isEnableRowSelection, setIsEnableRowSelection] = useState(false);
   const dispatch = useDispatch();
 
-  useEffect(() => {
-    dispatch(getAllOrders());
-    console.log("rerender all orders");
-  }, []);
+  const { orderLoading, orderData, orderPackageName } = useSelector(
+    (state) => state.order
+  );
 
-  const { orderLoading, orderData } = useSelector((state) => state.order);
+  const packageName = localStorage.getItem("packageName")
+    ? localStorage.getItem("packageName")
+    : "預設";
+
+  const packgeNameSet = new Set(orderPackageName);
+  packgeNameSet.add("預設"); // Ensures "預設" is always included
+
+  const packgeNameList = [...packgeNameSet].map((packageName) => ({
+    value: packageName,
+    label: packageName,
+  }));
 
   const { customerPhone, productBrand, productName } = useMemo(() => {
     const result = orderData.reduce(
@@ -669,7 +679,6 @@ const OrderDataTable = () => {
   }, [customerPhone, productBrand, productName, filteredInfo, sortedInfo]);
 
   const data = useMemo(() => {
-    console.log("rerender data");
     return orderData?.map((order, index) => ({
       id: index + 1,
       key: order.orderId,
@@ -700,7 +709,8 @@ const OrderDataTable = () => {
   };
 
   const refreshHandler = () => {
-    dispatch(getAllOrders());
+    dispatch(getAllOrders(packageName));
+    setSelectedRowKeys([]);
   };
 
   const deleteOrderHandler = async (orderId) => {
@@ -805,11 +815,26 @@ const OrderDataTable = () => {
     }
   };
 
+  const changePackageNameHandler = (value) => {
+    localStorage.setItem("packageName", value);
+    dispatch(getAllOrders(value));
+  };
+
   return (
     <div className="mb-5 mb-sm-0 mx-3">
       {contextHolder}
-      <div className=" d-flex justify-content-between p-4">
-        <div>-</div>
+      <div className=" d-flex justify-content-between p-4 flex-column flex-sm-row">
+        <div className=" mb-sm-0 mb-4">
+          <span>包裝：</span>
+          <Select
+            placeholder="包裝名稱"
+            options={packgeNameList}
+            onChange={(value) => {
+              changePackageNameHandler(value);
+            }}
+            defaultValue={packageName}
+          />
+        </div>
         <div>
           {isEnableRowSelection && (
             <>

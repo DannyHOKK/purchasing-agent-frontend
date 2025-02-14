@@ -13,9 +13,6 @@ const ExchangeRecordTable = () => {
   const dispatch = useDispatch();
   const [open, setOpen] = useState(false);
   const [messageApi, contextHolder] = message.useMessage();
-  const { exchangeRateData, exchangeRateLoading } = useSelector(
-    (state) => state.exchangeRate
-  );
 
   const { exchangeRecordData, exchangeRecordLoading } = useSelector(
     (state) => state.exchangeRecord

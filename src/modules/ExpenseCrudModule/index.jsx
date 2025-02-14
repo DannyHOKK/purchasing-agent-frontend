@@ -1,13 +1,18 @@
 import React, { useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import ExpenseForm from "./ExpenseForm";
 import ExpenseTable from "./ExpenseTable";
 import { getAllExpense } from "../../redux/expense/expenseAction";
 import { getExchangeRate } from "../../redux/exchangeRate/exchangeRateAction";
+import { createSelector } from "@reduxjs/toolkit";
+
+const selectExpenseData = createSelector(
+  (state) => state.expense.expenseData,
+  (expenseData) => expenseData
+);
 
 const ExpenseCrud = () => {
   const dispatch = useDispatch();
-
   useEffect(() => {
     dispatch(getAllExpense());
     dispatch(getExchangeRate());

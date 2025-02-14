@@ -1,7 +1,11 @@
 import { Button, Form, Input, Modal } from "antd";
 import React from "react";
 import { useDispatch } from "react-redux";
-import { batchPackaging, getAllOrders } from "../../redux/order/orderAction";
+import {
+  batchPackaging,
+  getAllOrders,
+  getPackageName,
+} from "../../redux/order/orderAction";
 
 const OrderPackagingModal = ({
   selectedRowKeys,
@@ -11,6 +15,10 @@ const OrderPackagingModal = ({
 }) => {
   const [form] = Form.useForm();
   const dispatch = useDispatch();
+
+  const packageName = localStorage.getItem("packageName")
+    ? localStorage.getItem("packageName")
+    : "預設";
 
   const onFinish = async () => {
     await form.validateFields();
@@ -22,9 +30,9 @@ const OrderPackagingModal = ({
 
     const result = await dispatch(batchPackaging(orderPackagingDTO));
 
-    console.log(result);
     if (result.meta.requestStatus === "fulfilled") {
-      dispatch(getAllOrders());
+      dispatch(getAllOrders(packageName));
+      dispatch(getPackageName());
       messageApi.open({
         type: "success",
         content: result.payload.msg,

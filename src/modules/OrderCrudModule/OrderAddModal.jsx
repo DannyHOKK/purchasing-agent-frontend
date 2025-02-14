@@ -52,6 +52,9 @@ const OrderAddModal = ({ open, setOpen, messageApi }) => {
   const [productNameOptions, setProductNameOptions] = useState();
   const [openCustomerAdd, setOpenCustomerAdd] = useState(false);
   const [productTotalPrice, setProductTotalPrice] = useState();
+  const packageName = localStorage.getItem("packageName")
+    ? localStorage.getItem("packageName")
+    : "預設";
 
   useEffect(() => {
     setProductNameOptions(
@@ -86,6 +89,7 @@ const OrderAddModal = ({ open, setOpen, messageApi }) => {
       takeMethod: form.getFieldValue("takeMethod"),
       paymentMethod: form.getFieldValue("paymentMethod"),
       remark: form.getFieldValue("remark") ? form.getFieldValue("remark") : " ",
+      packageName: packageName,
     };
 
     createOrderHandler(ordersDTO);
@@ -100,7 +104,7 @@ const OrderAddModal = ({ open, setOpen, messageApi }) => {
       if (result.meta.requestStatus === "fulfilled") {
         setOpen(false);
         form.resetFields();
-        dispatch(getAllOrders());
+        dispatch(getAllOrders(packageName));
 
         messageApi.open({
           type: "success",
@@ -245,6 +249,7 @@ const OrderAddModal = ({ open, setOpen, messageApi }) => {
       takeMethod: form.getFieldValue("takeMethod"),
       paymentMethod: form.getFieldValue("paymentMethod"),
       remark: form.getFieldValue("remark") ? form.getFieldValue("remark") : " ",
+      packageName: packageName,
     };
     createAddOrderHandler(ordersDTO);
   };
@@ -256,7 +261,7 @@ const OrderAddModal = ({ open, setOpen, messageApi }) => {
       const result = await dispatch(createOrder(ordersDTO));
 
       if (result.meta.requestStatus === "fulfilled") {
-        dispatch(getAllOrders());
+        dispatch(getAllOrders(packageName));
 
         setProductNameOptions(
           productData?.map((product) => ({
@@ -481,7 +486,7 @@ const OrderAddModal = ({ open, setOpen, messageApi }) => {
         <Form.Item
           name="paymentMethod"
           label="付款方法"
-          rules={[{ required: true, message: "請選擇運輸" }]}
+          rules={[{ required: true, message: "請選擇付款方法" }]}
           wrapperCol={{ span: 16 }}
         >
           <Radio.Group>

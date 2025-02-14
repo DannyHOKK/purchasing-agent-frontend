@@ -20,6 +20,7 @@ import {
   modifyProduct,
 } from "../../redux/product/productAction";
 import currency from "../../staticData/currency.json";
+import { getAllProductStock } from "../../redux/productStock/productStockAction";
 
 const formItemLayout = {
   labelCol: {
@@ -46,6 +47,7 @@ const ProductModifyModal = ({
   productBrandOptions,
   productModifyData,
   messageApi,
+  packageName,
 }) => {
   const [form] = Form.useForm();
   const dispatch = useDispatch();
@@ -127,19 +129,20 @@ const ProductModifyModal = ({
       productPrice: form.getFieldValue("productPrice"),
       stock: form.getFieldValue("stock"),
       commission: commission,
+      packageName: packageName,
     };
 
-    console.log(modifyProductData);
     const result = await dispatch(modifyProduct(modifyProductData));
-    console.log(result);
+
     if (result.meta.requestStatus === "fulfilled") {
       messageApi.open({
         type: "success",
         content: result.payload.msg,
       });
+      dispatch(getAllProduct());
+      dispatch(getAllProductStock(packageName));
       setOpen(false);
       form.resetFields();
-      dispatch(getAllProduct());
     } else {
       messageApi.open({
         type: "error",

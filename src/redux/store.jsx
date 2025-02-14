@@ -5,6 +5,7 @@ import productReducer from "../redux/product/productSlice";
 import exchangeRateReducer from "../redux/exchangeRate/exchangeRateSlice";
 import expenseReducer from "../redux/expense/expenseSlice";
 import exchangeRecordReducer from "../redux/exchangeRecord/exchangeRecordSlice";
+import productStockReducer from "../redux/productStock/productStockSlice";
 
 const store = configureStore({
   reducer: {
@@ -14,6 +15,7 @@ const store = configureStore({
     exchangeRate: exchangeRateReducer,
     expense: expenseReducer,
     exchangeRecord: exchangeRecordReducer,
+    productStock: productStockReducer,
   },
 });
 

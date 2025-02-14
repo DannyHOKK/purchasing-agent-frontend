@@ -14,18 +14,6 @@ const exchangeRateSlice = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     builder
-      .addCase(createCurrency.pending, (state) => {
-        state.exchangeRateLoading = true;
-        state.exchangeRateError = null;
-      })
-      .addCase(createCurrency.fulfilled, (state, { payload }) => {
-        state.exchangeRateLoading = false;
-        state.exchangeRateSuccess = true;
-      })
-      .addCase(createCurrency.rejected, (state, { payload }) => {
-        state.exchangeRateLoading = false;
-        state.exchangeRateError = payload;
-      })
       .addCase(getExchangeRate.pending, (state) => {
         state.exchangeRateLoading = true;
         state.exchangeRateError = null;

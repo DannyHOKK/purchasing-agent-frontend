@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { memo, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   deleteProductById,
@@ -17,8 +17,33 @@ import ProductModifyModal from "./ProductModifyModal";
 import ProductCopyModal from "./ProductCopyModal";
 import { render } from "less";
 import currency from "../../staticData/currency.json";
+import { getExchangeRate } from "../../redux/exchangeRate/exchangeRateAction";
+import { getAllOrders } from "../../redux/order/orderAction";
+import { createSelector } from "@reduxjs/toolkit";
+import { getAllProductStock } from "../../redux/productStock/productStockAction";
 
-const ProductDataTable = ({ productLoading, productData }) => {
+const selectCombinedData = createSelector(
+  (state) => state.exchangeRate.exchangeRateData,
+  (state) => state.product.productLoading,
+  (state) => state.product.productData,
+  (state) => state.order.orderData,
+  (state) => state.productStock.productStockData,
+  (
+    exchangeRateData,
+    productLoading,
+    productData,
+    orderData,
+    productStockData
+  ) => ({
+    exchangeRateData,
+    productLoading,
+    productData,
+    orderData,
+    productStockData,
+  })
+);
+
+const ProductDataTable = () => {
   const [filteredInfo, setFilteredInfo] = useState({});
   const [sortedInfo, setSortedInfo] = useState({});
   const [open, setOpen] = useState(false);
@@ -26,34 +51,83 @@ const ProductDataTable = ({ productLoading, productData }) => {
   const [openModify, setOpenModify] = useState(false);
   const [productModifyData, setProductModifyData] = useState({});
   const dispatch = useDispatch();
-  const { exchangeRateData } = useSelector((state) => state.exchangeRate);
-  const { orderData } = useSelector((state) => state.order);
-  const [messageApi, contextHolder] = message.useMessage();
 
+  const {
+    exchangeRateData,
+    productLoading,
+    productData,
+    orderData,
+    productStockData,
+  } = useSelector(selectCombinedData);
+
+  // const { exchangeRateData } = useSelector((state) => state.exchangeRate);
+  // const { productLoading, productData } = useSelector((state) => state.product);
+  // const { orderData } = useSelector((state) => state.order);
+  const [messageApi, contextHolder] = message.useMessage();
   const exchangeCurrency = exchangeRateData.map(
     (exchangeRate) => exchangeRate.currency
   );
 
-  const currenciesOptions = currency.currenciesOptions
-    .filter((option) => {
-      return exchangeCurrency.includes(option.value);
-    })
-    .map((currency) => ({
-      value: currency.value,
-      label: currency.label,
-      symbol: currency.symbol,
-    }));
+  const packageName = localStorage.getItem("packageName")
+    ? localStorage.getItem("packageName")
+    : "預設";
 
-  const orderQuantity = productData.map((product) => {
-    return orderData
-      .filter(
-        (order) =>
-          order?.product?.productName === product?.productName &&
-          order?.paid === "已付款"
-      )
-      .map((order) => order?.quantity)
-      .reduce((accumulator, currentValue) => accumulator + currentValue, 0);
-  });
+  const { productBrand, productType, productName } = useMemo(() => {
+    const uniqueBrands = new Set();
+    const uniqueTypes = new Set();
+    const uniqueNames = new Set();
+
+    productData.forEach((product) => {
+      uniqueBrands.add(product.productBrand);
+      uniqueTypes.add(product.productType);
+      uniqueNames.add(product.productName);
+    });
+
+    return {
+      productBrand: Array.from(uniqueBrands),
+      productType: Array.from(uniqueTypes),
+      productName: Array.from(uniqueNames),
+    };
+  }, [productData]);
+
+  useEffect(() => {
+    dispatch(getAllProduct());
+    dispatch(getExchangeRate());
+    dispatch(getAllOrders(packageName));
+    dispatch(getAllProductStock(packageName));
+  }, []);
+
+  useEffect(() => {
+    dispatch(getAllOrders(packageName));
+    dispatch(getAllProductStock(packageName));
+  }, [packageName]);
+
+  const currenciesOptions = useMemo(
+    () =>
+      currency.currenciesOptions
+        .filter((option) => exchangeCurrency.includes(option.value))
+        .map((currency) => ({
+          value: currency.value,
+          label: currency.label,
+          symbol: currency.symbol,
+        })),
+    [currency.currenciesOptions, exchangeCurrency]
+  ); // Dependencies: changes in these will trigger a recompute
+
+  const orderQuantity = useMemo(
+    () =>
+      productData.map((product) => {
+        return orderData
+          .filter(
+            (order) =>
+              order?.product?.productName === product?.productName &&
+              order?.paid === "已付款"
+          )
+          .map((order) => order?.quantity)
+          .reduce((accumulator, currentValue) => accumulator + currentValue, 0);
+      }),
+    [productData, orderData]
+  ); // Dependencies: changes in these will trigger a recompute
 
   const handleChange = (pagination, filters, sorter) => {
     setFilteredInfo(filters);
@@ -62,6 +136,7 @@ const ProductDataTable = ({ productLoading, productData }) => {
 
   const refreshHandler = () => {
     dispatch(getAllProduct());
+    dispatch(getAllProductStock(packageName));
   };
 
   const deleteProductHandler = async (productId) => {
@@ -90,20 +165,6 @@ const ProductDataTable = ({ productLoading, productData }) => {
     setOpenCopy(true);
   };
 
-  const productBrand = productData
-    .map((product) => product.productBrand)
-    .filter(
-      (productBrand, index, self) => self.indexOf(productBrand) === index
-    );
-
-  const productType = productData
-    .map((product) => product.productType)
-    .filter((productType, index, self) => self.indexOf(productType) === index);
-
-  const productName = productData
-    .map((product) => product.productName)
-    .filter((productName, index, self) => self.indexOf(productName) === index);
-
   const updateQuantity = async (record, delta) => {
     const modifyProductData = {
       productId: record?.productId,
@@ -117,6 +178,7 @@ const ProductDataTable = ({ productLoading, productData }) => {
       productPrice: record.productPrice,
       stock: record.stock + delta,
       commission: record.commission,
+      packageName: packageName,
     };
 
     console.log(modifyProductData);
@@ -374,31 +436,41 @@ const ProductDataTable = ({ productLoading, productData }) => {
     },
   ];
 
-  const data = productData?.map((product, index) => ({
-    id: index + 1,
-    productId: product.productId,
-    productBrand: product.productBrand,
-    productCost: product.productCost,
-    commission: product.commission,
-    discount: product.discount,
-    cost: product.productCost * product.discount * 0.01,
-    productPrice: product.productPrice,
-    productName: product.productName,
-    productType: product.productType,
-    weight: product.weight,
-    quantity: (
-      <>
-        {orderQuantity[index]} ({product.stock})
-      </>
-    ),
-    needBuy: orderQuantity[index] - product.stock,
-    stock: product.stock,
-    discount: product.discount,
-    createDate: product.createDate.split(".")[0].replaceAll("T", " "),
-    modifyDate: product.modifyDate.split(".")[0].replaceAll("T", " "),
+  const data = useMemo(
+    () =>
+      productData?.map((product, index) => {
+        const stockData = productStockData?.find(
+          (stockItem) => stockItem?.product?.productId === product.productId
+        );
 
-    currency: product?.exchangeRate,
-  }));
+        return {
+          id: index + 1,
+          productId: product.productId,
+          productBrand: product.productBrand,
+          productCost: product.productCost,
+          commission: product.commission,
+          discount: product.discount,
+          cost: product.productCost * product.discount * 0.01,
+          productPrice: product.productPrice,
+          productName: product.productName,
+          productType: product.productType,
+          weight: product.weight,
+          quantity: (
+            <>
+              {orderQuantity[index]} ({stockData ? stockData?.stock : 0})
+            </>
+          ),
+          needBuy: orderQuantity[index] - (stockData ? stockData?.stock : 0),
+          stock: stockData ? stockData?.stock : 0,
+          discount: product.discount,
+          createDate: product.createDate.split(".")[0].replaceAll("T", " "),
+          modifyDate: product.modifyDate.split(".")[0].replaceAll("T", " "),
+
+          currency: product?.exchangeRate,
+        };
+      }),
+    [productData, productStockData]
+  );
 
   const productBrandOptions = useMemo(
     () =>
@@ -442,7 +514,9 @@ const ProductDataTable = ({ productLoading, productData }) => {
           position: ["bottomCenter"],
           pageSize: 50,
         }}
-        onChange={handleChange}
+        onChange={() => {
+          handleChange;
+        }}
         scroll={{ x: "max-content" }}
       />
       <ProductAddModal
@@ -457,6 +531,7 @@ const ProductDataTable = ({ productLoading, productData }) => {
         productBrandOptions={productBrandOptions}
         productModifyData={productModifyData}
         messageApi={messageApi}
+        packageName={packageName}
       />
       <ProductCopyModal
         open={openCopy}
@@ -469,4 +544,4 @@ const ProductDataTable = ({ productLoading, productData }) => {
   );
 };
 
-export default ProductDataTable;
+export default memo(ProductDataTable);

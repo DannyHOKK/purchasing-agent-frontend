@@ -92,8 +92,6 @@ const Dashboard = () => {
     )
     .reduce((accumulator, currentValue) => accumulator + currentValue, 0);
 
-  console.log(orderData);
-
   const totalPrice = totalPaidPrice + totalNotPaidPrice;
 
   return (
