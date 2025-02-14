@@ -100,7 +100,7 @@ const ProductDataTable = () => {
   useEffect(() => {
     dispatch(getAllOrders(packageName));
     dispatch(getAllProductStock(packageName));
-  }, [packageName]);
+  }, [packageName, dispatch]);
 
   const currenciesOptions = useMemo(
     () =>
@@ -116,18 +116,19 @@ const ProductDataTable = () => {
 
   const orderQuantity = useMemo(
     () =>
-      productData.map((product) => {
-        return orderData
-          .filter(
-            (order) =>
-              order?.product?.productName === product?.productName &&
-              order?.paid === "已付款"
-          )
-          .map((order) => order?.quantity)
-          .reduce((accumulator, currentValue) => accumulator + currentValue, 0);
-      }),
+      productData.map(
+        (product) =>
+          orderData
+            .filter(
+              (order) =>
+                order?.product?.productName === product?.productName &&
+                order?.paid === "已付款"
+            )
+            .map((order) => order?.quantity || 0) // Default 0
+            .reduce((acc, val) => acc + val, 0) // Default 0
+      ),
     [productData, orderData]
-  ); // Dependencies: changes in these will trigger a recompute
+  );
 
   const handleChange = (pagination, filters, sorter) => {
     setFilteredInfo(filters);
@@ -436,6 +437,7 @@ const ProductDataTable = () => {
     },
   ];
 
+  console.log(orderQuantity);
   const data = useMemo(
     () =>
       productData?.map((product, index) => {
@@ -514,9 +516,7 @@ const ProductDataTable = () => {
           position: ["bottomCenter"],
           pageSize: 50,
         }}
-        onChange={() => {
-          handleChange;
-        }}
+        onChange={handleChange}
         scroll={{ x: "max-content" }}
       />
       <ProductAddModal
