@@ -23,6 +23,8 @@ import {
 } from "../../redux/order/orderAction";
 import OrderModifyModal from "./OrderModifyModal";
 import OrderPackagingModal from "./OrderPackagingModal";
+import ExcelJS from "exceljs";
+import { saveAs } from "file-saver";
 
 const OrderDataTable = () => {
   const [filteredInfo, setFilteredInfo] = useState({});
@@ -642,6 +644,7 @@ const OrderDataTable = () => {
       },
       {
         title: "行動",
+        dataIndex: "operation",
         key: "operation",
         render: (text, record) => {
           return (
@@ -682,6 +685,7 @@ const OrderDataTable = () => {
     return orderData?.map((order, index) => ({
       id: index + 1,
       key: order.orderId,
+      product: order?.product,
       orderId: order.orderId,
       phone: order?.customer?.phone,
       instagram: order?.customer?.instagram,
@@ -820,6 +824,45 @@ const OrderDataTable = () => {
     dispatch(getAllOrders(value));
   };
 
+  const exportToExcel = async () => {
+    // 創建新的工作簿和工作表
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet("資料表");
+
+    // 添加表頭
+    worksheet.columns = columns.map((col) => ({
+      header: col.title,
+      key: col.dataIndex,
+    }));
+
+    console.log(worksheet.columns);
+    // 添加資料列
+    data.forEach((item) => {
+      console.log(item);
+      worksheet.addRow({
+        id: item.key,
+        showOrderName: item.showOrderName,
+        productBrand: item.productBrand,
+        productName: item.productName,
+        productPrice: item.product?.productPrice * item.quantity,
+        quantity: item.quantity,
+        paid: item.paid,
+        takeMethod: item.takeMethod,
+        paymentMethod: item.paymentMethod,
+        remark: item.remark,
+        createDate: item.createDate.split(".")[0].replaceAll("T", " "),
+        status: item.status,
+      });
+    });
+
+    // 生成 Excel 檔案並觸發下載
+    const buffer = await workbook.xlsx.writeBuffer();
+    const blob = new Blob([buffer], {
+      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    });
+    saveAs(blob, "table_data.xlsx");
+  };
+
   return (
     <div className="mb-5 mb-sm-0 mx-3">
       {contextHolder}
@@ -844,6 +887,15 @@ const OrderDataTable = () => {
             </>
           )}
           <Switch className=" me-3" onClick={enableRowSelectionHandler} />
+
+          <Button
+            className=" me-3"
+            onClick={exportToExcel}
+            type="primary"
+            style={{ marginBottom: 16 }}
+          >
+            匯出為 Excel
+          </Button>
           <Button className=" me-3" onClick={refreshHandler}>
             更新表格
           </Button>
