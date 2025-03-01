@@ -367,21 +367,21 @@ const ProductAddModal = ({
                 suffix={selectedCurrency}
                 onChange={(e) => {
                   const calculatedPrice =
-                    Math.ceil(
-                      ((e.target.value * form.getFieldValue("discount")) /
-                        100 /
-                        exchangeRate) *
-                        10
-                    ) / 10;
+                    (e.target.value * form.getFieldValue("discount")) /
+                    100 /
+                    exchangeRate;
 
                   const formattedPrice = new Intl.NumberFormat().format(
                     calculatedPrice
                   );
 
+                  const productPrice = form.getFieldValue("productPrice");
+
+                  console.log(productPrice - calculatedPrice);
                   form.setFieldValue("price", formattedPrice);
                   form.setFieldValue(
                     "profit",
-                    form.getFieldValue("productPrice") - formattedPrice
+                    Math.ceil(productPrice - calculatedPrice * 10) / 10
                   );
                 }}
               />
@@ -398,19 +398,17 @@ const ProductAddModal = ({
                 style={{ width: "100%" }}
                 onChange={(e) => {
                   const calculatedPrice =
-                    Math.ceil(
-                      (((e.target.value / 100) *
-                        form.getFieldValue("productCost")) /
-                        exchangeRate) *
-                        10
-                    ) / 10;
+                    ((e.target.value / 100) *
+                      form.getFieldValue("productCost")) /
+                    exchangeRate;
                   const formattedPrice = new Intl.NumberFormat().format(
                     calculatedPrice
                   );
+                  const productPrice = form.getFieldValue("productPrice");
                   form.setFieldValue("price", formattedPrice);
                   form.setFieldValue(
                     "profit",
-                    form.getFieldValue("productPrice") - formattedPrice
+                    Math.ceil(productPrice - calculatedPrice * 10) / 10
                   );
                 }}
               />
@@ -430,11 +428,7 @@ const ProductAddModal = ({
               const discount = form.getFieldValue("discount");
               const productPrice = form.getFieldValue("productPrice");
               const calculatedPrice =
-                Math.ceil(
-                  (e.target.value * 25 +
-                    (cost * discount) / 100 / exchangeRate) *
-                    10
-                ) / 10;
+                e.target.value * 25 + (cost * discount) / 100 / exchangeRate;
               const formattedPrice = new Intl.NumberFormat().format(
                 calculatedPrice
               );
@@ -442,7 +436,7 @@ const ProductAddModal = ({
               if (productPrice) {
                 form.setFieldValue(
                   "profit",
-                  Math.ceil((productPrice - formattedPrice) * 10) / 10
+                  Math.ceil(productPrice - calculatedPrice * 10) / 10
                 );
               }
               form.setFieldValue("price", formattedPrice);
@@ -474,8 +468,7 @@ const ProductAddModal = ({
             onChange={(e) => {
               form.setFieldValue(
                 "profit",
-                Math.ceil((e.target.value - form.getFieldValue("price")) * 10) /
-                  10
+                e.target.value - form.getFieldValue("price")
               );
             }}
           />

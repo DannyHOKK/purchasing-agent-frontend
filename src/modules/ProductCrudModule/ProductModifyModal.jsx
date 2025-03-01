@@ -112,6 +112,17 @@ const ProductModifyModal = ({
       Math.ceil((productModifyData?.productPrice - price) * 10) / 10
     );
     setExchangeRate(productModifyData?.currency?.exchangeRate);
+
+    const savedCurrency = localStorage.getItem("exchangeCurrency");
+    const savedSymbol = localStorage.getItem("exchangeSymbol");
+    const savedRate = localStorage.getItem("exchangeRate");
+
+    if (savedCurrency) {
+      form.setFieldsValue({ currency: savedCurrency });
+      setSelectedCurrency(savedCurrency);
+      setSymbol(savedSymbol);
+      setExchangeRate(Number(savedRate));
+    }
   }, [productModifyData]);
 
   const onFinish = async () => {
@@ -271,27 +282,22 @@ const ProductModifyModal = ({
                 suffix={selectedCurrency}
                 onChange={(e) => {
                   const calculatedPrice =
-                    Math.ceil(
-                      ((e.target.value * form.getFieldValue("discount")) /
-                        100 /
-                        exchangeRate) *
-                        10
-                    ) / 10;
+                    (e.target.value * form.getFieldValue("discount")) /
+                    100 /
+                    exchangeRate;
 
                   const formattedPrice = new Intl.NumberFormat().format(
                     calculatedPrice
                   );
 
-                  console.log(
-                    Math.ceil(
-                      ((e.target.value * form.getFieldValue("discount")) /
-                        100 /
-                        exchangeRate) *
-                        10
-                    ) / 10
-                  );
+                  const productPrice = form.getFieldValue("productPrice");
 
+                  console.log(productPrice - calculatedPrice);
                   form.setFieldValue("price", formattedPrice);
+                  form.setFieldValue(
+                    "profit",
+                    Math.ceil(productPrice - calculatedPrice * 10) / 10
+                  );
                 }}
               />
             </Form.Item>
@@ -307,16 +313,18 @@ const ProductModifyModal = ({
                 style={{ width: "100%" }}
                 onChange={(e) => {
                   const calculatedPrice =
-                    Math.ceil(
-                      (((e.target.value / 100) *
-                        form.getFieldValue("productCost")) /
-                        exchangeRate) *
-                        10
-                    ) / 10;
+                    ((e.target.value / 100) *
+                      form.getFieldValue("productCost")) /
+                    exchangeRate;
                   const formattedPrice = new Intl.NumberFormat().format(
                     calculatedPrice
                   );
+                  const productPrice = form.getFieldValue("productPrice");
                   form.setFieldValue("price", formattedPrice);
+                  form.setFieldValue(
+                    "profit",
+                    Math.ceil(productPrice - calculatedPrice * 10) / 10
+                  );
                 }}
               />
             </Form.Item>
@@ -333,16 +341,19 @@ const ProductModifyModal = ({
             onChange={(e) => {
               const cost = form.getFieldValue("productCost");
               const discount = form.getFieldValue("discount");
+              const productPrice = form.getFieldValue("productPrice");
               const calculatedPrice =
-                Math.ceil(
-                  (e.target.value * 25 +
-                    (cost * discount) / 100 / exchangeRate) *
-                    10
-                ) / 10;
+                e.target.value * 25 + (cost * discount) / 100 / exchangeRate;
               const formattedPrice = new Intl.NumberFormat().format(
                 calculatedPrice
               );
-              console.log(price);
+
+              if (productPrice) {
+                form.setFieldValue(
+                  "profit",
+                  Math.ceil(productPrice - calculatedPrice * 10) / 10
+                );
+              }
               form.setFieldValue("price", formattedPrice);
             }}
           />
