@@ -633,7 +633,7 @@ const OrderDataTable = () => {
         title: "Remark",
         dataIndex: "remark",
         key: "remark",
-        width: "120px",
+        width: "200px",
       },
       {
         title: "付款時間",
