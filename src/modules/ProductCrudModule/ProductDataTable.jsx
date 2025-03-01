@@ -259,9 +259,7 @@ const ProductDataTable = () => {
       filteredValue: filteredInfo.productName || null,
       onFilter: (value, record) => record.productName === value,
       sorter: (a, b) =>
-        (a.productName || "").localeCompare(b.productName || "", "zh-HK", {
-          sensitivity: "base",
-        }),
+        (a.productName || "").localeCompare(b.productName || ""),
       sortOrder:
         sortedInfo.columnKey === "productName" ? sortedInfo.order : null,
     },

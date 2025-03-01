@@ -74,6 +74,7 @@ const OrderAddModal = ({ open, setOpen, messageApi }) => {
 
     form.setFieldValue("takeMethod", "未知");
     form.setFieldValue("paid", "已付款");
+    form.setFieldValue("quantity", 1);
   }, [productData, open]);
 
   const onFinish = async () => {
@@ -507,6 +508,7 @@ const OrderAddModal = ({ open, setOpen, messageApi }) => {
             onChange={(e) => {
               form.setFieldValue("price", productTotalPrice * e.target.value);
             }}
+            defaultValue={1}
           />
         </Form.Item>
 

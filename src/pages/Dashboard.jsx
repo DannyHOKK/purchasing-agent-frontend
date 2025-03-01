@@ -80,15 +80,12 @@ const Dashboard = () => {
     .filter((order) => order?.paid === "已付款")
     .map(
       (order) =>
-        Math.ceil(
-          (order?.product?.productPrice -
-            ((order?.product?.discount * order?.product?.productCost) /
-              100 /
-              order?.product?.exchangeRate?.exchangeRate +
-              order?.product?.weight * 25)) *
-            order?.quantity *
-            10
-        ) / 10
+        (order?.product?.productPrice -
+          ((order?.product?.discount * order?.product?.productCost) /
+            100 /
+            order?.product?.exchangeRate?.exchangeRate +
+            order?.product?.weight * 25)) *
+        order?.quantity
     )
     .reduce((accumulator, currentValue) => accumulator + currentValue, 0);
 
@@ -139,7 +136,7 @@ const Dashboard = () => {
             title={"總盈利"}
             tagColor={"purple"}
             prefix={"總共"}
-            tagContent={"$" + totalProfit}
+            tagContent={"$" + Math.ceil(totalProfit * 10) / 10}
           />
         </Row>
         <div className="space30"></div>
