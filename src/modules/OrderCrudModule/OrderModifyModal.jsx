@@ -50,18 +50,6 @@ const OrderModifyModal = ({ openModify, setOpenModify, orderModifyData }) => {
   const [productTypeOptions, setProductTypeOptions] = useState();
   const [productNameOptions, setProductNameOptions] = useState();
   const [productTotalPrice, setProductTotalPrice] = useState();
-  // const [messageApi, contextHolder] = message.useMessage();
-  const ordersDTO = useRef({
-    phone: "",
-    instagram: "",
-    productName: "",
-    paid: false,
-    orderPlatform: "",
-    quantity: 0,
-    takeMethod: "",
-    paymentMethod: "",
-    remark: "",
-  });
   const packageName = localStorage.getItem("packageName")
     ? localStorage.getItem("packageName")
     : "預設";
@@ -97,6 +85,7 @@ const OrderModifyModal = ({ openModify, setOpenModify, orderModifyData }) => {
     form.setFieldValue("takeMethod", orderModifyData?.takeMethod);
     form.setFieldValue("paymentMethod", orderModifyData?.paymentMethod);
     form.setFieldValue("remark", orderModifyData?.remark);
+    form.setFieldValue("discount", orderModifyData?.discount);
     setOrderPlatform(
       orderModifyData?.orderPlatform === "phone" ? "phone" : "instagram"
     );
@@ -104,12 +93,19 @@ const OrderModifyModal = ({ openModify, setOpenModify, orderModifyData }) => {
       "orderPlatform",
       orderModifyData?.orderPlatform === "phone" ? true : false
     );
+    form.setFieldValue(
+      "price",
+      (orderModifyData?.quantity *
+        orderModifyData?.product?.productPrice *
+        orderModifyData?.discount) /
+        100
+    );
   }, [orderModifyData]);
 
   const onFinish = async () => {
     await form.validateFields();
 
-    ordersDTO.current = {
+    const ordersDTO = {
       orderId: orderModifyData?.orderId,
       phone: form.getFieldValue("phone"),
       instagram: form.getFieldValue("instagram"),
@@ -120,13 +116,14 @@ const OrderModifyModal = ({ openModify, setOpenModify, orderModifyData }) => {
       takeMethod: form.getFieldValue("takeMethod"),
       paymentMethod: form.getFieldValue("paymentMethod"),
       remark: form.getFieldValue("remark") ? form.getFieldValue("remark") : " ",
+      discount: form.getFieldValue("discount"),
     };
 
-    modifyOrderHandler();
+    modifyOrderHandler(ordersDTO);
   };
 
-  const modifyOrderHandler = async () => {
-    const result = await dispatch(modifyOrder(ordersDTO.current));
+  const modifyOrderHandler = async (ordersDTO) => {
+    const result = await dispatch(modifyOrder(ordersDTO));
 
     if (result.meta.requestStatus === "fulfilled") {
       setOpenModify(false);
@@ -251,6 +248,15 @@ const OrderModifyModal = ({ openModify, setOpenModify, orderModifyData }) => {
     );
 
     autoFillBrand();
+  };
+
+  const discountPriceHandler = (value) => {
+    form.setFieldValue(
+      "price",
+      Math.ceil(
+        productTotalPrice * form.getFieldValue("quantity") * (value / 100) * 10
+      ) / 10
+    );
   };
 
   return (
@@ -436,7 +442,24 @@ const OrderModifyModal = ({ openModify, setOpenModify, orderModifyData }) => {
         >
           <Input
             onChange={(e) => {
-              form.setFieldValue("price", productTotalPrice * e.target.value);
+              form.setFieldValue(
+                "price",
+                (productTotalPrice *
+                  e.target.value *
+                  form.getFieldValue("discount")) /
+                  100
+              );
+            }}
+          />
+        </Form.Item>
+
+        <Form.Item name="discount" label="折扣">
+          <Input
+            defaultValue={100}
+            suffix="%"
+            style={{ width: "80px" }}
+            onChange={(e) => {
+              discountPriceHandler(e.target.value);
             }}
           />
         </Form.Item>

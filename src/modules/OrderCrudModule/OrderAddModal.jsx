@@ -75,6 +75,7 @@ const OrderAddModal = ({ open, setOpen, messageApi }) => {
     form.setFieldValue("takeMethod", "未知");
     form.setFieldValue("paid", "已付款");
     form.setFieldValue("quantity", 1);
+    form.setFieldValue("discount", 100);
   }, [productData, open]);
 
   const onFinish = async () => {
@@ -91,6 +92,7 @@ const OrderAddModal = ({ open, setOpen, messageApi }) => {
       paymentMethod: form.getFieldValue("paymentMethod"),
       remark: form.getFieldValue("remark") ? form.getFieldValue("remark") : " ",
       packageName: packageName,
+      discount: form.getFieldValue("discount"),
     };
 
     createOrderHandler(ordersDTO);
@@ -319,6 +321,15 @@ const OrderAddModal = ({ open, setOpen, messageApi }) => {
     setOrderPlatform("instagram");
   };
 
+  const discountPriceHandler = (value) => {
+    form.setFieldValue(
+      "price",
+      Math.ceil(
+        productTotalPrice * form.getFieldValue("quantity") * (value / 100) * 10
+      ) / 10
+    );
+  };
+
   return (
     <Modal
       title={<h3> 計單資料 </h3>}
@@ -506,9 +517,26 @@ const OrderAddModal = ({ open, setOpen, messageApi }) => {
         >
           <Input
             onChange={(e) => {
-              form.setFieldValue("price", productTotalPrice * e.target.value);
+              form.setFieldValue(
+                "price",
+                (productTotalPrice *
+                  e.target.value *
+                  form.getFieldValue("discount")) /
+                  100
+              );
             }}
             defaultValue={1}
+          />
+        </Form.Item>
+
+        <Form.Item name="discount" label="折扣">
+          <Input
+            defaultValue={100}
+            suffix="%"
+            style={{ width: "80px" }}
+            onChange={(e) => {
+              discountPriceHandler(e.target.value);
+            }}
           />
         </Form.Item>
 

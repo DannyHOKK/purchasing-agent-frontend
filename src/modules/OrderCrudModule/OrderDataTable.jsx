@@ -696,7 +696,13 @@ const OrderDataTable = () => {
           : order?.customer?.instagram,
       productBrand: order?.product?.productBrand,
       productName: order?.product?.productName,
-      productPrice: <>${order?.product?.productPrice * order?.quantity}</>,
+      productPrice: (
+        <>
+          $
+          {(order?.product?.productPrice * order?.quantity * order?.discount) /
+            100}
+        </>
+      ),
       orderPlatform: order?.orderPlatform,
       quantity: order?.quantity,
       paid: order?.paid,
@@ -705,6 +711,7 @@ const OrderDataTable = () => {
       remark: order?.remark,
       createDate: order?.createDate.split(".")[0].replaceAll("T", " "),
       status: order?.status,
+      discount: order?.discount,
     }));
   }, [orderData]);
 

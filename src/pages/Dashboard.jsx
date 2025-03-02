@@ -80,7 +80,7 @@ const Dashboard = () => {
     .filter((order) => order?.paid === "已付款")
     .map(
       (order) =>
-        (order?.product?.productPrice -
+        (order?.product?.productPrice * (order?.discount / 100) -
           ((order?.product?.discount * order?.product?.productCost) /
             100 /
             order?.product?.exchangeRate?.exchangeRate +
