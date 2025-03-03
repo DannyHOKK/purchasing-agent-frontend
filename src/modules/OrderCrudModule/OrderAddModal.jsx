@@ -253,6 +253,7 @@ const OrderAddModal = ({ open, setOpen, messageApi }) => {
       paymentMethod: form.getFieldValue("paymentMethod"),
       remark: form.getFieldValue("remark") ? form.getFieldValue("remark") : " ",
       packageName: packageName,
+      discount: form.getFieldValue("discount"),
     };
     createAddOrderHandler(ordersDTO);
   };
