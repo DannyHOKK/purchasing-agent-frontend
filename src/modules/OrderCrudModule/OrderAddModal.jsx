@@ -319,7 +319,7 @@ const OrderAddModal = ({ open, setOpen, messageApi }) => {
   const onClose = () => {
     setOpen(false);
     form.resetFields();
-    setOrderPlatform("instagram");
+    setOrderPlatform("phone");
   };
 
   const discountPriceHandler = (value) => {
