@@ -285,7 +285,7 @@ const OrderAddModal = ({ open, setOpen, messageApi }) => {
         form.setFieldValue("productBrand", "");
         form.setFieldValue("productType", "");
         form.setFieldValue("productName", "");
-        form.setFieldValue("quantity", "");
+        form.setFieldValue("quantity", 1);
 
         messageApi.open({
           type: "success",
@@ -480,7 +480,14 @@ const OrderAddModal = ({ open, setOpen, messageApi }) => {
         >
           <Radio.Group>
             <Radio value="已付款">已付款</Radio>
-            <Radio value="未付款">未付款</Radio>
+            <Radio
+              value="未付款"
+              onClick={() => {
+                form.setFieldValue("paymentMethod", "未知");
+              }}
+            >
+              未付款
+            </Radio>
           </Radio.Group>
         </Form.Item>
 
@@ -491,7 +498,22 @@ const OrderAddModal = ({ open, setOpen, messageApi }) => {
         >
           <Radio.Group>
             <Radio value={"自取"}>自取</Radio>
-            <Radio value={"郵寄"}>郵寄</Radio>
+            <Radio
+              value={"郵寄"}
+              onClick={() => {
+                const customer = customerData.filter(
+                  (cus) =>
+                    orderPlatform === "phone"
+                      ? cus.phone === form.getFieldValue("phone")
+                      : cus.instagram === form.getFieldValue("instagram")
+                  // cus.phone === form.getFieldValue("phone")
+                );
+
+                form.setFieldValue("remark", customer[0]?.shippingAddress);
+              }}
+            >
+              郵寄
+            </Radio>
             <Radio value={"未知"}>未知</Radio>
           </Radio.Group>
         </Form.Item>
@@ -508,6 +530,7 @@ const OrderAddModal = ({ open, setOpen, messageApi }) => {
             <Radio value={"ALIPAY"}>ALIPAY</Radio>
             <Radio value={"BANK"}>BANK</Radio>
             <Radio value={"CARMEN"}>CARMEN</Radio>
+            <Radio value={"未知"}>未知</Radio>
           </Radio.Group>
         </Form.Item>
 

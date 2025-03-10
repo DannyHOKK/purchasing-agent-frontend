@@ -54,15 +54,6 @@ function Navigation() {
               <Link to="/">主頁</Link>
             </Menu.Item>
             <Menu.Item
-              key="2"
-              icon={<CustomerServiceOutlined />}
-              onClick={() => {
-                localStorage.setItem("selectKey", "2");
-              }}
-            >
-              <Link to="/customer">客人</Link>
-            </Menu.Item>
-            <Menu.Item
               key="3"
               icon={<FileSyncOutlined />}
               onClick={() => {
@@ -70,6 +61,15 @@ function Navigation() {
               }}
             >
               <Link to="/product">產品</Link>
+            </Menu.Item>
+            <Menu.Item
+              key="2"
+              icon={<CustomerServiceOutlined />}
+              onClick={() => {
+                localStorage.setItem("selectKey", "2");
+              }}
+            >
+              <Link to="/customer">客人</Link>
             </Menu.Item>
             <Menu.Item
               key="4"

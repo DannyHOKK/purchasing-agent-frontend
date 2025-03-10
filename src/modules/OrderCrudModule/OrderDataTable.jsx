@@ -39,6 +39,7 @@ const OrderDataTable = () => {
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [isEnableRowSelection, setIsEnableRowSelection] = useState(false);
   const dispatch = useDispatch();
+  const { exchangeRateData } = useSelector((state) => state.exchangeRate);
 
   const { orderLoading, orderData, orderPackageName } = useSelector(
     (state) => state.order
@@ -159,6 +160,28 @@ const OrderDataTable = () => {
         title: "售價",
         dataIndex: "productPrice",
         key: "productPrice",
+      },
+      {
+        title: "盈利",
+        dataIndex: "profit",
+        key: "profit",
+        render(text, record) {
+          const currency = exchangeRateData?.find(
+            (item) => item.currency === record.product?.exchangeRate.currency
+          )?.exchangeRate;
+
+          const profit =
+            ((record.product?.productPrice * record.discount) / 100 -
+              ((record.product?.productCost / currency) *
+                record.product?.discount) /
+                100) *
+            record.quantity;
+
+          // const profit = (record.product?.productPrice * record.discount) / 100;
+          // const profit =
+          //   (record.product?.productCost * record.product.discount) / 100;
+          return <>${Math.ceil(profit * 10) / 10}</>;
+        },
       },
       {
         title: "數量",

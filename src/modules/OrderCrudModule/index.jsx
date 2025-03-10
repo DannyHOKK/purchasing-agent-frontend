@@ -5,6 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { getAllCustomer } from "../../redux/customer/customerAction";
 import { getAllProduct } from "../../redux/product/productAction";
 import { getAllOrders, getPackageName } from "../../redux/order/orderAction";
+import { getExchangeRate } from "../../redux/exchangeRate/exchangeRateAction";
 
 const OrderCrud = () => {
   const dispatch = useDispatch();
@@ -17,6 +18,7 @@ const OrderCrud = () => {
     dispatch(getAllCustomer());
     dispatch(getAllProduct());
     dispatch(getPackageName());
+    dispatch(getExchangeRate());
     dispatch(getAllOrders(packageName));
   }, []);
 
