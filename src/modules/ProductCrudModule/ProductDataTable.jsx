@@ -21,6 +21,8 @@ import { getExchangeRate } from "../../redux/exchangeRate/exchangeRateAction";
 import { getAllOrders } from "../../redux/order/orderAction";
 import { createSelector } from "@reduxjs/toolkit";
 import { getAllProductStock } from "../../redux/productStock/productStockAction";
+import ExcelJS from "exceljs";
+import { saveAs } from "file-saver";
 
 const selectCombinedData = createSelector(
   (state) => state.exchangeRate.exchangeRateData,
@@ -127,7 +129,7 @@ const ProductDataTable = () => {
             .map((order) => order?.quantity || 0) // Default 0
             .reduce((acc, val) => acc + val, 0) // Default 0
       ),
-    [productData, orderData]
+    [productData, orderData, productStockData]
   );
 
   const handleChange = (pagination, filters, sorter) => {
@@ -138,6 +140,7 @@ const ProductDataTable = () => {
   const refreshHandler = () => {
     dispatch(getAllProduct());
     dispatch(getAllProductStock(packageName));
+    console.log(packageName);
   };
 
   const deleteProductHandler = async (productId) => {
@@ -181,8 +184,6 @@ const ProductDataTable = () => {
       commission: record.commission,
       packageName: packageName,
     };
-
-    console.log(modifyProductData);
 
     const result = await dispatch(modifyProduct(modifyProductData));
 
@@ -379,6 +380,7 @@ const ProductDataTable = () => {
     },
     {
       title: "行動",
+      dataIndex: "operation",
       key: "operation",
       render: (text, record) => {
         return (
@@ -435,7 +437,6 @@ const ProductDataTable = () => {
     },
   ];
 
-  console.log(orderQuantity);
   const data = useMemo(
     () =>
       productData?.map((product, index) => {
@@ -455,17 +456,18 @@ const ProductDataTable = () => {
           productName: product.productName,
           productType: product.productType,
           weight: product.weight,
+          stockData: stockData ? stockData?.stock : 0,
           quantity: (
             <>
               {orderQuantity[index]} ({stockData ? stockData?.stock : 0})
             </>
           ),
+          orderQuantity: orderQuantity[index],
           needBuy: orderQuantity[index] - (stockData ? stockData?.stock : 0),
           stock: stockData ? stockData?.stock : 0,
           discount: product.discount,
           createDate: product.createDate.split(".")[0].replaceAll("T", " "),
           modifyDate: product.modifyDate.split(".")[0].replaceAll("T", " "),
-
           currency: product?.exchangeRate,
         };
       }),
@@ -483,6 +485,53 @@ const ProductDataTable = () => {
     [productData]
   );
 
+  const exportToExcel = async () => {
+    // 創建新的工作簿和工作表
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet("客人資料表");
+
+    // 添加表頭
+    worksheet.columns = columns.map((col) => ({
+      header: col.title,
+      key: col.dataIndex,
+    }));
+
+    // 添加資料列
+    data.forEach((item) => {
+      worksheet.addRow({
+        id: item.id,
+        productBrand: item.productBrand,
+        productCost: item.productCost,
+        commission: item.commission,
+        discount: item.discount,
+        cost: item.cost,
+        productPrice: item.productPrice,
+        productName: item.productName,
+        productType: item.productType,
+        weight: item.weight,
+        quantity: item.orderQuantity,
+        needBuy: item.stockData - item.orderQuantity,
+        createDate: item.createDate,
+        modifyDate: item.modifyDate,
+      });
+    });
+
+    // 生成 Excel 檔案並觸發下載
+    const buffer = await workbook.xlsx.writeBuffer();
+    const blob = new Blob([buffer], {
+      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    });
+
+    const today = new Date();
+
+    // Extract year, month, and day
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, "0"); // +1 because getMonth() is 0-based (0-11)
+    const day = String(today.getDate()).padStart(2, "0");
+
+    saveAs(blob, `產品表格${year + month + day}.xlsx`);
+  };
+
   return (
     <div className="order-table-container mb-5 mb-sm-0 ">
       {contextHolder}
@@ -492,6 +541,14 @@ const ProductDataTable = () => {
             <ArrowLeftOutlined />
           </a>
           <div>
+            <Button
+              className=" me-3"
+              onClick={exportToExcel}
+              type="primary"
+              style={{ marginBottom: 16 }}
+            >
+              匯出為 Excel
+            </Button>
             <Button className=" me-3" onClick={refreshHandler}>
               更新表格
             </Button>

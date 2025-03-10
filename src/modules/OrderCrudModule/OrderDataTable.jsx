@@ -25,6 +25,8 @@ import OrderModifyModal from "./OrderModifyModal";
 import OrderPackagingModal from "./OrderPackagingModal";
 import ExcelJS from "exceljs";
 import { saveAs } from "file-saver";
+import { getAllProduct } from "../../redux/product/productAction";
+import { getAllProductStock } from "../../redux/productStock/productStockAction";
 
 const OrderDataTable = () => {
   const [filteredInfo, setFilteredInfo] = useState({});
@@ -830,12 +832,13 @@ const OrderDataTable = () => {
   const changePackageNameHandler = (value) => {
     localStorage.setItem("packageName", value);
     dispatch(getAllOrders(value));
+    dispatch(getAllProductStock(value));
   };
 
   const exportToExcel = async () => {
     // 創建新的工作簿和工作表
     const workbook = new ExcelJS.Workbook();
-    const worksheet = workbook.addWorksheet("資料表");
+    const worksheet = workbook.addWorksheet("訂單資料表");
 
     // 添加表頭
     worksheet.columns = columns.map((col) => ({
@@ -868,7 +871,15 @@ const OrderDataTable = () => {
     const blob = new Blob([buffer], {
       type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
     });
-    saveAs(blob, "table_data.xlsx");
+
+    const today = new Date();
+
+    // Extract year, month, and day
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, "0"); // +1 because getMonth() is 0-based (0-11)
+    const day = String(today.getDate()).padStart(2, "0");
+
+    saveAs(blob, `訂單資料${year + month + day}.xlsx`);
   };
 
   return (

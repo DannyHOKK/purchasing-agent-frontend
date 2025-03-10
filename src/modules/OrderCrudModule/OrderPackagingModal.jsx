@@ -25,7 +25,8 @@ const OrderPackagingModal = ({
 
     const orderPackagingDTO = {
       orderIdList: selectedRowKeys,
-      packageName: form.getFieldValue("packageName"),
+      packageName: packageName,
+      packagingToGoName: form.getFieldValue("packageName"),
     };
 
     const result = await dispatch(batchPackaging(orderPackagingDTO));

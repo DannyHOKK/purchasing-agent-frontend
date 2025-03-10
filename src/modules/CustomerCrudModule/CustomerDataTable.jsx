@@ -8,6 +8,8 @@ import {
 } from "../../redux/customer/customerAction";
 import { ArrowLeftOutlined, PlusOutlined } from "@ant-design/icons";
 import CustomerModifyModal from "./CustomerModifyModal";
+import ExcelJS from "exceljs";
+import { saveAs } from "file-saver";
 
 const CustomerDataTable = () => {
   const [filteredInfo, setFilteredInfo] = useState({});
@@ -127,6 +129,7 @@ const CustomerDataTable = () => {
     },
     {
       title: "行動",
+      dataIndex: "operation",
       key: "operation",
       render: (text, record) => {
         return (
@@ -181,6 +184,32 @@ const CustomerDataTable = () => {
     [customerData]
   );
 
+  const exportToExcel = async () => {
+    // 創建新的工作簿和工作表
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet("客人資料表");
+
+    // 添加表頭
+    worksheet.columns = columns.map((col) => ({
+      header: col.title,
+      key: col.dataIndex,
+    }));
+
+    console.log(worksheet);
+
+    // 添加資料列
+    data.forEach((item) => {
+      worksheet.addRow(item);
+    });
+
+    // 生成 Excel 檔案並觸發下載
+    const buffer = await workbook.xlsx.writeBuffer();
+    const blob = new Blob([buffer], {
+      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    });
+    saveAs(blob, "table_data.xlsx");
+  };
+
   return (
     <div className="order-table-container mb-5 mb-sm-0 ">
       {contextHolder}
@@ -190,6 +219,14 @@ const CustomerDataTable = () => {
             <ArrowLeftOutlined />
           </a>
           <div>
+            <Button
+              className=" me-3"
+              onClick={exportToExcel}
+              type="primary"
+              style={{ marginBottom: 16 }}
+            >
+              匯出為 Excel
+            </Button>
             <Button className=" me-3" onClick={refreshHandler}>
               更新表格
             </Button>
