@@ -377,6 +377,15 @@ const ProductDataTable = () => {
       title: "訂單數量",
       dataIndex: "quantity",
       key: "quantity",
+      sorter: (a, b) => a.quantity - b.quantity,
+      sortOrder: sortedInfo.columnKey === "quantity" ? sortedInfo.order : null,
+      render: (text, record) => {
+        return (
+          <>
+            {record.quantity} ({record.stockData})
+          </>
+        );
+      },
     },
     {
       title: "行動",
@@ -457,11 +466,7 @@ const ProductDataTable = () => {
           productType: product.productType,
           weight: product.weight,
           stockData: stockData ? stockData?.stock : 0,
-          quantity: (
-            <>
-              {orderQuantity[index]} ({stockData ? stockData?.stock : 0})
-            </>
-          ),
+          quantity: orderQuantity[index],
           orderQuantity: orderQuantity[index],
           needBuy: orderQuantity[index] - (stockData ? stockData?.stock : 0),
           stock: stockData ? stockData?.stock : 0,

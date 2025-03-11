@@ -166,21 +166,7 @@ const OrderDataTable = () => {
         dataIndex: "profit",
         key: "profit",
         render(text, record) {
-          const currency = exchangeRateData?.find(
-            (item) => item.currency === record.product?.exchangeRate.currency
-          )?.exchangeRate;
-
-          const profit =
-            ((record.product?.productPrice * record.discount) / 100 -
-              ((record.product?.productCost / currency) *
-                record.product?.discount) /
-                100) *
-            record.quantity;
-
-          // const profit = (record.product?.productPrice * record.discount) / 100;
-          // const profit =
-          //   (record.product?.productCost * record.product.discount) / 100;
-          return <>${Math.ceil(profit * 10) / 10}</>;
+          return <>${record.profit}</>;
         },
       },
       {
@@ -708,38 +694,54 @@ const OrderDataTable = () => {
   }, [customerPhone, productBrand, productName, filteredInfo, sortedInfo]);
 
   const data = useMemo(() => {
-    return orderData?.map((order, index) => ({
-      id: index + 1,
-      key: order.orderId,
-      product: order?.product,
-      orderId: order.orderId,
-      phone: order?.customer?.phone,
-      instagram: order?.customer?.instagram,
-      showOrderName:
-        order.orderPlatform === "phone"
-          ? order?.customer?.phone
-          : order?.customer?.instagram,
-      productBrand: order?.product?.productBrand,
-      productName: order?.product?.productName,
-      productPrice: (
-        <>
-          $
-          {(order?.product?.productPrice * order?.quantity * order?.discount) /
-            100}
-        </>
-      ),
-      orderPlatform: order?.orderPlatform,
-      quantity: order?.quantity,
-      paid: order?.paid,
-      takeMethod: order?.takeMethod,
-      paymentMethod: order?.paymentMethod,
-      remark: order?.remark,
-      createDate: order?.createDate.split(".")[0].replaceAll("T", " "),
-      status: order?.status,
-      discount: order?.discount,
-    }));
+    return orderData?.map((order, index) => {
+      const currency = exchangeRateData?.find(
+        (item) => item.currency === order.product?.exchangeRate.currency
+      )?.exchangeRate;
+
+      const profit =
+        ((order.product?.productPrice * order.discount) / 100 -
+          ((order.product?.productCost / currency) * order.product?.discount) /
+            100) *
+        order.quantity;
+
+      return {
+        id: index + 1,
+        key: order.orderId,
+        product: order?.product,
+        orderId: order.orderId,
+        phone: order?.customer?.phone,
+        instagram: order?.customer?.instagram,
+        showOrderName:
+          order.orderPlatform === "phone"
+            ? order?.customer?.phone
+            : order?.customer?.instagram,
+        productBrand: order?.product?.productBrand,
+        productName: order?.product?.productName,
+        productPrice: (
+          <>
+            $
+            {(order?.product?.productPrice *
+              order?.quantity *
+              order?.discount) /
+              100}
+          </>
+        ),
+        orderPlatform: order?.orderPlatform,
+        quantity: order?.quantity,
+        paid: order?.paid,
+        takeMethod: order?.takeMethod,
+        paymentMethod: order?.paymentMethod,
+        remark: order?.remark,
+        createDate: order?.createDate.split(".")[0].replaceAll("T", " "),
+        status: order?.status,
+        discount: order?.discount,
+        profit: Math.ceil(profit * 10) / 10,
+      };
+    });
   }, [orderData]);
 
+  console.log(data);
   const handleChange = (pagination, filters, sorter) => {
     setFilteredInfo(filters);
     setSortedInfo(sorter);
@@ -886,6 +888,7 @@ const OrderDataTable = () => {
         remark: item.remark,
         createDate: item.createDate.split(".")[0].replaceAll("T", " "),
         status: item.status,
+        profit: item.profit,
       });
     });
 
