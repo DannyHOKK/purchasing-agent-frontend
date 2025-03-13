@@ -162,6 +162,14 @@ const OrderDataTable = () => {
         key: "productPrice",
       },
       {
+        title: "折扣",
+        dataIndex: "discount",
+        key: "discount",
+        render(text, record) {
+          return <>{record.discount}%</>;
+        },
+      },
+      {
         title: "盈利",
         dataIndex: "profit",
         key: "profit",
@@ -869,6 +877,7 @@ const OrderDataTable = () => {
     worksheet.columns = columns.map((col) => ({
       header: col.title,
       key: col.dataIndex,
+      width: 20, // Default width
     }));
 
     console.log(worksheet.columns);
@@ -889,8 +898,29 @@ const OrderDataTable = () => {
         createDate: item.createDate.split(".")[0].replaceAll("T", " "),
         status: item.status,
         profit: item.profit,
+        discount: `${item.discount}%`,
       });
     });
+
+    // Adjust specific column widths based on content
+    worksheet.columns.forEach((column, index) => {
+      let maxLength = column.header.length; // Start with header length
+
+      // Check each cell in the column
+      worksheet.eachRow({ includeEmpty: true }, (row, rowNumber) => {
+        const cellValue = row.getCell(index + 1).value?.toString() || "";
+        maxLength = Math.max(maxLength, cellValue.length);
+      });
+
+      // Set width with some padding (multiply by factor for better fit)
+      column.width = Math.min(Math.max(maxLength * 1.2, 15), 50); // Min 15, Max 50
+    });
+
+    // Optional: Set specific widths for known long/short content
+    worksheet.getColumn("productName").width = 25; // Wider for product names
+    worksheet.getColumn("remark").width = 30; // Wider for remarks
+    worksheet.getColumn("discount").width = 12; // Adequate for percentage values
+    worksheet.getColumn("quantity").width = 10; // Smaller for numbers
 
     // 生成 Excel 檔案並觸發下載
     const buffer = await workbook.xlsx.writeBuffer();

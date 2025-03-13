@@ -76,6 +76,7 @@ const OrderAddModal = ({ open, setOpen, messageApi }) => {
     form.setFieldValue("paid", "已付款");
     form.setFieldValue("quantity", 1);
     form.setFieldValue("discount", 100);
+    form.setFieldValue("paymentMethod", "PAYME");
   }, [productData, open]);
 
   const onFinish = async () => {
