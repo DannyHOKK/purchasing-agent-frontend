@@ -52,6 +52,15 @@ const OrderDataTable = () => {
   const packgeNameSet = new Set(orderPackageName);
   packgeNameSet.add("預設"); // Ensures "預設" is always included
 
+  const orderDate = Array.from(
+    new Map(
+      orderData.map((order) => [order.createDate.split("T")[0], order])
+    ).values()
+  ).map((order) => ({
+    text: order.createDate.split("T")[0],
+    value: order.createDate.split("T")[0],
+  }));
+
   const packgeNameList = [...packgeNameSet].map((packageName) => ({
     value: packageName,
     label: packageName,
@@ -89,7 +98,6 @@ const OrderDataTable = () => {
   }, [orderData]);
 
   const columns = useMemo(() => {
-    console.log("rerender columns");
     return [
       {
         title: "#",
@@ -661,6 +669,12 @@ const OrderDataTable = () => {
         sorter: (a, b) => new Date(a.createDate) - new Date(b.createDate),
         sortOrder:
           sortedInfo.columnKey === "createDate" ? sortedInfo.order : null,
+        filters: orderDate,
+        filteredValue: filteredInfo.createDate || null,
+        onFilter: (value, record) => {
+          const recordDate = record.createDate.split(" ")[0];
+          return recordDate === value;
+        },
       },
       {
         title: "行動",
@@ -749,7 +763,6 @@ const OrderDataTable = () => {
     });
   }, [orderData]);
 
-  console.log(data);
   const handleChange = (pagination, filters, sorter) => {
     setFilteredInfo(filters);
     setSortedInfo(sorter);
@@ -880,7 +893,6 @@ const OrderDataTable = () => {
       width: 20, // Default width
     }));
 
-    console.log(worksheet.columns);
     // 添加資料列
     data.forEach((item) => {
       console.log(item);
@@ -1001,6 +1013,7 @@ const OrderDataTable = () => {
         openModify={openModify}
         setOpenModify={setOpenModify}
         orderModifyData={orderModifyData}
+        messageApi={messageApi}
       />
       <OrderPackagingModal
         messageApi={messageApi}

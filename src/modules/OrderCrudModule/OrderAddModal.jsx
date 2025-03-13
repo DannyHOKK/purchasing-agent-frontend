@@ -20,6 +20,7 @@ import {
   checkCustomerExist,
   createCustomer,
   getAllCustomer,
+  modifyCustomer,
 } from "../../redux/customer/customerAction";
 
 const formItemLayout = {
@@ -52,6 +53,7 @@ const OrderAddModal = ({ open, setOpen, messageApi }) => {
   const [productNameOptions, setProductNameOptions] = useState();
   const [openCustomerAdd, setOpenCustomerAdd] = useState(false);
   const [productTotalPrice, setProductTotalPrice] = useState();
+  const [takeMethod, setTakeMethod] = useState();
   const packageName = localStorage.getItem("packageName")
     ? localStorage.getItem("packageName")
     : "預設";
@@ -71,7 +73,7 @@ const OrderAddModal = ({ open, setOpen, messageApi }) => {
           value: productType,
         }))
     );
-
+    setTakeMethod("");
     form.setFieldValue("takeMethod", "未知");
     form.setFieldValue("paid", "已付款");
     form.setFieldValue("quantity", 1);
@@ -96,7 +98,48 @@ const OrderAddModal = ({ open, setOpen, messageApi }) => {
       discount: form.getFieldValue("discount"),
     };
 
+    modifyCustomerHandler();
+
     createOrderHandler(ordersDTO);
+  };
+
+  const modifyCustomerHandler = async () => {
+    const customerAddress = customerData.filter((cus) =>
+      orderPlatform === "phone"
+        ? cus.phone === form.getFieldValue("phone")
+        : cus.instagram === form.getFieldValue("instagram")
+    );
+    console.log(form.getFieldValue("shippingAddress"));
+    console.log(customerAddress[0]?.shippingAddress);
+
+    if (
+      form.getFieldValue("shippingAddress") &&
+      form.getFieldValue("shippingAddress") !==
+        customerAddress[0]?.shippingAddress
+    ) {
+      const customerDTO = {
+        customerId: customerAddress[0]?.customerId,
+        phone: customerAddress[0]?.phone,
+        instagram: customerAddress[0]?.instagram,
+        shippingAddress: form.getFieldValue("shippingAddress"),
+        remark: customerAddress[0]?.remark,
+      };
+
+      const result = await dispatch(modifyCustomer(customerDTO));
+
+      if (result.meta.requestStatus === "fulfilled") {
+        dispatch(getAllCustomer());
+        messageApi.open({
+          type: "success",
+          content: "成功更改客人地址",
+        });
+      } else {
+        messageApi.open({
+          type: "error",
+          content: result.payload,
+        });
+      }
+    }
   };
 
   const createOrderHandler = async (ordersDTO) => {
@@ -108,6 +151,7 @@ const OrderAddModal = ({ open, setOpen, messageApi }) => {
       if (result.meta.requestStatus === "fulfilled") {
         setOpen(false);
         form.resetFields();
+        setOrderPlatform("phone");
         dispatch(getAllOrders(packageName));
 
         messageApi.open({
@@ -256,6 +300,9 @@ const OrderAddModal = ({ open, setOpen, messageApi }) => {
       packageName: packageName,
       discount: form.getFieldValue("discount"),
     };
+
+    modifyCustomerHandler();
+
     createAddOrderHandler(ordersDTO);
   };
 
@@ -381,6 +428,7 @@ const OrderAddModal = ({ open, setOpen, messageApi }) => {
               setOrderPlatform(value ? "phone" : "instagram");
               form.setFieldValue("phone", "");
               form.setFieldValue("instagram", "");
+              form.setFieldValue("shippingAddress", "");
             }}
             checkedChildren="電話"
             unCheckedChildren="IG"
@@ -399,6 +447,16 @@ const OrderAddModal = ({ open, setOpen, messageApi }) => {
                 option.value.toUpperCase().indexOf(inputValue.toUpperCase()) !==
                 -1
               }
+              onChange={(value) => {
+                const customer = customerData.filter(
+                  (cus) => cus.phone === value
+                );
+
+                form.setFieldValue(
+                  "shippingAddress",
+                  customer[0]?.shippingAddress
+                );
+              }}
             />
           </Form.Item>
         )}
@@ -415,6 +473,16 @@ const OrderAddModal = ({ open, setOpen, messageApi }) => {
                 option.value.toUpperCase().indexOf(inputValue.toUpperCase()) !==
                 -1
               }
+              onChange={(value) => {
+                const customer = customerData.filter(
+                  (cus) => cus.instagram === value
+                );
+
+                form.setFieldValue(
+                  "shippingAddress",
+                  customer[0]?.shippingAddress
+                );
+              }}
             />
           </Form.Item>
         )}
@@ -497,24 +565,23 @@ const OrderAddModal = ({ open, setOpen, messageApi }) => {
           label="運輸"
           rules={[{ required: true, message: "請選擇運輸" }]}
         >
-          <Radio.Group>
-            <Radio value={"自取"}>自取</Radio>
-            <Radio
-              value={"郵寄"}
-              onClick={() => {
-                const customer = customerData.filter(
-                  (cus) =>
-                    orderPlatform === "phone"
-                      ? cus.phone === form.getFieldValue("phone")
-                      : cus.instagram === form.getFieldValue("instagram")
-                  // cus.phone === form.getFieldValue("phone")
-                );
+          <Radio.Group
+            onChange={(e) => {
+              const customer = customerData.filter((cus) =>
+                orderPlatform === "phone"
+                  ? cus.phone === form.getFieldValue("phone")
+                  : cus.instagram === form.getFieldValue("instagram")
+              );
 
-                form.setFieldValue("remark", customer[0]?.shippingAddress);
-              }}
-            >
-              郵寄
-            </Radio>
+              form.setFieldValue(
+                "shippingAddress",
+                customer[0]?.shippingAddress
+              );
+              setTakeMethod(e.target.value);
+            }}
+          >
+            <Radio value={"自取"}>自取</Radio>
+            <Radio value={"郵寄"}>郵寄</Radio>
             <Radio value={"未知"}>未知</Radio>
           </Radio.Group>
         </Form.Item>
@@ -572,6 +639,17 @@ const OrderAddModal = ({ open, setOpen, messageApi }) => {
         <Form.Item name="remark" label="Remark">
           <Input />
         </Form.Item>
+
+        {takeMethod === "郵寄" && (
+          <Form.Item
+            name="shippingAddress"
+            label="郵寄地址"
+            rules={[{ required: true, message: "請輸入郵寄地址" }]}
+          >
+            <Input />
+          </Form.Item>
+        )}
+
         <Button htmlType="submit" style={{ display: "none" }}></Button>
       </Form>
       <Modal
@@ -601,4 +679,4 @@ const OrderAddModal = ({ open, setOpen, messageApi }) => {
   );
 };
 
-export default memo(OrderAddModal);
+export default OrderAddModal;

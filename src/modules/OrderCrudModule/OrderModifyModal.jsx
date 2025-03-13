@@ -21,6 +21,10 @@ import {
   modifyOrder,
 } from "../../redux/order/orderAction";
 import { tr } from "framer-motion/client";
+import {
+  getAllCustomer,
+  modifyCustomer,
+} from "../../redux/customer/customerAction";
 
 const formItemLayout = {
   labelCol: {
@@ -41,7 +45,12 @@ const formItemLayout = {
   },
 };
 
-const OrderModifyModal = ({ openModify, setOpenModify, orderModifyData }) => {
+const OrderModifyModal = ({
+  openModify,
+  setOpenModify,
+  orderModifyData,
+  messageApi,
+}) => {
   const { productData } = useSelector((state) => state.product);
   const { customerData } = useSelector((state) => state.customer);
   const [form] = Form.useForm();
@@ -50,6 +59,7 @@ const OrderModifyModal = ({ openModify, setOpenModify, orderModifyData }) => {
   const [productTypeOptions, setProductTypeOptions] = useState();
   const [productNameOptions, setProductNameOptions] = useState();
   const [productTotalPrice, setProductTotalPrice] = useState();
+  const [takeMethod, setTakeMethod] = useState();
   const packageName = localStorage.getItem("packageName")
     ? localStorage.getItem("packageName")
     : "預設";
@@ -89,6 +99,16 @@ const OrderModifyModal = ({ openModify, setOpenModify, orderModifyData }) => {
     setOrderPlatform(
       orderModifyData?.orderPlatform === "phone" ? "phone" : "instagram"
     );
+    setTakeMethod(orderModifyData?.takeMethod);
+    if (orderModifyData?.takeMethod === "郵寄") {
+      const customer = customerData.filter((cus) =>
+        orderPlatform === "phone"
+          ? cus.phone === orderModifyData?.phone
+          : cus.instagram === orderModifyData?.instagram
+      );
+
+      form.setFieldValue("shippingAddress", customer[0]?.shippingAddress);
+    }
     form.setFieldValue(
       "orderPlatform",
       orderModifyData?.orderPlatform === "phone" ? true : false
@@ -119,7 +139,46 @@ const OrderModifyModal = ({ openModify, setOpenModify, orderModifyData }) => {
       discount: form.getFieldValue("discount"),
     };
 
+    modifyCustomerHandler();
+
     modifyOrderHandler(ordersDTO);
+  };
+
+  const modifyCustomerHandler = async () => {
+    const customerAddress = customerData.filter((cus) =>
+      orderPlatform === "phone"
+        ? cus.phone === form.getFieldValue("phone")
+        : cus.instagram === form.getFieldValue("instagram")
+    );
+
+    if (
+      form.getFieldValue("shippingAddress") &&
+      form.getFieldValue("shippingAddress") !==
+        customerAddress[0]?.shippingAddress
+    ) {
+      const customerDTO = {
+        customerId: customerAddress[0]?.customerId,
+        phone: customerAddress[0]?.phone,
+        instagram: customerAddress[0]?.instagram,
+        shippingAddress: form.getFieldValue("shippingAddress"),
+        remark: customerAddress[0]?.remark,
+      };
+
+      const result = await dispatch(modifyCustomer(customerDTO));
+
+      if (result.meta.requestStatus === "fulfilled") {
+        dispatch(getAllCustomer());
+        messageApi.open({
+          type: "success",
+          content: "成功更改客人地址",
+        });
+      } else {
+        messageApi.open({
+          type: "error",
+          content: result.payload,
+        });
+      }
+    }
   };
 
   const modifyOrderHandler = async (ordersDTO) => {
@@ -128,6 +187,15 @@ const OrderModifyModal = ({ openModify, setOpenModify, orderModifyData }) => {
     if (result.meta.requestStatus === "fulfilled") {
       setOpenModify(false);
       dispatch(getAllOrders(packageName));
+      messageApi.open({
+        type: "success",
+        content: result.payload.msg,
+      });
+    } else {
+      messageApi.open({
+        type: "error",
+        content: result.payload,
+      });
     }
   };
 
@@ -413,7 +481,21 @@ const OrderModifyModal = ({ openModify, setOpenModify, orderModifyData }) => {
           label="運輸"
           rules={[{ required: true, message: "請選擇運輸" }]}
         >
-          <Radio.Group>
+          <Radio.Group
+            onChange={(e) => {
+              const customer = customerData.filter((cus) =>
+                orderPlatform === "phone"
+                  ? cus.phone === form.getFieldValue("phone")
+                  : cus.instagram === form.getFieldValue("instagram")
+              );
+
+              form.setFieldValue(
+                "shippingAddress",
+                customer[0]?.shippingAddress
+              );
+              setTakeMethod(e.target.value);
+            }}
+          >
             <Radio value={"自取"}>自取</Radio>
             <Radio value={"郵寄"}>郵寄</Radio>
             <Radio value={"未知"}>未知</Radio>
@@ -471,6 +553,17 @@ const OrderModifyModal = ({ openModify, setOpenModify, orderModifyData }) => {
         <Form.Item name="remark" label="Remark">
           <Input />
         </Form.Item>
+
+        {takeMethod === "郵寄" && (
+          <Form.Item
+            name="shippingAddress"
+            label="郵寄地址"
+            rules={[{ required: true, message: "請輸入郵寄地址" }]}
+          >
+            <Input />
+          </Form.Item>
+        )}
+
         <Button htmlType="submit" style={{ display: "none" }}></Button>
       </Form>
     </Modal>
