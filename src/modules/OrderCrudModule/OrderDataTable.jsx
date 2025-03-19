@@ -980,7 +980,7 @@ const OrderDataTable = () => {
               />
             </Row>
           )}
-          <div className="my-3 my-sm-0 align-content-center">
+          <div className="my-2">
             <Switch className=" me-3" onClick={enableRowSelectionHandler} />
           </div>
           <div>

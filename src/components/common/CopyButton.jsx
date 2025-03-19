@@ -12,7 +12,7 @@ const CopyButton = ({ orders, disable, messageApi }) => {
     quantity: item.quantity,
   }));
 
-  const handleCopy = () => {
+  const handleCopy = async () => {
     if (!orders || orders.length === 0) {
       messageApi.open({
         type: "error",
@@ -52,7 +52,7 @@ const CopyButton = ({ orders, disable, messageApi }) => {
 
         付款後會於當晚23:39前回覆信息代表確定下單~如沒有收到任何回覆，提一提我ahhh～Thank youuuu♡♡♡`;
 
-    navigator.clipboard.writeText(template).then(
+    await navigator.clipboard.writeText(template).then(
       () => {
         messageApi.open({
           type: "success",
