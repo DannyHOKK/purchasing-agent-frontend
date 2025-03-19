@@ -8,7 +8,7 @@ import {
 } from "../../redux/order/orderAction";
 
 const OrderPackagingModal = ({
-  selectedRowKeys,
+  selectedRow,
   openPackaging,
   setOpenPackaging,
   messageApi,
@@ -23,8 +23,9 @@ const OrderPackagingModal = ({
   const onFinish = async () => {
     await form.validateFields();
 
+    const orderIdList = selectedRow.map((item) => item.orderId);
     const orderPackagingDTO = {
-      orderIdList: selectedRowKeys,
+      orderIdList: orderIdList,
       packageName: packageName,
       packagingToGoName: form.getFieldValue("packageName"),
     };
@@ -48,7 +49,7 @@ const OrderPackagingModal = ({
   };
   return (
     <Modal
-      title={<h3> Packaging Order： 共有 {selectedRowKeys.length} 訂單</h3>}
+      title={<h3> Packaging Order： 共有 {selectedRow.length} 訂單</h3>}
       centered
       open={openPackaging}
       onCancel={() => {

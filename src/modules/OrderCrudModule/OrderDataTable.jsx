@@ -3,6 +3,7 @@ import {
   Button,
   Dropdown,
   Popconfirm,
+  Row,
   Select,
   Switch,
   Table,
@@ -27,6 +28,7 @@ import ExcelJS from "exceljs";
 import { saveAs } from "file-saver";
 import { getAllProduct } from "../../redux/product/productAction";
 import { getAllProductStock } from "../../redux/productStock/productStockAction";
+import CopyButton from "../../components/common/CopyButton";
 
 const OrderDataTable = () => {
   const [filteredInfo, setFilteredInfo] = useState({});
@@ -36,7 +38,7 @@ const OrderDataTable = () => {
   const [open, setOpen] = useState(false);
   const [openModify, setOpenModify] = useState(false);
   const [openPackaging, setOpenPackaging] = useState(false);
-  const [selectedRowKeys, setSelectedRowKeys] = useState([]);
+  const [selectedRow, setSelectedRow] = useState([]);
   const [isEnableRowSelection, setIsEnableRowSelection] = useState(false);
   const dispatch = useDispatch();
   const { exchangeRateData } = useSelector((state) => state.exchangeRate);
@@ -729,7 +731,7 @@ const OrderDataTable = () => {
 
       return {
         id: index + 1,
-        key: order.orderId,
+        key: order,
         product: order?.product,
         orderId: order.orderId,
         phone: order?.customer?.phone,
@@ -770,7 +772,7 @@ const OrderDataTable = () => {
 
   const refreshHandler = () => {
     dispatch(getAllOrders(packageName));
-    setSelectedRowKeys([]);
+    setSelectedRow([]);
   };
 
   const deleteOrderHandler = async (orderId) => {
@@ -852,20 +854,20 @@ const OrderDataTable = () => {
 
   const enableRowSelectionHandler = (checked) => {
     setIsEnableRowSelection(checked);
-    if (!checked) setSelectedRowKeys([]);
+    if (!checked) setSelectedRow([]);
   };
 
   const rowSelection = isEnableRowSelection
     ? {
-        selectedRowKeys,
-        onChange: (selectedKeys) => {
-          setSelectedRowKeys(selectedKeys);
+        selectedRow,
+        onChange: (selectedRow) => {
+          setSelectedRow(selectedRow);
         },
       }
     : undefined; // Disable selection if switch is off
 
   const openPackagingHandler = () => {
-    if (selectedRowKeys.length !== 0) {
+    if (selectedRow.length !== 0) {
       setOpenPackaging(true);
     } else {
       messageApi.open({
@@ -965,34 +967,42 @@ const OrderDataTable = () => {
             defaultValue={packageName}
           />
         </div>
-        <div>
+        <div className=" d-flex flex-column flex-sm-row">
           {isEnableRowSelection && (
-            <>
+            <Row className="me-3">
               <Button className=" me-3" onClick={openPackagingHandler}>
                 打包
               </Button>
-            </>
+              <CopyButton
+                orders={selectedRow}
+                disable={selectedRow ? true : false}
+                messageApi={messageApi}
+              />
+            </Row>
           )}
-          <Switch className=" me-3" onClick={enableRowSelectionHandler} />
-
-          <Button
-            className=" me-3"
-            onClick={exportToExcel}
-            type="primary"
-            style={{ marginBottom: 16 }}
-          >
-            匯出為 Excel
-          </Button>
-          <Button className=" me-3" onClick={refreshHandler}>
-            更新表格
-          </Button>
-          <Button
-            style={{ backgroundColor: "#1da57a", color: "white" }}
-            onClick={() => setOpen(true)}
-          >
-            <PlusOutlined />
-            加訂單
-          </Button>
+          <div className="my-3 my-sm-0 align-content-center">
+            <Switch className=" me-3" onClick={enableRowSelectionHandler} />
+          </div>
+          <div>
+            <Button
+              className=" me-3"
+              onClick={exportToExcel}
+              type="primary"
+              style={{ marginBottom: 16 }}
+            >
+              匯出為 Excel
+            </Button>
+            <Button className=" me-3" onClick={refreshHandler}>
+              更新表格
+            </Button>
+            <Button
+              style={{ backgroundColor: "#1da57a", color: "white" }}
+              onClick={() => setOpen(true)}
+            >
+              <PlusOutlined />
+              加訂單
+            </Button>
+          </div>
         </div>
       </div>
       <Table
@@ -1017,7 +1027,7 @@ const OrderDataTable = () => {
       />
       <OrderPackagingModal
         messageApi={messageApi}
-        selectedRowKeys={selectedRowKeys}
+        selectedRow={selectedRow}
         openPackaging={openPackaging}
         setOpenPackaging={setOpenPackaging}
       />
