@@ -973,11 +973,7 @@ const OrderDataTable = () => {
               <Button className=" me-3" onClick={openPackagingHandler}>
                 打包
               </Button>
-              <CopyButton
-                orders={selectedRow}
-                disable={selectedRow.length === 0 ? true : false}
-                messageApi={messageApi}
-              />
+              <CopyButton orders={selectedRow} messageApi={messageApi} />
             </Row>
           )}
           <div className="my-2">
