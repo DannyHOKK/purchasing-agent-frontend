@@ -1,7 +1,7 @@
 import { Button } from "antd";
 import React from "react";
 
-const CopyButton = ({ orders, disable, messageApi }) => {
+const CopyButton = ({ orders, messageApi }) => {
   //   const productName = orders.map((item) => item.product.productName);
   //   const productPrice = orders.map((item) => item.product.price);
   //   const productQuantity = orders.map((item) => item.quantity);
@@ -52,27 +52,63 @@ const CopyButton = ({ orders, disable, messageApi }) => {
 
         付款後會於當晚23:39前回覆信息代表確定下單~如沒有收到任何回覆，提一提我ahhh～Thank youuuu♡♡♡`;
 
-    await navigator.clipboard.writeText(template).then(
-      () => {
+    // await navigator.clipboard.writeText(template).then(
+    //   () => {
+    //     messageApi.open({
+    //       type: "success",
+    //       content: "已複製範本",
+    //     });
+    //   },
+    //   (err) => {
+    //     messageApi.open({
+    //       type: "error",
+    //       content: "複製失敗，請重試",
+    //     });
+    //   }
+    // );
+
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(template).then(
+        () => {
+          messageApi.open({
+            type: "success",
+            content: "已複製範本",
+          });
+        },
+        (err) => {
+          messageApi.open({
+            type: "error",
+            content: "複製失敗，請重試",
+          });
+          console.error("Clipboard API failed:", err);
+        }
+      );
+    } else {
+      // Fallback for older browsers or non-secure contexts
+      try {
+        const textArea = document.createElement("textarea");
+        textArea.value = template;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand("copy");
+        document.body.removeChild(textArea);
         messageApi.open({
           type: "success",
           content: "已複製範本",
         });
-      },
-      (err) => {
+      } catch (err) {
         messageApi.open({
           type: "error",
           content: "複製失敗，請重試",
         });
+        console.error("Fallback copy failed:", err);
       }
-    );
+    }
   };
 
   return (
     <div>
-      <Button onClick={handleCopy} disable>
-        複製範本
-      </Button>
+      <Button onClick={handleCopy}>複製範本</Button>
       {/* <ol>
         {orders.map((item, index) => (
           <li key={index}>

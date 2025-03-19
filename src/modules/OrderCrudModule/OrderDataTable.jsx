@@ -975,7 +975,7 @@ const OrderDataTable = () => {
               </Button>
               <CopyButton
                 orders={selectedRow}
-                disable={selectedRow ? true : false}
+                disable={selectedRow.length === 0 ? true : false}
                 messageApi={messageApi}
               />
             </Row>
