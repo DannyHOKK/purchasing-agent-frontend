@@ -71,3 +71,8 @@
   padding: 0 15px;
   overflow: auto;
 }
+
+.ant-select-item-option-content {
+  white-space: break-spaces !important;
+  word-break: break-word;
+}

@@ -514,6 +514,7 @@ const OrderModifyModal = ({
             <Radio value={"ALIPAY"}>ALIPAY</Radio>
             <Radio value={"BANK"}>BANK</Radio>
             <Radio value={"CARMEN"}>CARMEN</Radio>
+            <Radio value={"未知"}>未知</Radio>
           </Radio.Group>
         </Form.Item>
 

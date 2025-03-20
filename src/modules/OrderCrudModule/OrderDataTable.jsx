@@ -558,6 +558,14 @@ const OrderDataTable = () => {
             text: "PAYCARMEN",
             value: "PAYCARMEN",
           },
+          {
+            text: "CARMEN",
+            value: "CARMEN",
+          },
+          {
+            text: "未知",
+            value: "未知",
+          },
         ],
         filteredValue: filteredInfo.paymentMethod || null,
         onFilter: (value, record) => record.paymentMethod === value,
@@ -615,13 +623,13 @@ const OrderDataTable = () => {
               label: (
                 <a
                   onClick={() => {
-                    changePaymentMethodHandler(record.orderId, "CARMEN");
+                    changePaymentMethodHandler(record.orderId, "未知");
                   }}
                 >
-                  CARMEN
+                  未知
                 </a>
               ),
-              key: "4",
+              key: "5",
             },
           ];
 
@@ -653,6 +661,12 @@ const OrderDataTable = () => {
             return (
               <Dropdown menu={{ items }} trigger={["click"]}>
                 CARMEN
+              </Dropdown>
+            );
+          } else if (record.paymentMethod === "未知") {
+            return (
+              <Dropdown menu={{ items }} trigger={["click"]}>
+                未知
               </Dropdown>
             );
           }
