@@ -679,6 +679,12 @@ const OrderDataTable = () => {
         width: "200px",
       },
       {
+        title: "郵寄地址",
+        dataIndex: "address",
+        key: "address",
+        width: "200px",
+      },
+      {
         title: "付款時間",
         dataIndex: "createDate",
         key: "createDate",
@@ -775,6 +781,7 @@ const OrderDataTable = () => {
         status: order?.status,
         discount: order?.discount,
         profit: Math.ceil(profit * 10) / 10,
+        address: order.customer?.shippingAddress,
       };
     });
   }, [orderData]);
@@ -927,6 +934,7 @@ const OrderDataTable = () => {
         status: item.status,
         profit: item.profit,
         discount: `${item.discount}%`,
+        address: item.address,
       });
     });
 
