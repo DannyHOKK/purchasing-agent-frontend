@@ -920,7 +920,7 @@ const OrderDataTable = () => {
     data.forEach((item) => {
       console.log(item);
       worksheet.addRow({
-        id: item.key,
+        id: item.id,
         showOrderName: item.showOrderName,
         productBrand: item.productBrand,
         productName: item.productName,
