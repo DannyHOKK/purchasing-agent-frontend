@@ -103,13 +103,15 @@ const ProductAddModal = ({
 
     const savedCurrency = localStorage.getItem("exchangeCurrency");
     const savedSymbol = localStorage.getItem("exchangeSymbol");
-    const savedRate = localStorage.getItem("exchangeRate");
-
+    const savedRate = exchangeRateData.find(
+      (exchangeRate) => exchangeRate.currency === savedCurrency
+    )?.exchangeRate;
+    console.log(savedRate);
     if (savedCurrency) {
       form.setFieldsValue({ currency: savedCurrency });
       setSelectedCurrency(savedCurrency);
       setSymbol(savedSymbol);
-      setExchangeRate(Number(savedRate));
+      setExchangeRate(savedRate);
     }
   }, [open]);
 
@@ -493,4 +495,4 @@ const ProductAddModal = ({
   );
 };
 
-export default memo(ProductAddModal);
+export default ProductAddModal;

@@ -104,32 +104,24 @@ const ProductDataTable = () => {
     dispatch(getAllProductStock(packageName));
   }, [packageName, dispatch]);
 
-  const currenciesOptions = useMemo(
-    () =>
-      currency.currenciesOptions
-        .filter((option) => exchangeCurrency.includes(option.value))
-        .map((currency) => ({
-          value: currency.value,
-          label: currency.label,
-          symbol: currency.symbol,
-        })),
-    [currency.currenciesOptions, exchangeCurrency]
-  ); // Dependencies: changes in these will trigger a recompute
+  const currenciesOptions = currency.currenciesOptions
+    .filter((option) => exchangeCurrency.includes(option.value))
+    .map((currency) => ({
+      value: currency.value,
+      label: currency.label,
+      symbol: currency.symbol,
+    })); // Dependencies: changes in these will trigger a recompute
 
-  const orderQuantity = useMemo(
-    () =>
-      productData.map(
-        (product) =>
-          orderData
-            .filter(
-              (order) =>
-                order?.product?.productName === product?.productName &&
-                order?.paid === "已付款"
-            )
-            .map((order) => order?.quantity || 0) // Default 0
-            .reduce((acc, val) => acc + val, 0) // Default 0
-      ),
-    [productData, orderData, productStockData]
+  const orderQuantity = productData.map(
+    (product) =>
+      orderData
+        .filter(
+          (order) =>
+            order?.product?.productName === product?.productName &&
+            order?.paid === "已付款"
+        )
+        .map((order) => order?.quantity || 0) // Default 0
+        .reduce((acc, val) => acc + val, 0) // Default 0
   );
 
   const handleChange = (pagination, filters, sorter) => {
@@ -446,49 +438,41 @@ const ProductDataTable = () => {
     },
   ];
 
-  const data = useMemo(
-    () =>
-      productData?.map((product, index) => {
-        const stockData = productStockData?.find(
-          (stockItem) => stockItem?.product?.productId === product.productId
-        );
+  const data = productData?.map((product, index) => {
+    const stockData = productStockData?.find(
+      (stockItem) => stockItem?.product?.productId === product.productId
+    );
 
-        return {
-          id: index + 1,
-          productId: product.productId,
-          productBrand: product.productBrand,
-          productCost: product.productCost,
-          commission: product.commission,
-          discount: product.discount,
-          cost: product.productCost * product.discount * 0.01,
-          productPrice: product.productPrice,
-          productName: product.productName,
-          productType: product.productType,
-          weight: product.weight,
-          stockData: stockData ? stockData?.stock : 0,
-          quantity: orderQuantity[index],
-          orderQuantity: orderQuantity[index],
-          needBuy: orderQuantity[index] - (stockData ? stockData?.stock : 0),
-          stock: stockData ? stockData?.stock : 0,
-          discount: product.discount,
-          createDate: product.createDate.split(".")[0].replaceAll("T", " "),
-          modifyDate: product.modifyDate.split(".")[0].replaceAll("T", " "),
-          currency: product?.exchangeRate,
-        };
-      }),
-    [orderQuantity, productData, productStockData]
-  );
+    return {
+      id: index + 1,
+      productId: product.productId,
+      productBrand: product.productBrand,
+      productCost: product.productCost,
+      commission: product.commission,
+      discount: product.discount,
+      cost: product.productCost * product.discount * 0.01,
+      productPrice: product.productPrice,
+      productName: product.productName,
+      productType: product.productType,
+      weight: product.weight,
+      stockData: stockData ? stockData?.stock : 0,
+      quantity: orderQuantity[index],
+      orderQuantity: orderQuantity[index],
+      needBuy: orderQuantity[index] - (stockData ? stockData?.stock : 0),
+      stock: stockData ? stockData?.stock : 0,
+      discount: product.discount,
+      createDate: product.createDate.split(".")[0].replaceAll("T", " "),
+      modifyDate: product.modifyDate.split(".")[0].replaceAll("T", " "),
+      currency: product?.exchangeRate,
+    };
+  });
 
-  const productBrandOptions = useMemo(
-    () =>
-      productData
-        ?.map((brand) => brand.productBrand)
-        .filter((brand, index, self) => self.indexOf(brand) === index)
-        .map((brand, index) => ({
-          value: brand,
-        })),
-    [productData]
-  );
+  const productBrandOptions = productData
+    ?.map((brand) => brand.productBrand)
+    .filter((brand, index, self) => self.indexOf(brand) === index)
+    .map((brand, index) => ({
+      value: brand,
+    }));
 
   const exportToExcel = async () => {
     // 創建新的工作簿和工作表
@@ -604,4 +588,4 @@ const ProductDataTable = () => {
   );
 };
 
-export default memo(ProductDataTable);
+export default ProductDataTable;

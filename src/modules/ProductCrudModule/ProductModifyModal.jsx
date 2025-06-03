@@ -95,6 +95,7 @@ const ProductModifyModal = ({
   // ]);
 
   useEffect(() => {
+    console.log(productModifyData);
     const price =
       Math.ceil(
         ((productModifyData?.productCost * productModifyData?.discount) /
@@ -136,13 +137,11 @@ const ProductModifyModal = ({
 
     const savedCurrency = localStorage.getItem("exchangeCurrency");
     const savedSymbol = localStorage.getItem("exchangeSymbol");
-    const savedRate = localStorage.getItem("exchangeRate");
 
     if (savedCurrency) {
       form.setFieldsValue({ currency: savedCurrency });
       setSelectedCurrency(savedCurrency);
       setSymbol(savedSymbol);
-      setExchangeRate(Number(savedRate));
     }
   }, [productModifyData]);
 
@@ -429,4 +428,4 @@ const ProductModifyModal = ({
   );
 };
 
-export default memo(ProductModifyModal);
+export default ProductModifyModal;

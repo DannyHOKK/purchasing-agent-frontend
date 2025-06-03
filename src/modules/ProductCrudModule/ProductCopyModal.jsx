@@ -111,13 +111,11 @@ const ProductCopyModal = ({
 
     const savedCurrency = localStorage.getItem("exchangeCurrency");
     const savedSymbol = localStorage.getItem("exchangeSymbol");
-    const savedRate = localStorage.getItem("exchangeRate");
 
     if (savedCurrency) {
       form.setFieldsValue({ currency: savedCurrency });
       setSelectedCurrency(savedCurrency);
       setSymbol(savedSymbol);
-      setExchangeRate(Number(savedRate));
     }
   }, [productModifyData]);
 
@@ -401,4 +399,4 @@ const ProductCopyModal = ({
   );
 };
 
-export default memo(ProductCopyModal);
+export default ProductCopyModal;
