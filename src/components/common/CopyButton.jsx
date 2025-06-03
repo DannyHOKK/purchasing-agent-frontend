@@ -12,6 +12,18 @@ const CopyButton = ({ orders, messageApi }) => {
     quantity: item.quantity,
   }));
 
+  const circledNumbers = [
+    "①", // U+2460
+    "②", // U+2461
+    "③", // U+2462
+    "④", // U+2463
+    "⑤", // U+2464
+    "⑥", // U+2465
+    "⑦", // U+2466
+    "⑧", // U+2467
+    "⑨", // U+2468
+  ];
+
   const handleCopy = async () => {
     if (!orders || orders.length === 0) {
       messageApi.open({
@@ -23,16 +35,27 @@ const CopyButton = ({ orders, messageApi }) => {
 
     const template = `Hellooo 多謝支持JCSTYLE.S 韓國代購🇰🇷🧡
 
-貨品：${templateOrder
-      .map((item) => `${item.productName} * ${item.quantity}`)
-      .join(" + ")}
-價錢：${templateOrder
-      .map((item) => `$${item.price} * ${item.quantity}`)
-      .join(" + ")}
+貨品：
+${templateOrder
+  .map(
+    (item, index) =>
+      `${circledNumbers[index]} ${item.productName} * ${item.quantity}`
+  )
+  .join(`${"\n"}`)}
+
+價錢：
+${templateOrder
+  .map(
+    (item, index) =>
+      `${circledNumbers[index]} $${item.price} * ${item.quantity}`
+  )
+  .join(`${"\n"}`)}
+
 總共：$${templateOrder.reduce(
       (acc, item) => acc + item.price * item.quantity,
       0
     )}
+    
  ＼✨付款前先對一對產品資料確認無誤✨／
  ＼🇰🇷今次代購為期7日 19-25/3，貨品於「26號」到港🇰🇷／
  ＼💰如有斷貨情況，會於26/3統一退款💰／

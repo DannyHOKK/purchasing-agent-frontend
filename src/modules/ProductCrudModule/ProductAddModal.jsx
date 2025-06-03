@@ -375,14 +375,11 @@ const ProductAddModal = ({
                     calculatedPrice
                   );
 
-                  const productPrice = form.getFieldValue("productPrice");
+                  const profit =
+                    form.getFieldValue("productPrice") - calculatedPrice;
 
-                  console.log(productPrice - calculatedPrice);
                   form.setFieldValue("price", formattedPrice);
-                  form.setFieldValue(
-                    "profit",
-                    Math.ceil(productPrice - calculatedPrice * 10) / 10
-                  );
+                  form.setFieldValue("profit", Math.ceil(profit * 10) / 10);
                 }}
               />
             </Form.Item>
@@ -400,16 +397,16 @@ const ProductAddModal = ({
                   const calculatedPrice =
                     ((e.target.value / 100) *
                       form.getFieldValue("productCost")) /
-                    exchangeRate;
+                      exchangeRate +
+                    form.getFieldValue("weight") * 25;
+
                   const formattedPrice = new Intl.NumberFormat().format(
                     calculatedPrice
                   );
-                  const productPrice = form.getFieldValue("productPrice");
+                  const profit =
+                    form.getFieldValue("productPrice") - calculatedPrice;
                   form.setFieldValue("price", formattedPrice);
-                  form.setFieldValue(
-                    "profit",
-                    Math.ceil(productPrice - calculatedPrice * 10) / 10
-                  );
+                  form.setFieldValue("profit", Math.ceil(profit * 10) / 10);
                 }}
               />
             </Form.Item>
@@ -427,17 +424,22 @@ const ProductAddModal = ({
               const cost = form.getFieldValue("productCost");
               const discount = form.getFieldValue("discount");
               const productPrice = form.getFieldValue("productPrice");
-              const calculatedPrice =
-                e.target.value * 25 + (cost * discount) / 100 / exchangeRate;
+              const weight = e.target.value;
+              let calculatedPrice = 0;
+
+              if (weight > 0) {
+                calculatedPrice =
+                  e.target.value * 25 + (cost * discount) / 100 / exchangeRate;
+              } else {
+                calculatedPrice = (cost * discount) / 100 / exchangeRate;
+              }
               const formattedPrice = new Intl.NumberFormat().format(
                 calculatedPrice
               );
 
               if (productPrice) {
-                form.setFieldValue(
-                  "profit",
-                  Math.ceil(productPrice - calculatedPrice * 10) / 10
-                );
+                const profit = productPrice - calculatedPrice;
+                form.setFieldValue("profit", Math.ceil(profit * 10) / 10);
               }
               form.setFieldValue("price", formattedPrice);
             }}
